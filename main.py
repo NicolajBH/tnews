@@ -1,6 +1,7 @@
 import socket
 import ssl
 import json
+import array
 from urllib.parse import urlencode
 
 
@@ -9,6 +10,29 @@ class NewsAPIClient:
         self.api_key = api_key
         self.host = "newsapi.org"
         self.base_path = "/v2/top-headlines"
+
+    def calculate_checksum(self, data):
+        """Implement a simpe 16-bit Internet checksum"""
+        if len(data) % 2 == 1:
+            data += b"\0"
+
+        words = array.array("H", data)
+        checksum = 0
+
+        for word in words:
+            checksum += word
+            checksum = (checksum & 0xFFFF) + (checksum >> 16)
+
+        checksum = ~checksum & 0xFFFF
+        return checksum
+
+    def verify_checksum(self, data, received_checksum):
+        """
+        Verifies received data against checksum.
+        Returns True if valid, False if corrupted.
+        """
+        calculate_checksum = self.calculate_checksum(data)
+        return calculate_checksum == received_checksum
 
     def fetch_headlines(self, country_code="us"):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -37,9 +61,17 @@ class NewsAPIClient:
                 chunk = ssl_sock.recv(4096)
                 if not chunk:
                     break
-                chunks.append(chunk)
 
-            response = b"".join(chunks).decode()
+                chunk_checksum = self.calculate_checksum(chunk)
+                chunks.append((chunk, chunk_checksum))
+
+            valid_chunks = []
+            for chunk, chunk_checksum in chunks:
+                if self.verify_checksum(chunk, chunk_checksum):
+                    valid_chunks.append(chunk)
+                else:
+                    print("Warning: Corrupted chunk detected (checksum mismatch)")
+            response = b"".join(valid_chunks).decode()
             headers, body = response.split("\r\n\r\n", 1)
 
             try:
