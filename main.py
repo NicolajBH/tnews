@@ -3,6 +3,7 @@ import ssl
 import json
 import logging
 import time
+from logging.handlers import RotatingFileHandler
 from datetime import datetime, timezone
 from urllib.parse import urlencode
 from dataclasses import dataclass
@@ -17,10 +18,23 @@ import gzip
 # TODO Borsen most read
 # TODO Bloomberg most popular
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+file_handler = RotatingFileHandler(
+    "news_client.log", maxBytes=1024 * 1024, backupCount=5
 )
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(
+    logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+)
+
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.ERROR)
+console_handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
+
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
+logging.getLogger().handlers = []
 
 
 class NewsSource(Enum):
@@ -59,33 +73,37 @@ class Connection:
     ) -> None:
         self.host = host
         self.port = port
+        self._socket: Optional[ssl.SSLSocket] = None
         self.ssl_context = ssl_context
         self.timeout = timeout
-        self._socket: Optional[ssl.SSLSocket] = None
         self.last_used: float = 0
         self.is_busy: bool = False
 
     @property
     def socket(self) -> ssl.SSLSocket:
         if not self._socket:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(self.timeout)
-            self._socket = self.ssl_context.wrap_socket(sock, server_hostname=self.host)
-            self._socket.connect((self.host, self.port))
-            self.last_used = time.time()
+            self._create_socket()
+        assert self._socket is not None
         return self._socket
 
-    def connect(self) -> None:
-        _ = self.socket
+    def _create_socket(self) -> None:
+        """Create and connect a new SSL socket"""
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(self.timeout)
+        self._socket = self.ssl_context.wrap_socket(sock, server_hostname=self.host)
+        self._socket.connect((self.host, self.port))
+        self.last_used = time.time()
 
     def close(self) -> None:
-        if self._socket:
+        """Close connection"""
+        if self._socket is not None:
             try:
-                self.socket.shutdown(socket.SHUT_RD)
+                self._socket.shutdown(socket.SHUT_RDWR)
+                self._socket.close()
             except (socket.error, OSError):
                 pass
-            self._socket.close()
-            self._socket = None
+            finally:
+                self._socket = None
 
     @property
     def is_expired(self, max_idle_time: float = 300) -> bool:
@@ -99,11 +117,6 @@ class ConnectionPool:
         self.connections: Dict[Tuple[str, int], List[Connection]] = {}
         self.ssl_context = ssl.create_default_context()
 
-    def _create_connection(self, host: str, port: int) -> Connection:
-        conn = Connection(host, port, self.ssl_context, self.timeout)
-        conn.connect()
-        return conn
-
     @contextmanager
     def get_connection(self, host: str, port: int) -> Iterator[Connection]:
         key = (host, port)
@@ -111,31 +124,53 @@ class ConnectionPool:
         if key not in self.connections:
             self.connections[key] = []
 
-        conn = None
-        for existing_conn in self.connections[key]:
-            if not existing_conn.is_busy:
-                if existing_conn.is_expired:
-                    existing_conn.close()
-                    continue
-                conn = existing_conn
-                break
-
-        if conn is None and len(self.connections[key]) < self.max_connections:
-            conn = self._create_connection(host, port)
-            self.connections[key].append(conn)
+        conn = self._get_available_connection(key)
 
         if conn is None:
-            raise RuntimeError("No available connections")
+            conn = self._create_new_connection(key)
+
+        if conn is None:
+            raise RuntimeError("No connections available and pool is full")
 
         try:
-            conn.is_busy = True
+            conn.is_busy = False
             yield conn
         finally:
             conn.is_busy = False
             conn.last_used = time.time()
 
+    def _get_available_connection(self, key: Tuple[str, int]) -> Optional[Connection]:
+        """Find an available connection, removing expired ones"""
+        active_connections = []
+        for conn in self.connections[key]:
+            if conn.is_expired:
+                conn.close()
+                continue
+            if not conn.is_busy:
+                return conn
+            active_connections.append(conn)
+
+        self.connections[key] = active_connections
+        return None
+
+    def _create_new_connection(self, key: Tuple[str, int]) -> Optional[Connection]:
+        """Create a new connection if pool isn't full"""
+        if len(self.connections[key]) < self.max_connections:
+            conn = Connection(key[0], key[1], self.ssl_context, self.timeout)
+            self.connections[key].append(conn)
+            return conn
+        return None
+
 
 class NewsClient:
+    ENDPOINTS = {
+        NewsSource.BLOOMBERG: {
+            "host": "www.bloomberg.com",
+            "path": "/lineup-next/api/stories",
+            "params": {"limit": "25", "pageNumber": "1", "types": "ARTICLE"},
+        }
+    }
+
     def __init__(self, config: Optional[NewsClientConfig] = None) -> None:
         self.config = config or NewsClientConfig()
         self._setup_default_headers()
@@ -151,98 +186,50 @@ class NewsClient:
                 "Accept": "*/*",
                 "Accept-Language": "en-US,en;q=0.9",
                 "Accept-Encoding": "gzip, deflate",
-                "Sec-Fetch-Dest": "empty",
-                "Sec-Fetch-Mode": "cors",
-                "Sec-Fetch-Site": "same-origin",
                 "Connection": "keep-alive",
-                "Referer": "https://www.bloomberg.com/latest?utm_source=homepage&utm_medium=web&utm_campaign=latest",
-                "Host": "https://www.bloomberg.com",
-                "tracestate": "25300@nr=0-1-1982697-1103375443-a1d174eaa2327e59----1738870309759",
-                "newrelic": "eyJ2IjpbMCwxXSwiZCI6eyJ0eSI6IkJyb3dzZXIiLCJhYyI6IjE5ODI2OTciLCJhcCI6IjExMDMzNzU0NDMiLCJpZCI6ImExZDE3NGVhYTIzMjdlNTkiLCJ0ciI6IjU4NjM0ZTM3OWQwZDRhNGM5NTVmNGIwYTJlZTY4YTFiIiwidGkiOjE3Mzg4NzAzMDk3NTksInRrIjoiMjUzMDAifX0=",
-                "traceparent": "00-58634e379d0d4a4c955f4b0a2ee68a1b-a1d174eaa2327e59-01",
+                "Host": "www.bloomberg.com",
             }
 
     def resolve_host(self, url: str) -> Tuple[str, int, str]:
         """
         Resolve host from URL and return a tuple of (host, port, path)
         """
-        try:
-            if "://" in url:
-                url = url.split("://")[1]
+        url = url.removeprefix("https://").removeprefix("http://")
 
-            host, *path_parts = url.split("/", 1)
-            path = f"/{path_parts[0]}" if path_parts else "/"
+        parts = url.split("/", 1)
+        host = parts[0]
+        path = f"/{parts[1]}" if len(parts) > 1 else "/"
+        return host, 443, path
 
-            if ":" in host:
-                host, port_str = host.split(":")
-                port = int(port_str)
-            else:
-                port = 443
-
-            return host, port, path
-        except Exception as e:
-            logger.error(f"Failed to resolve host from URL {url}: {e}")
-            raise ValueError(f"Invalid URL format: {url}") from e
-
-    def wrap_socket(self, sock: socket.socket, host: str) -> ssl.SSLSocket:
-        """Wraps socket with SSL/TLS layer"""
-        try:
-            context = ssl.create_default_context()
-            context.check_hostname = True
-            context.verify_mode = ssl.CERT_REQUIRED
-            ssl_sock = context.wrap_socket(sock, server_hostname=host)
-            logger.info(f"SSL Version: {ssl_sock.version}")
-            logger.info(f"Cipher: {ssl_sock.cipher()}")
-            return ssl_sock
-        except ssl.SSLError as e:
-            logger.error(f"SSL Error: {e}")
-            raise
-        except Exception as e:
-            logger.error(f"Error wrapping socket: {e}")
-            raise
-
-    def _build_request_headers(
-        self, host: str, extra_headers: Optional[Dict[str, str]] = None
-    ) -> str:
-        """Build HTTP request headers"""
-        headers = self.config.headers.copy()
-        headers["Host"] = host
-
-        if extra_headers:
-            headers.update(extra_headers)
-
-        if self.config.cookies:
-            headers["cookie"] = "; ".join(
-                f"{k}={v}" for k, v in self.config.cookies.items()
-            )
-        return "\r\n".join(f"{k}: {v}" for k, v in headers.items())
-
-    def send_request(
+    def _build_request(
         self,
-        sock: ssl.SSLSocket,
         host: str,
         path: str,
         method: str = "GET",
         params: Optional[Dict[str, str]] = None,
         extra_headers: Optional[Dict[str, str]] = None,
-    ) -> None:
-        """
-        Send HTTP request
-        """
-        query_string = f"?{urlencode(params)}" if params else ""
-        headers = self._build_request_headers(host, extra_headers)
-        request = f"{method} {path}{query_string} HTTP/1.1\r\n{headers}\r\n\r\n"
-        try:
-            sock.sendall(request.encode())
-        except Exception as e:
-            logger.error(f"Failed to send request: {e}")
-            raise
+    ) -> bytes:
+        """Build HTTP request with headers"""
+        query = f"?{urlencode(params)}" if params else ""
+
+        headers = self.config.headers.copy()
+        headers["Host"] = host
+        if extra_headers:
+            headers.update(extra_headers)
+        if self.config.cookies:
+            headers["cookie"] = "; ".join(
+                f"{k}={v}" for k, v in self.config.cookies.items()
+            )
+
+        header_lines = [f"{method} {path}{query} HTTP/1.1"]
+        header_lines.extend(f"{k}: {v}" for k, v in headers.items())
+
+        return "\r\n".join([*header_lines, "", ""]).encode()
 
     def receive_response(self, sock: socket.socket) -> HTTPResponse:
         """
         Receive and parse HTTP response
         """
-        logger.info("Receiving response")
         buffer = BytesIO()
 
         try:
@@ -252,15 +239,13 @@ class NewsClient:
                 if not chunk:
                     raise ConnectionError("Connection closed while reading headers")
 
-                logger.info("Received chunk of size {len(chunk)}")
                 header_data.write(chunk)
-
                 header_str = header_data.getvalue().decode("latin1")
                 if "\r\n" in header_str:
                     headers_raw, remaining = header_str.split("\r\n\r\n", 1)
                     buffer.write(remaining.encode("latin1"))
                     break
-            logger.info("Headers received:\n{headers_raw}")
+
             headers = {}
             for line in headers_raw.split("\r\n")[1:]:
                 if ":" in line:
@@ -268,39 +253,28 @@ class NewsClient:
                     headers[key.strip().lower()] = value.strip()
 
             content_length = int(headers.get("content-length", "0"))
-            content_encoding = headers.get("content-encoding", "").lower()
-            logger.info(
-                f"Content-Length: {content_length}, Content-Encoding: {content_encoding}"
-            )
-
             body_received = len(buffer.getvalue())
             while body_received < content_length:
                 remaining = content_length - body_received
                 to_read = min(self.config.chunk_size, remaining)
-                logger.info(
-                    f"Receiving {to_read} bytes... ({body_received}/{content_length})"
-                )
                 chunk = sock.recv(to_read)
-
                 if not chunk:
-                    logger.error(f"Connection closed after receiving {body_received}")
-                    break
-
+                    raise ConnectionError(
+                        f"Connection closed after receiving {body_received} of {content_length} bytes"
+                    )
                 buffer.write(chunk)
                 body_received = len(buffer.getvalue())
 
             body = buffer.getvalue()
-            logger.info(f"Total bytes received: {len(body)}")
+            content_encoding = headers.get("content-encoding", "").lower()
 
             if content_encoding == "gzip":
-                logger.info("Decompressing gzip response")
                 try:
                     body = gzip.decompress(body)
                 except Exception as e:
                     logger.error(f"Failed to decompress gzip response: {e}")
                     raise
             elif content_encoding == "deflate":
-                logger.info("Decompresssing deflate response")
                 try:
                     import zlib
 
@@ -311,9 +285,7 @@ class NewsClient:
 
             try:
                 body_str = body.decode("utf-8")
-                logger.info("Successfully decoded response as UTF-8")
             except UnicodeDecodeError:
-                logger.warning("UTF-8 decode failed, falling back to latin1")
                 body_str = body.decode("latin1")
 
             status_code = int(headers_raw.split("\n")[0].split()[1])
@@ -334,82 +306,59 @@ class NewsClient:
         Fetch headlines and return parsed JSON response
         """
         try:
-            if source == NewsSource.BLOOMBERG:
-                url = "www.bloomberg.com/lineup-next/api/stories"
-                params = {"limit": "25", "pageNumber": "1", "types": "ARTICLE"}
-            else:
-                raise ValueError("Unsupported news source: {source}")
-
-            host, port, path = self.resolve_host(url)
-
+            endpoint = self.ENDPOINTS.get(source)
+            if not endpoint:
+                raise ValueError(f"Unsupported News Source: {source}")
+            host, port, _ = self.resolve_host(endpoint["host"])
             with self.connection_pool.get_connection(host, port) as conn:
-                self.send_request(conn.socket, host, path, params=params)
+                request = self._build_request(
+                    host=endpoint["host"],
+                    path=endpoint["path"],
+                    params=endpoint["params"],
+                )
+                conn.socket.sendall(request)
                 response = self.receive_response(conn.socket)
-
                 if not response.is_success:
-                    logging.error(
+                    logger.error(
                         f"Error response from {source}: {response.status_code}"
                     )
-                    logger.debug(f"Error body: {response.body}")
                     return None
-                return self._parse_json_response(response.body)
+            return self._parse_json_response(response.body)
+
         except Exception as e:
             logger.error(f"Error fetching headlines from {source}: {e}")
-            return None
 
     def _parse_json_response(self, body: str) -> Optional[List[dict]]:
         """Parse JSON response body"""
         try:
-            logger.debug("Response starts with: ", body[:100])
-            logger.debug("Response ends with: ", body[-100:])
-
             json_start = -1
             if body.lstrip().startswith("["):
                 json_start = body.find("[")
                 json_end = body.rfind("]")
-                logger.info("Found JSON array structure")
             else:
                 json_start = body.find("{")
                 json_end = body.rfind("}")
-                logger.info("Found JSON object structure")
 
             if json_start >= 0 and json_end > json_start:
-                logger.info(
-                    f"Found JSON content from position {json_start} to {json_end}"
-                )
                 json_content = body[json_start : json_end + 1]
-
-                if "\r" in json_content or "\n" in json_content:
-                    logger.debug("JSON contains newlines or carriage returns")
-
-                logger.debug(f"JSON structure starts with: {json_content[:100]}")
-                logger.debug(f"JSON structure ends with: {json_content[-100:]}")
-
-                try:
-                    return json.loads(json_content)
-                except json.JSONDecodeError as e:
-                    error_pos = e.pos
-                    context_start = max(0, error_pos - 50)
-                    context_end = min(len(json_content), error_pos + 50)
-                    error_context = json_content[context_start:context_end]
-
-                    logger.error(f"JSON parse error at position: {error_pos}")
-                    logger.error(f"Error context: {error_context}")
-                    logger.error(f"Error message: {str(e)}")
-
-                    if error_pos > 0:
-                        char_at_error = json_content[error_pos : error_pos + 1]
-                        logger.error(
-                            f"Character at error posisition: {repr(char_at_error)}"
-                        )
-
-                    raise
+                return json.loads(json_content)
             else:
-                logger.error("No JSON content found (no matching braces)")
-                logger.error(f"Full response: {body}")
+                logger.error("No valid JSON structure found in response")
                 return None
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse JSON at position {e.pos}: {str(e)}")
+            return None
         except Exception as e:
             logger.error(f"Failed to parse JSON: {e}")
+            return None
+
+
+def utc_time_to_local(timestamp: str) -> str:
+    utc_time = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%fZ").replace(
+        tzinfo=timezone.utc
+    )
+    local_time = utc_time.astimezone()
+    return datetime.strftime(local_time, "%H:%M")
 
 
 if __name__ == "__main__":
@@ -424,18 +373,10 @@ if __name__ == "__main__":
     client = NewsClient(config)
     response = client.fetch_headlines(NewsSource.BLOOMBERG)
     if response:
-        logger.info("Successfully fetched headlines")
-        logger.debug("Responses: %s", response)
-        print("Latest Headlines:")
-        print("=" * 50)
+        output = ["Latest Headlines", "=" * 50]
         for article in response:
-            utc_time = datetime.strptime(
-                article["publishedAt"], "%Y-%m-%dT%H:%M:%S.%fZ"
-            ).replace(tzinfo=timezone.utc)
-            local_time = utc_time.astimezone()
-            published_time = datetime.strftime(local_time, "%H:%M")
-            print(f"\n{published_time} BBG: {article['headline']}")
-            print(f"Summary: {article['summary']}")
-
+            published_time = utc_time_to_local(article["publishedAt"])
+            output.extend([f"{published_time} BBG: {article['headline']}"])
+        print("\n".join(output))
     else:
         logger.error("Failed to fetch headlines")
