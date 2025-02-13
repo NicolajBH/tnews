@@ -1,6 +1,6 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from datetime import datetime
+from fastapi import FastAPI, HTTPException, Depends
+from pydantic import BaseModel, Field, field_validator
+from datetime import datetime, date
 import itertools
 import ssl
 import logging
@@ -35,6 +35,41 @@ class Article(BaseModel):
     pubDate: str
     source: str
     formatted_time: str
+
+
+class ArticleQueryParameters(BaseModel):
+    start_date: date | None = None
+    end_date: date | None = None
+
+    @field_validator("end_date")
+    @classmethod
+    def validate_date_range(cls, end_date: date | None, info) -> date | None:
+        start_date = info.data.get("start_date")
+        if start_date and end_date and end_date < start_date:
+            raise ValueError("end_date must be greater than or equal to start_date")
+        return end_date
+
+
+class CategoryParams(BaseModel):
+    source: str
+    category: str
+
+    @field_validator("source")
+    @classmethod
+    def validate_source(cls, v: str) -> str:
+        if v not in RSS_FEEDS:
+            raise ValueError(
+                f"Invalid source. Must be one of: {', '.join(RSS_FEEDS.keys())}"
+            )
+        return v
+
+    @field_validator("category")
+    @classmethod
+    def validate_category(cls, v: str, info) -> str:
+        source = info.data.get("source")
+        if source not in RSS_FEEDS[source]:
+            raise ValueError(f"Invalid category for source {source}")
+        return v
 
 
 class RSSFeed(BaseModel):
@@ -260,7 +295,9 @@ def format_articles(articles: List[ArticleContent]) -> List[Article]:
 
 
 @app.get("/articles/latest", response_model=List[Article])
-async def get_latest_articles() -> List[Article]:
+async def get_latest_articles(
+    params: ArticleQueryParameters = Depends(),
+) -> List[Article]:
     try:
         articles = []
         for source, categories in RSS_FEEDS.items():
@@ -272,27 +309,43 @@ async def get_latest_articles() -> List[Article]:
             for category, fetched_articles in zip(categories.keys(), category_articles):
                 articles.extend(fetched_articles)
                 logger.info(f"Fetched articles from {source}/{category}")
-        return format_articles(articles)
+        filtered_articles = articles
+        if params.start_date or params.end_date:
+            filtered_articles = [
+                article
+                for article in articles
+                if (
+                    not params.start_date
+                    or datetime.strptime(
+                        article.pubDate, "%a, %d %b %Y %H:%M:%S %z"
+                    ).date()
+                    >= params.start_date
+                )
+                and (
+                    not params.end_date
+                    or datetime.strptime(
+                        article.pubDate, "%a, %d %b %Y %H:%M:%S %z"
+                    ).date()
+                    <= params.end_date
+                )
+            ]
+        return format_articles(filtered_articles)
     except Exception as e:
         logger.error(f"Error fetching articles: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="Error fetching articles")
 
 
 @app.get("/sources/{source}/categories/{category}", response_model=List[Article])
-async def get_category_articles(source: str, category: str) -> List[Article]:
+async def get_category_articles(params: CategoryParams = Depends()) -> List[Article]:
     try:
-        if source not in RSS_FEEDS:
-            raise HTTPException(status_code=404, detail="Source not found")
-        if category not in RSS_FEEDS[source]:
-            raise HTTPException(status_code=404, detail="Category not found")
-
-        articles = await news_client.fetch_headlines(RSS_FEEDS[source][category])
+        articles = await news_client.fetch_headlines(
+            RSS_FEEDS[params.source][params.category]
+        )
         return format_articles(articles)
-    except HTTPException:
-        raise
     except Exception as e:
         logger.error(
-            f"Error fetching articles for {source}/{category}: {str(e)}", exc_info=True
+            f"Error fetchiing articles for {params.source}/{params.category}: {str(e)}",
+            exc_info=True,
         )
         raise HTTPException(status_code=500, detail="Error fetching articles")
 
