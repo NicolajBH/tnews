@@ -1,6 +1,7 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, field_validator
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 import itertools
 import ssl
 import logging
@@ -9,17 +10,14 @@ import html
 import asyncio
 from io import BytesIO
 import xml.etree.ElementTree as ET
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Any
 from collections import defaultdict
 from asyncio import Queue, QueueFull, QueueEmpty
 from contextlib import asynccontextmanager
 
-# TODO request validation
 # TODO dependency injection
 # TODO request/response middleware
 # TODO background tasks
-# TODO custom exception handlers
-# TODO CORS configuration
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -30,6 +28,90 @@ logging.basicConfig(
 )
 
 
+class BaseAPIException(HTTPException):
+    """Base exception class for API errors"""
+
+    def __init__(
+        self,
+        status_code: int,
+        detail: str,
+        error_code: str,
+        additional_info: Dict[str, Any] | None = None,
+    ):
+        super().__init__(status_code=status_code, detail=detail)
+        self.error_code = error_code
+        self.additional_info = additional_info or {}
+
+
+class RSSFeedError(BaseAPIException):
+    """Raised when there\'s an error fetching or parsing RSS feeds"""
+
+    def __init__(
+        self, detail: str, source: str | None = None, category: str | None = None
+    ):
+        additional_info = {"source": source, "category": category} if source else {}
+        super().__init__(
+            status_code=500,
+            detail=detail,
+            error_code="RSS_FEED_ERROR",
+            additional_info=additional_info,
+        )
+
+
+class DateParsingError(BaseAPIException):
+    """Raised when there\'s an error parsing article dates"""
+
+    def __init__(self, detail: str, date_string: str):
+        super().__init__(
+            status_code=500,
+            detail=detail,
+            error_code="DATE_PARSING_ERROR",
+            additional_info={"invalid_date": date_string},
+        )
+
+
+class InvalidSourceError(BaseAPIException):
+    """Raised when an invalid source is requested"""
+
+    def __init__(self, source: str):
+        super().__init__(
+            status_code=404,
+            detail=f"Invalid source: {source}",
+            error_code="INVALID_SOURCE",
+            additional_info={"source": source},
+        )
+
+
+class InvalidCategoryError(BaseAPIException):
+    """Raised when an invalid category is requested"""
+
+    def __init__(self, source: str, category: str):
+        super().__init__(
+            status_code=404,
+            detail=f"Invalid category '{category}' for source '{source}'",
+            error_code="INVALID_CATEGORY",
+            additional_info={"source": source, "category": category},
+        )
+
+
+class HTTPClientError(BaseAPIException):
+    """Raised when there\'s an error in the HTTP client"""
+
+    def __init__(
+        self,
+        detail: str,
+        status_code: int = 500,
+        host: str | None = None,
+    ):
+        additional_info = {"host": host} if host else {}
+        super().__init__(
+            status_code=status_code,
+            detail=detail,
+            error_code="HTTP_CLIENT_ERROR",
+            additional_info=additional_info,
+        )
+
+
 class Article(BaseModel):
     title: str
     pubDate: str
@@ -38,8 +120,16 @@ class Article(BaseModel):
 
 
 class ArticleQueryParameters(BaseModel):
-    start_date: date | None = None
-    end_date: date | None = None
+    start_date: date | None = Field(
+        default=None,
+        description="Start date for filtering articles(inclusive)",
+        examples=["2024-02-10"],
+    )
+    end_date: date | None = Field(
+        default=None,
+        description="End date for filtering articles (inclusive)",
+        examples=["2025-02,13"],
+    )
 
     @field_validator("end_date")
     @classmethod
@@ -51,8 +141,14 @@ class ArticleQueryParameters(BaseModel):
 
 
 class CategoryParams(BaseModel):
-    source: str
-    category: str
+    source: str = Field(
+        description="News source identifier", examples=["borsen"], min_length=1
+    )
+    category: str = Field(
+        description="Category identifier for the specified source",
+        examples=["tech", "finans"],
+        min_length=1,
+    )
 
     @field_validator("source")
     @classmethod
@@ -266,8 +362,46 @@ class NewsClient:
         ]
 
 
+async def api_exception_handler(
+    request: Request,
+    exc: Any,
+) -> JSONResponse:
+    """Handler for API exceptions"""
+    error_response = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "status": exc.status_code,
+        "error_code": exc.error_code,
+        "message": exc.detail,
+        "path": request.url.path,
+    }
+
+    if exc.additional_info:
+        error_response["additional_info"] = exc.additional_info
+
+    return JSONResponse(status_code=exc.status_code, content=error_response)
+
+
+async def generic_exception_handler(
+    request: Request,
+    exc: Exception,
+) -> JSONResponse:
+    """Handler for unexpected exceptions"""
+    error_response = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "status": 500,
+        "error_code": "INTERNAL_SERVER_ERROR",
+        "message": "An unexpected error occured",
+        "path": request.url.path,
+        "type": exc.__class__.__name__,
+    }
+
+    return JSONResponse(status_code=500, content=error_response)
+
+
 news_client = NewsClient()
 app = FastAPI()
+app.add_exception_handler(BaseAPIException, api_exception_handler)
+app.add_exception_handler(Exception, generic_exception_handler)
 
 
 def format_articles(articles: List[ArticleContent]) -> List[Article]:
@@ -305,49 +439,79 @@ async def get_latest_articles(
                 news_client.fetch_headlines(feed_url)
                 for category, feed_url in categories.items()
             ]
-            category_articles = await asyncio.gather(*article_tasks)
-            for category, fetched_articles in zip(categories.keys(), category_articles):
-                articles.extend(fetched_articles)
-                logger.info(f"Fetched articles from {source}/{category}")
-        filtered_articles = articles
-        if params.start_date or params.end_date:
-            filtered_articles = [
-                article
-                for article in articles
-                if (
-                    not params.start_date
-                    or datetime.strptime(
-                        article.pubDate, "%a, %d %b %Y %H:%M:%S %z"
-                    ).date()
-                    >= params.start_date
+            try:
+                category_articles = await asyncio.gather(*article_tasks)
+                for category, fetched_articles in zip(
+                    categories.keys(), category_articles
+                ):
+                    articles.extend(fetched_articles)
+                    logger.info(f"Fetched articles from {source}/{category}")
+            except Exception as e:
+                logger.error(f"Error fetching articles from {source}: {str(e)}")
+                raise RSSFeedError(
+                    detail=f"Failed to fetch articles from {source}",
+                    source=source,
                 )
-                and (
-                    not params.end_date
-                    or datetime.strptime(
-                        article.pubDate, "%a, %d %b %Y %H:%M:%S %z"
-                    ).date()
-                    <= params.end_date
+
+        if params.start_date is None and params.end_date is None:
+            return format_articles(articles)
+
+        filtered_articles = []
+        for article in articles:
+            try:
+                article_date = datetime.strptime(
+                    article.pubDate, "%a, %d %b %Y %H:%M:%S %z"
+                ).date()
+                start_condition = (
+                    True
+                    if params.start_date is None
+                    else article_date >= params.start_date
                 )
-            ]
+                end_condition = (
+                    True if params.end_date is None else article_date <= params.end_date
+                )
+
+                if start_condition and end_condition:
+                    filtered_articles.append(article)
+            except ValueError as e:
+                logger.error(
+                    f"Date parsing error for article: {article.title[:30]}... Error: {e}"
+                )
+                raise DateParsingError(
+                    detail="Failed to parse article date", date_string=article.pubDate
+                )
         return format_articles(filtered_articles)
+    except (RSSFeedError, DateParsingError):
+        raise
     except Exception as e:
         logger.error(f"Error fetching articles: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Error fetching articles")
+        raise HTTPClientError(detail="Unexpected error while fetching articles")
 
 
 @app.get("/sources/{source}/categories/{category}", response_model=List[Article])
 async def get_category_articles(params: CategoryParams = Depends()) -> List[Article]:
     try:
+        if params.source not in RSS_FEEDS:
+            raise InvalidSourceError(params.source)
+
+        if params.category not in RSS_FEEDS[params.source]:
+            raise InvalidCategoryError(params.source, params.category)
+
         articles = await news_client.fetch_headlines(
             RSS_FEEDS[params.source][params.category]
         )
         return format_articles(articles)
+
     except Exception as e:
         logger.error(
-            f"Error fetchiing articles for {params.source}/{params.category}: {str(e)}",
+            f"Error fetching articles for {params.source}/{params.category}: {str(e)}",
             exc_info=True,
         )
-        raise HTTPException(status_code=500, detail="Error fetching articles")
+        raise RSSFeedError(
+            detail="Failed to fetch articles",
+            source=params.source,
+            category=params.category,
+        )
 
 
 @app.get("/categories")
