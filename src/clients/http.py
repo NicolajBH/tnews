@@ -2,6 +2,7 @@ import asyncio
 import logging
 from typing import Dict, Tuple
 from io import BytesIO
+from urllib.parse import urlparse
 from src.models.http import HTTPHeaders
 from src.clients.connection import ConnectionPool
 from src.constants import DEFAULT_HEADERS, DEFAULT_USER_AGENT
@@ -33,9 +34,11 @@ class HTTPClient:
     async def request(
         self, method: str, url: str, request_headers: Dict[str, str] | None = None
     ) -> Tuple[HTTPHeaders, bytes]:
-        host, path = url.split("/", 1)
-        path = f"/{path}"
-
+        parsed_url = urlparse(url)
+        host = parsed_url.netloc
+        path = parsed_url.path if parsed_url.path else "/"
+        if parsed_url.query:
+            path += "?" + parsed_url.query
         headers = request_headers.copy() if request_headers else {}
         headers.update(DEFAULT_HEADERS)
         headers.update({"Host": host, "User-Agent": DEFAULT_USER_AGENT})
@@ -58,5 +61,5 @@ class HTTPClient:
         except Exception as e:
             logger.error(f"HTTP request error for {url}: {str(e)}")
             raise HTTPClientError(
-                detail="Failed to make HTTP request: {str(e)}", host=host
+                detail=f"Failed to make HTTP request: {str(e)}", host=host
             )

@@ -2,13 +2,6 @@ from typing import Annotated
 from fastapi import Path, Query
 from datetime import date
 from src.models.article import ArticleQueryParameters, CategoryParams
-from src.clients.news import NewsClient
-
-news_client = NewsClient()
-
-
-async def get_news_client() -> NewsClient:
-    return news_client
 
 
 async def get_date_filters(
