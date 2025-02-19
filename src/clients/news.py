@@ -62,17 +62,6 @@ class NewsClient:
 
             self.session.commit()
             fetch_time = time.time() - start_time
-            logger.info(
-                f"Successfully fetched articles from {url}",
-                extra={
-                    "metrics": {
-                        "successful_articles": successful_articles,
-                        "fetch_time_seconds": round(fetch_time, 2),
-                        "source_id": source_id,
-                        "category_id": category_id,
-                    }
-                },
-            )
             return successful_articles, 0
 
         except Exception as e:
