@@ -2,7 +2,9 @@ import logging
 import gzip
 import html
 import hashlib
+import time
 import xml.etree.ElementTree as ET
+from typing import Tuple
 from sqlmodel import Session, select
 from datetime import timezone
 from email.utils import parsedate_to_datetime
@@ -20,8 +22,13 @@ class NewsClient:
         self.http_client = HTTPClient(self.connection_pool)
         self.session = session
 
-    async def fetch_headlines(self, source_id: int, category_id: int, url: str) -> None:
+    async def fetch_headlines(
+        self, source_id: int, category_id: int, url: str
+    ) -> Tuple[int, int]:
         """Fetches headlines from RSS feeds"""
+        start_time = time.time()
+        successful_articles = 0
+
         try:
             headers, body = await self.http_client.request("GET", url)
 
@@ -51,9 +58,33 @@ class NewsClient:
                                 original_url=url,
                             )
                             self.session.add(article)
+                            successful_articles += 1
 
             self.session.commit()
+            fetch_time = time.time() - start_time
+            logger.info(
+                f"Successfully fetched articles from {url}",
+                extra={
+                    "metrics": {
+                        "successful_articles": successful_articles,
+                        "fetch_time_seconds": round(fetch_time, 2),
+                        "source_id": source_id,
+                        "category_id": category_id,
+                    }
+                },
+            )
+            return successful_articles, 0
 
         except Exception as e:
-            logger.error(f"Error fetching RSS feed: {str(e)}")
-            raise RSSFeedError(detail=f"Failed to fetch RSS feed: {str(e)}")
+            fetch_time = time.time() - start_time
+            logger.error(
+                f"Error fetching RSS feed: {str(e)}",
+                extra={
+                    "metrics": {
+                        "fetch_time_seconds": round(fetch_time, 2),
+                        "source_id": source_id,
+                        "category_id": category_id,
+                    }
+                },
+            )
+            raise RSSFeedError(detail="Failed to fetch RSS feed: {str(e)}")
