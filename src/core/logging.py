@@ -31,7 +31,6 @@ class CustomFormatter(logging.Formatter):
 def setup_logging() -> None:
     root_logger = logging.getLogger()
     root_logger.setLevel(settings.LOG_LEVEL)
-
     root_logger.handlers = []
 
     formatter = CustomFormatter(
@@ -41,8 +40,10 @@ def setup_logging() -> None:
 
     file_handler = logging.FileHandler(settings.LOG_FILE)
     file_handler.setFormatter(formatter)
+    file_handler.setLevel(logging.DEBUG)
     root_logger.addHandler(file_handler)
 
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(formatter)
+    console_handler.setLevel(logging.WARNING)
     root_logger.addHandler(console_handler)
