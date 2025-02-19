@@ -65,6 +65,9 @@ class CategoryParams(BaseModel):
     @classmethod
     def validate_category(cls, v: str, info) -> str:
         source = info.data.get("source")
-        if source not in RSS_FEEDS[source]:
-            raise ValueError(f"Invalid category for source {source}")
+        if v not in RSS_FEEDS[source]["feeds"]:
+            available_categories = ", ".join(RSS_FEEDS[source]["feeds"].keys())
+            raise ValueError(
+                f"Invalid category '{v}' for source '{source}'. Available categories: {available_categories}"
+            )
         return v

@@ -13,7 +13,6 @@ def create_db_and_tables():
 
 def seed_sources(session: Session):
     if not session.exec(select(Sources)).all():
-        logger.info("Seeding sources")
         for provider, config in RSS_FEEDS.items():
             source = Sources(
                 name=provider,
@@ -30,8 +29,6 @@ def seed_sources(session: Session):
             ]
             session.add_all(categories)
             session.commit()
-    else:
-        logger.info(f"Sources already detected, {session.exec(select(Sources))}")
 
 
 def initialize_db():

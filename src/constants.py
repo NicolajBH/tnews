@@ -12,8 +12,6 @@ RSS_FEEDS: Dict[str, FeedConfig] = {
         "base_url": "borsen.dk",
         "feed_symbol": "BORSEN",
         "feeds": {
-            "rss": "/rss",
-            "breaking": "/rss/breaking",
             "baeredygtig": "/rss/baeredygtig",
             "ejendomme": "/rss/ejendomme",
             "finans": "/rss/finans",
