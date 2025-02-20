@@ -1,8 +1,8 @@
 """initial migration
 
-Revision ID: aecc87dd106b
+Revision ID: 9d32f90748e4
 Revises: 
-Create Date: 2025-02-20 11:08:41.569282
+Create Date: 2025-02-20 18:03:06.503538
 
 """
 from typing import Sequence, Union
@@ -13,7 +13,7 @@ import sqlmodel
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'aecc87dd106b'
+revision: str = '9d32f90748e4'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -46,6 +46,22 @@ def upgrade() -> None:
     )
     op.create_index(op.f('ix_users_id'), 'users', ['id'], unique=False)
     op.create_index(op.f('ix_users_password_hash'), 'users', ['password_hash'], unique=False)
+    op.create_table('articles',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('title', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('content_hash', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('pub_date', sa.DateTime(), nullable=False),
+    sa.Column('pub_date_raw', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('source_id', sa.Integer(), nullable=False),
+    sa.Column('original_url', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=False),
+    sa.Column('updated_at', sa.DateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['source_id'], ['sources.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_articles_content_hash'), 'articles', ['content_hash'], unique=True)
+    op.create_index(op.f('ix_articles_pub_date'), 'articles', ['pub_date'], unique=False)
+    op.create_index(op.f('ix_articles_title'), 'articles', ['title'], unique=False)
     op.create_table('categories',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
@@ -60,27 +76,25 @@ def upgrade() -> None:
     sa.UniqueConstraint('slug')
     )
     op.create_index(op.f('ix_categories_name'), 'categories', ['name'], unique=False)
-    op.create_table('articles',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('title', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-    sa.Column('content_hash', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-    sa.Column('pub_date', sa.DateTime(), nullable=False),
-    sa.Column('pub_date_raw', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-    sa.Column('source_id', sa.Integer(), nullable=False),
+    op.create_table('articlecategories',
+    sa.Column('article_id', sa.Integer(), nullable=False),
     sa.Column('category_id', sa.Integer(), nullable=False),
-    sa.Column('original_url', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
-    sa.Column('updated_at', sa.DateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['article_id'], ['articles.id'], ),
     sa.ForeignKeyConstraint(['category_id'], ['categories.id'], ),
-    sa.ForeignKeyConstraint(['source_id'], ['sources.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('article_id', 'category_id')
     )
-    op.create_index(op.f('ix_articles_content_hash'), 'articles', ['content_hash'], unique=True)
-    op.create_index(op.f('ix_articles_pub_date'), 'articles', ['pub_date'], unique=False)
-    op.create_index(op.f('ix_articles_title'), 'articles', ['title'], unique=False)
+    op.create_table('articlecontent',
+    sa.Column('article_id', sa.Integer(), nullable=False),
+    sa.Column('content', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('content_type', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('last_updated', sa.DateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['article_id'], ['articles.id'], ),
+    sa.PrimaryKeyConstraint('article_id')
+    )
     op.create_table('feedpreferences',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('feed_id', sa.Integer(), nullable=False),
     sa.Column('is_active', sa.Boolean(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -90,28 +104,21 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_feedpreferences_id'), 'feedpreferences', ['id'], unique=False)
-    op.create_table('articlecontent',
-    sa.Column('article_id', sa.Integer(), nullable=False),
-    sa.Column('content', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-    sa.Column('content_type', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-    sa.Column('last_updated', sa.DateTime(), nullable=False),
-    sa.ForeignKeyConstraint(['article_id'], ['articles.id'], ),
-    sa.PrimaryKeyConstraint('article_id')
-    )
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
     # ### commands auto generated by Alembic - please adjust! ###
-    op.drop_table('articlecontent')
     op.drop_index(op.f('ix_feedpreferences_id'), table_name='feedpreferences')
     op.drop_table('feedpreferences')
+    op.drop_table('articlecontent')
+    op.drop_table('articlecategories')
+    op.drop_index(op.f('ix_categories_name'), table_name='categories')
+    op.drop_table('categories')
     op.drop_index(op.f('ix_articles_title'), table_name='articles')
     op.drop_index(op.f('ix_articles_pub_date'), table_name='articles')
     op.drop_index(op.f('ix_articles_content_hash'), table_name='articles')
     op.drop_table('articles')
-    op.drop_index(op.f('ix_categories_name'), table_name='categories')
-    op.drop_table('categories')
     op.drop_index(op.f('ix_users_password_hash'), table_name='users')
     op.drop_index(op.f('ix_users_id'), table_name='users')
     op.drop_table('users')

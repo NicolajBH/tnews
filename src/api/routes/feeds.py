@@ -7,7 +7,14 @@ from email.utils import parsedate_to_datetime
 from src.api.dependencies import get_date_filters
 from src.constants import RSS_FEEDS
 from src.core.exceptions import RSSFeedError
-from src.models.db_models import Articles, Sources, Categories, Users, FeedPreferences
+from src.models.db_models import (
+    ArticleCategories,
+    Articles,
+    Sources,
+    Categories,
+    Users,
+    FeedPreferences,
+)
 from src.db.database import SessionDep
 from src.models.article import Article, ArticleQueryParameters, CategoryParams
 from src.auth.dependencies import get_current_user
@@ -26,7 +33,8 @@ async def get_latest_articles(
 ) -> List[Article]:
     query = (
         select(Articles)
-        .join(Categories, Articles.category_id == Categories.id)
+        .join(ArticleCategories, Articles.id == ArticleCategories.article_id)
+        .join(Categories, ArticleCategories.category_id == Categories.id)
         .join(FeedPreferences, Categories.id == FeedPreferences.feed_id)
         .where(FeedPreferences.user_id == current_user.id)
         .where(FeedPreferences.is_active == True)

@@ -3,6 +3,12 @@ from datetime import datetime
 from typing import List
 
 
+class ArticleCategories(SQLModel, table=True):
+    article_id: int = Field(foreign_key="articles.id", primary_key=True)
+    category_id: int = Field(foreign_key="categories.id", primary_key=True)
+    created_at: datetime = Field(default_factory=datetime.now)
+
+
 class Sources(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str = Field(index=True)
@@ -28,7 +34,9 @@ class Categories(SQLModel, table=True):
     updated_at: datetime = Field(default_factory=datetime.now)
 
     source: Sources = Relationship(back_populates="categories")
-    articles: List["Articles"] = Relationship(back_populates="category")
+    articles: List["Articles"] = Relationship(
+        back_populates="categories", link_model=ArticleCategories
+    )
     user_preferences: List["FeedPreferences"] = Relationship(back_populates="category")
 
     def __init__(self, **data):
@@ -44,13 +52,14 @@ class Articles(SQLModel, table=True):
     pub_date: datetime = Field(index=True)
     pub_date_raw: str = Field(default=None)
     source_id: int = Field(foreign_key="sources.id")
-    category_id: int = Field(foreign_key="categories.id")
     original_url: str
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 
     source: Sources = Relationship(back_populates="articles")
-    category: Categories = Relationship(back_populates="articles")
+    categories: List[Categories] = Relationship(
+        back_populates="articles", link_model=ArticleCategories
+    )
     content: List["ArticleContent"] | None = Relationship(back_populates="article")
 
     @property

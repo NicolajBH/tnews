@@ -8,7 +8,7 @@ from typing import Tuple
 from sqlmodel import Session, select
 from datetime import timezone
 from email.utils import parsedate_to_datetime
-from src.models.db_models import Articles
+from src.models.db_models import Articles, Categories
 from src.clients.http import HTTPClient
 from src.clients.connection import ConnectionPool
 from src.core.exceptions import RSSFeedError
@@ -28,6 +28,7 @@ class NewsClient:
         """Fetches headlines from RSS feeds"""
         start_time = time.time()
         successful_articles = 0
+        new_category_associations = 0
 
         try:
             headers, body = await self.http_client.request("GET", url)
@@ -39,7 +40,10 @@ class NewsClient:
                     content_hash = hashlib.md5(title_elem.text.encode()).hexdigest()
                     existing = self.session.exec(
                         select(Articles).where(Articles.content_hash == content_hash)
-                    ).all()
+                    ).first()
+                    if existing:
+                        self.session.refresh(existing, ["categories"])
+
                     if (
                         pub_date_elem := item.find("pubDate")
                     ) is not None and pub_date_elem.text:
@@ -47,16 +51,28 @@ class NewsClient:
                         parsed_date = parsedate_to_datetime(raw_date)
                         utc_date = parsed_date.astimezone(timezone.utc)
 
-                        if not existing:
+                        if existing:
+                            existing_categories = [
+                                cat.id for cat in existing.categories
+                            ]
+                            if category_id not in existing_categories:
+                                category = self.session.get(Categories, category_id)
+                                if category:
+                                    existing.categories.append(category)
+                                    new_category_associations += 1
+                        else:
                             article = Articles(
                                 title=html.unescape(title_elem.text),
                                 pub_date=utc_date,
                                 pub_date_raw=raw_date,
                                 content_hash=content_hash,
                                 source_id=source_id,
-                                category_id=category_id,
                                 original_url=url,
                             )
+                            category = self.session.get(Categories, category_id)
+                            if category:
+                                article.categories.append(category)
+
                             self.session.add(article)
                             successful_articles += 1
 

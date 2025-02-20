@@ -14,6 +14,7 @@ from src.models.db_models import (
     ArticleContent,
     Users,
     FeedPreferences,
+    ArticleCategories,
 )
 
 # this is the Alembic Config object, which provides
