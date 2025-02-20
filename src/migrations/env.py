@@ -7,7 +7,14 @@ from pathlib import Path
 
 from alembic import context
 
-from src.models.db_models import Sources, Categories, Articles, ArticleContent
+from src.models.db_models import (
+    Sources,
+    Categories,
+    Articles,
+    ArticleContent,
+    Users,
+    FeedPreferences,
+)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

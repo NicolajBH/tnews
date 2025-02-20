@@ -68,7 +68,7 @@ class ArticleContent(SQLModel, table=True):
 
 
 class Users(SQLModel, table=True):
-    id: int = Field(index=True, primary_key=True)
+    id: int | None = Field(index=True, default=None, primary_key=True)
     username: str = Field(unique=True, nullable=False)
     created_at: datetime = Field(default_factory=datetime.now)
     last_login: datetime = Field(default_factory=datetime.now)
@@ -79,8 +79,8 @@ class Users(SQLModel, table=True):
 
 
 class FeedPreferences(SQLModel, table=True):
-    id: int = Field(index=True, primary_key=True)
-    user_id: int = Field(foreign_key="users.id")
+    id: int | None = Field(index=True, default=None, primary_key=True)
+    user_id: int | None = Field(foreign_key="users.id", default=None)
     feed_id: int = Field(foreign_key="categories.id")
     is_active: bool = Field(default=True)
     created_at: datetime = Field(default_factory=datetime.now)
