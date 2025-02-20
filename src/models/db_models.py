@@ -21,14 +21,15 @@ class Sources(SQLModel, table=True):
 class Categories(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str = Field(index=True)
-    slug: str = Field(index=True)
+    slug: str = Field(unique=True)
     source_id: int = Field(foreign_key="sources.id")
-    feed_url: str
+    feed_url: str = Field(unique=True)
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 
     source: Sources = Relationship(back_populates="categories")
     articles: List["Articles"] = Relationship(back_populates="category")
+    user_preferences: List["FeedPreferences"] = Relationship(back_populates="category")
 
     def __init__(self, **data):
         super().__init__(**data)
@@ -64,3 +65,26 @@ class ArticleContent(SQLModel, table=True):
     last_updated: datetime = Field(default_factory=datetime.now)
 
     article: Articles = Relationship(back_populates="content")
+
+
+class Users(SQLModel, table=True):
+    id: int = Field(index=True, primary_key=True)
+    username: str = Field(unique=True, nullable=False)
+    created_at: datetime = Field(default_factory=datetime.now)
+    last_login: datetime = Field(default_factory=datetime.now)
+    password_hash: str = Field(index=True, nullable=False)
+    is_active: bool = Field(default=True)
+
+    feed_preferences: List["FeedPreferences"] = Relationship(back_populates="user")
+
+
+class FeedPreferences(SQLModel, table=True):
+    id: int = Field(index=True, primary_key=True)
+    user_id: int = Field(foreign_key="users.id")
+    feed_id: int = Field(foreign_key="categories.id")
+    is_active: bool = Field(default=True)
+    created_at: datetime = Field(default_factory=datetime.now)
+    last_fetched: datetime = Field(default_factory=datetime.now)
+
+    user: Users = Relationship(back_populates="feed_preferences")
+    category: Categories = Relationship(back_populates="user_preferences")
