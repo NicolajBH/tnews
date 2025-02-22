@@ -1,6 +1,7 @@
 from sqlmodel import Field, SQLModel, Relationship
 from datetime import datetime
 from typing import List
+from urllib.parse import urlparse, unquote
 
 
 class ArticleCategories(SQLModel, table=True):
@@ -27,7 +28,6 @@ class Sources(SQLModel, table=True):
 class Categories(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str = Field(index=True)
-    slug: str = Field(unique=True)
     source_id: int = Field(foreign_key="sources.id")
     feed_url: str = Field(unique=True)
     created_at: datetime = Field(default_factory=datetime.now)
@@ -38,11 +38,6 @@ class Categories(SQLModel, table=True):
         back_populates="categories", link_model=ArticleCategories
     )
     user_preferences: List["FeedPreferences"] = Relationship(back_populates="category")
-
-    def __init__(self, **data):
-        super().__init__(**data)
-        if self.slug is None and self.name:
-            self.slug = "-".join(self.name.lower().split())
 
 
 class Articles(SQLModel, table=True):
@@ -65,6 +60,11 @@ class Articles(SQLModel, table=True):
     @property
     def pub_date_iso(self) -> str:
         return self.pub_date.isoformat()
+
+    @property
+    def slug(self) -> str:
+        path = urlparse(self.original_url).path.rstrip("/")
+        return unquote(path.rsplit("/", 1)[1]).lower()
 
 
 class ArticleContent(SQLModel, table=True):

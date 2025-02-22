@@ -27,7 +27,7 @@ RSS_FEEDS: Dict[str, FeedConfig] = {
             "virksomheder": "/rss/virksomheder",
             "okonomi": "/rss/okonomi",
         },
-    }
+    },
 }
 
 DEFAULT_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Safari/605.1.15"

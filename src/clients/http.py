@@ -31,6 +31,15 @@ class HTTPClient:
 
         return buffer.getvalue()
 
+    async def _read_body(
+        self, reader: asyncio.StreamReader, content_length: int
+    ) -> bytes:
+        buffer = BytesIO()
+        while len(buffer.getvalue()) < content_length:
+            body = await reader.read(4096)
+            buffer.write(body)
+        return buffer.getvalue()
+
     async def request(
         self, method: str, url: str, request_headers: Dict[str, str] | None = None
     ) -> Tuple[HTTPHeaders, bytes]:
@@ -55,9 +64,19 @@ class HTTPClient:
 
                 header_data = await conn.reader.readuntil(b"\r\n\r\n")
                 response_headers = HTTPHeaders.from_bytes(header_data)
-                body = await self._read_chunked_body(conn.reader)
+                transfer_encoding = response_headers.headers.get(
+                    "Transfer-Encoding", None
+                )
+
+                if transfer_encoding:
+                    body = await self._read_chunked_body(conn.reader)
+                else:
+                    content_length = response_headers.headers.get("Content-Length", "0")
+                    content_length = int(content_length)
+                    body = await self._read_body(conn.reader, content_length)
 
                 return response_headers, body
+
         except Exception as e:
             logger.error(f"HTTP request error for {url}: {str(e)}")
             raise HTTPClientError(

@@ -1,8 +1,8 @@
 """initial migration
 
-Revision ID: 9d32f90748e4
+Revision ID: d43373efe642
 Revises: 
-Create Date: 2025-02-20 18:03:06.503538
+Create Date: 2025-02-22 12:26:58.173762
 
 """
 from typing import Sequence, Union
@@ -13,7 +13,7 @@ import sqlmodel
 
 
 # revision identifiers, used by Alembic.
-revision: str = '9d32f90748e4'
+revision: str = 'd43373efe642'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -65,15 +65,13 @@ def upgrade() -> None:
     op.create_table('categories',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-    sa.Column('slug', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('source_id', sa.Integer(), nullable=False),
     sa.Column('feed_url', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=False),
     sa.ForeignKeyConstraint(['source_id'], ['sources.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('feed_url'),
-    sa.UniqueConstraint('slug')
+    sa.UniqueConstraint('feed_url')
     )
     op.create_index(op.f('ix_categories_name'), 'categories', ['name'], unique=False)
     op.create_table('articlecategories',

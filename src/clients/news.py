@@ -1,17 +1,14 @@
 import logging
 import gzip
-import html
-import hashlib
 import time
-import xml.etree.ElementTree as ET
-from typing import Tuple
+from typing import List, Tuple, Any, Optional
 from sqlmodel import Session, select
-from datetime import timezone
-from email.utils import parsedate_to_datetime
 from src.models.db_models import Articles, Categories
 from src.clients.http import HTTPClient
 from src.clients.connection import ConnectionPool
 from src.core.exceptions import RSSFeedError
+from src.parsers.xml import XMLFeedParser
+from src.parsers.base import FeedParser
 
 logger = logging.getLogger(__name__)
 
@@ -25,71 +22,82 @@ class NewsClient:
     async def fetch_headlines(
         self, source_id: int, category_id: int, url: str
     ) -> Tuple[int, int]:
-        """Fetches headlines from RSS feeds"""
+        """Fetch and process feeds"""
         start_time = time.time()
+        try:
+            raw_feed = await self._fetch_feed(url)
+            articles = await self._process_feed(raw_feed, source_id)
+            stats = await self._save_articles(articles, category_id)
+            return stats
+        except Exception as e:
+            await self._log_error(e, start_time, source_id, category_id)
+            raise RSSFeedError(f"Failed to fetch feed: {str(e)}")
+
+    async def _fetch_feed(self, url: str) -> Tuple[Any, bytes]:
+        return await self.http_client.request("GET", url)
+
+    def _get_parser(self, content_type: str, source_id: int) -> FeedParser:
+        if "xml" in content_type.lower():
+            return XMLFeedParser(source_id)
+        else:
+            raise RSSFeedError(f"Unsupported content type: {content_type}")
+
+    async def _process_feed(
+        self, raw_feed: Tuple[Any, bytes], source_id: int
+    ) -> List[Articles]:
+        headers, body = raw_feed
+        content_type = headers.headers.get("Content-Type", "")
+        decompressed_body = gzip.decompress(body).decode("utf-8", errors="replace")
+        parser = self._get_parser(content_type, source_id)
+        return await parser.parse_content(decompressed_body)
+
+    async def _save_articles(
+        self, articles: List[Articles], category_id: int
+    ) -> Tuple[int, int]:
         successful_articles = 0
         new_category_associations = 0
 
-        try:
-            headers, body = await self.http_client.request("GET", url)
+        category = self._get_category(category_id)
+        if not category:
+            return 0, 0
 
-            xml_string = gzip.decompress(body).decode("utf-8", errors="replace")
-            tree = ET.fromstring(xml_string)
-            for item in tree.findall(".//item"):
-                if (title_elem := item.find("title")) is not None and title_elem.text:
-                    content_hash = hashlib.md5(title_elem.text.encode()).hexdigest()
-                    existing = self.session.exec(
-                        select(Articles).where(Articles.content_hash == content_hash)
-                    ).first()
-                    if existing:
-                        self.session.refresh(existing, ["categories"])
+        for article in articles:
+            if await self._save_article(article, category):
+                successful_articles += 1
 
-                    if (
-                        pub_date_elem := item.find("pubDate")
-                    ) is not None and pub_date_elem.text:
-                        raw_date = pub_date_elem.text
-                        parsed_date = parsedate_to_datetime(raw_date)
-                        utc_date = parsed_date.astimezone(timezone.utc)
+        self.session.commit()
+        return successful_articles, new_category_associations
 
-                        if existing:
-                            existing_categories = [
-                                cat.id for cat in existing.categories
-                            ]
-                            if category_id not in existing_categories:
-                                category = self.session.get(Categories, category_id)
-                                if category:
-                                    existing.categories.append(category)
-                                    new_category_associations += 1
-                        else:
-                            article = Articles(
-                                title=html.unescape(title_elem.text),
-                                pub_date=utc_date,
-                                pub_date_raw=raw_date,
-                                content_hash=content_hash,
-                                source_id=source_id,
-                                original_url=url,
-                            )
-                            category = self.session.get(Categories, category_id)
-                            if category:
-                                article.categories.append(category)
+    async def _save_article(self, article: Articles, category: Categories) -> bool:
+        """Save article if new"""
+        if self._article_exists(article.content_hash):
+            return False
 
-                            self.session.add(article)
-                            successful_articles += 1
+        article.categories.append(category)
+        self.session.add(article)
+        return True
 
-            self.session.commit()
-            fetch_time = time.time() - start_time
-            return successful_articles, 0
+    def _article_exists(self, content_hash: str) -> bool:
+        return bool(
+            self.session.exec(
+                select(Articles).where(Articles.content_hash == content_hash)
+            ).first()
+        )
 
-        except Exception as e:
-            fetch_time = time.time() - start_time
-            logger.error(
-                f"Error fetching RSS feed: {str(e)}",
-                extra={
-                    "metrics": {
-                        "fetch_time_seconds": round(fetch_time, 2),
-                        "source_id": source_id,
-                        "category_id": category_id,
-                    }
-                },
-            )
-            raise RSSFeedError(detail="Failed to fetch RSS feed: {str(e)}")
+    def _get_category(self, category_id: int) -> Optional[Categories]:
+        return self.session.get(Categories, category_id)
+
+    async def _log_error(
+        self, error: Exception, start_time: float, source_id: int, category_id: int
+    ) -> None:
+        fetch_time = time.time() - start_time
+        logger.error(
+            f"Error fetching feed: {str(error)}",
+            extra={
+                "metrics": {
+                    "fetch_time_seconds": fetch_time,
+                    "source_id": source_id,
+                    "category_id": category_id,
+                }
+            },
+        )
