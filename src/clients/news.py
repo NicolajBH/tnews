@@ -7,6 +7,7 @@ from src.models.db_models import Articles, Categories
 from src.clients.http import HTTPClient
 from src.clients.connection import ConnectionPool
 from src.core.exceptions import RSSFeedError
+from src.parsers.json import JSONFeedParser
 from src.parsers.xml import XMLFeedParser
 from src.parsers.base import FeedParser
 
@@ -39,6 +40,8 @@ class NewsClient:
     def _get_parser(self, content_type: str, source_id: int) -> FeedParser:
         if "xml" in content_type.lower():
             return XMLFeedParser(source_id)
+        elif "json" in content_type.lower():
+            return JSONFeedParser(source_id)
         else:
             raise RSSFeedError(f"Unsupported content type: {content_type}")
 
