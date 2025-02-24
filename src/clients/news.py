@@ -1,8 +1,10 @@
 import logging
 import gzip
 import time
+import asyncio
 from typing import List, Tuple, Any, Optional
 from sqlmodel import Session, select
+from src.clients.redis import RedisClient
 from src.models.db_models import Articles, Categories
 from src.clients.http import HTTPClient
 from src.clients.connection import ConnectionPool
@@ -15,10 +17,21 @@ logger = logging.getLogger(__name__)
 
 
 class NewsClient:
-    def __init__(self, session: Session):
-        self.connection_pool = ConnectionPool(pool_size=3)
+    def __init__(self, session: Session, redis_client: RedisClient):
+        self.connection_pool = ConnectionPool(pool_size=5, max_concurrent_requests=8)
         self.http_client = HTTPClient(self.connection_pool)
         self.session = session
+        self.redis = redis_client
+
+    async def fetch_multiple_feeds(
+        self, feeds: List[Tuple[int, int, str]]
+    ) -> List[Tuple[int, int] | BaseException]:
+        tasks = [
+            self.fetch_headlines(source_id, category_id, url)
+            for source_id, category_id, url in feeds
+        ]
+
+        return await asyncio.gather(*tasks, return_exceptions=True)
 
     async def fetch_headlines(
         self, source_id: int, category_id: int, url: str
@@ -29,6 +42,9 @@ class NewsClient:
             raw_feed = await self._fetch_feed(url)
             articles = await self._process_feed(raw_feed, source_id)
             stats = await self._save_articles(articles, category_id)
+            logger.debug(
+                f"Feed fetch completed in {time.time() - start_time:.2f}s for {url}"
+            )
             return stats
         except Exception as e:
             await self._log_error(e, start_time, source_id, category_id)
@@ -80,12 +96,18 @@ class NewsClient:
         self.session.add(article)
         return True
 
-    def _article_exists(self, content_hash: str) -> bool:
-        return bool(
+    async def _article_exists(self, content_hash: str) -> bool:
+        if await self.redis.exists_hash(content_hash):
+            return True
+
+        exists = bool(
             self.session.exec(
                 select(Articles).where(Articles.content_hash == content_hash)
             ).first()
         )
+        if exists:
+            await self.redis.add_hash(content_hash)
+        return exists
 
     def _get_category(self, category_id: int) -> Optional[Categories]:
         return self.session.get(Categories, category_id)

@@ -30,10 +30,15 @@ class PooledConnection:
 
 
 class ConnectionPool:
-    def __init__(self, pool_size: int = settings.POOL_SIZE):
+    def __init__(
+        self, pool_size: int = settings.POOL_SIZE, max_concurrent_requests: int = 8
+    ):
         self.pool_size = pool_size
         self.pools: Dict[str, Queue[PooledConnection]] = defaultdict(
             lambda: Queue(maxsize=pool_size)
+        )
+        self.host_semaphores: Dict[str, asyncio.Semaphore] = defaultdict(
+            lambda: asyncio.Semaphore(max_concurrent_requests)
         )
         self.ssl_context = ssl.create_default_context()
 
@@ -44,21 +49,25 @@ class ConnectionPool:
     @asynccontextmanager
     async def get_connection(self, host: str):
         pool = self.pools[host]
+        semaphore = self.host_semaphores[host]
         conn = None
 
-        try:
-            conn = await self.get_or_create_connection(pool, host)
-            conn.in_use = True
-            logger.debug(f"Using connection {conn.id} for {host}")
-            yield conn
-        finally:
-            if conn:
-                conn.in_use = False
-                try:
-                    pool.put_nowait(conn)
-                    logger.debug(f"Returned connection {conn.id} to pool for {host}")
-                except QueueFull:
-                    await conn.close()
+        async with semaphore:
+            try:
+                conn = await self.get_or_create_connection(pool, host)
+                conn.in_use = True
+                logger.debug(f"Using connection {conn.id} for {host}")
+                yield conn
+            finally:
+                if conn:
+                    conn.in_use = False
+                    try:
+                        pool.put_nowait(conn)
+                        logger.debug(
+                            f"Returned connection {conn.id} to pool for {host}"
+                        )
+                    except QueueFull:
+                        await conn.close()
 
     async def get_or_create_connection(
         self, pool: Queue, host: str
