@@ -35,7 +35,7 @@ celery_app.conf.update(
     broker_connection_max_retries=settings.CELERY_BROKER_CONNECTION_MAX_RETRIES,
     broker_heartbeat=10,
     # task excecution settings
-    task_acks_late=False,
+    task_acks_late=True,
     task_reject_on_worker_lost=True,
     task_eager_propagates=True,
     task_create_missing_queues=True,

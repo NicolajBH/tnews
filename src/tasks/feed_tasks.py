@@ -3,6 +3,8 @@ from sqlmodel import Session
 import asyncio
 import logging
 import time
+from collections import defaultdict
+from src.clients.connection import ConnectionPool
 from src.db.database import engine
 from src.clients.news import NewsClient
 from src.clients.redis import RedisClient
@@ -108,21 +110,24 @@ def fetch_feed_chunk(self, feeds_chunk):
     failed_fetches = 0
     total_articles = 0
 
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
     try:
+        connection_pool = ConnectionPool()
+
         with Session(engine) as session:
             redis_client = RedisClient()
             news_client = NewsClient(session, redis_client)
 
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
+            connection_pool.pools = defaultdict(
+                lambda: asyncio.Queue(maxsize=connection_pool.pool_size)
+            )
 
-            try:
-                fetch_results = loop.run_until_complete(
-                    news_client.fetch_multiple_feeds(feeds_chunk)
-                )
-                loop.run_until_complete(redis_client.close())
-            finally:
-                loop.close()
+            fetch_results = loop.run_until_complete(
+                news_client.fetch_multiple_feeds(feeds_chunk)
+            )
+            loop.run_until_complete(redis_client.close())
 
             for result in fetch_results:
                 if isinstance(result, Exception):
@@ -135,7 +140,6 @@ def fetch_feed_chunk(self, feeds_chunk):
                     logger.debug(f"Feed processed with {article_count} article")
 
             chunk_time = time.time() - start_time
-
             logger.info(
                 f"Chunk processing complete - {len(feeds_chunk)} feeds",
                 extra={
@@ -156,6 +160,22 @@ def fetch_feed_chunk(self, feeds_chunk):
                 "fetch_time_seconds": round(chunk_time, 2),
                 "chunk_size": len(feeds_chunk),
             }
+
     except Exception as e:
         logger.error(f"Feed chunk processing failed: {e}")
         raise
+
+    finally:
+        try:
+            pending = asyncio.all_tasks(loop)
+            for task in pending:
+                task.cancel()
+
+            if pending:
+                loop.run_until_complete(
+                    asyncio.gather(*pending, return_exceptions=True)
+                )
+        except Exception as e:
+            logger.warning(f"Error while cancelling pending tasks: {e}")
+
+        loop.close()
