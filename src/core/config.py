@@ -32,7 +32,7 @@ class Settings(BaseSettings):
 
     # Performance tuning
     WORKER_CONCURRENCY: int = 8
-    PREFETCH_MULTIPLIER: int = 1
+    PREFETCH_MULTIPLIER: int = 4
 
     # Logging settings
     LOG_LEVEL: str = "INFO"

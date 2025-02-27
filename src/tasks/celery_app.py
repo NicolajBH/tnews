@@ -21,7 +21,7 @@ celery_app.conf.update(
     # result backend settings
     result_expires=settings.CELERY_RESULT_EXPIRES,
     # rate limiting
-    task_annotations={"src.tasks.feed_tasks.fetch_feed_chunk": {"rate_limit": "20/m"}},
+    task_annotations={"src.tasks.feed_tasks.fetch_feed_chunk": {"rate_limit": "50/m"}},
     # beat schedule
     beat_schedule={
         "fetch-news-every-5-minutes": {
@@ -32,6 +32,7 @@ celery_app.conf.update(
     # broker settings
     broker_connection_timeout=settings.CELERY_BROKER_CONNECTION_TIMEOUT,
     broker_connection_retry=True,
+    broker_connection_retry_on_startup=True,
     broker_connection_max_retries=settings.CELERY_BROKER_CONNECTION_MAX_RETRIES,
     broker_heartbeat=10,
     # task excecution settings
