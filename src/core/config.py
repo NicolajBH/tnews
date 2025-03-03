@@ -20,10 +20,10 @@ class Settings(BaseSettings):
     CELERY_BROKER_CONNECTION_MAX_RETRIES: int = 3
     CELERY_TASK_MAX_RETRIES: int = 3
     CELERY_BEAT_SCHEDULE_INTERVAL: int = 300
-    CELERY_WORKERS_MAX_TASKS_PER_CHILD: int = 500
+    CELERY_WORKERS_MAX_TASKS_PER_CHILD: int = 1000
 
     # Task chunk size
-    FEED_CHUNK_SIZE: int = 8
+    FEED_CHUNK_SIZE: int = 4
 
     # Connection pool settings
     POOL_SIZE: int = 10
@@ -32,7 +32,7 @@ class Settings(BaseSettings):
 
     # Performance tuning
     WORKER_CONCURRENCY: int = 8
-    PREFETCH_MULTIPLIER: int = 4
+    PREFETCH_MULTIPLIER: int = 1
 
     # Logging settings
     LOG_LEVEL: str = "INFO"

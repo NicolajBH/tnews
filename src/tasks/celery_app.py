@@ -50,6 +50,8 @@ celery_app.conf.update(
     # disable
     task_track_started=False,
     task_send_sent_event=False,
+    worker_direct=False,
+    worker_disable_rate_limits=True,
     # redis settings
     redis_compression=True,
 )

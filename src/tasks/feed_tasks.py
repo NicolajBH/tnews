@@ -3,6 +3,7 @@ from sqlmodel import Session
 import asyncio
 import logging
 import time
+import random
 from collections import defaultdict
 from src.clients.connection import ConnectionPool
 from src.db.database import engine
@@ -51,6 +52,7 @@ def fetch_all_feeds(self):
         feed_chunks = [
             feeds[i : i + chunk_size] for i in range(0, len(feeds), chunk_size)
         ]
+        random.shuffle(feed_chunks)
 
         tasks_group = group(fetch_feed_chunk.s(chunk) for chunk in feed_chunks)
         chord_result = chord(tasks_group)(collect_feed_results.s(start_time))
@@ -115,14 +117,14 @@ def fetch_feed_chunk(self, feeds_chunk):
 
     try:
         connection_pool = ConnectionPool()
+        connection_pool.reset_pools()
+        connection_pool.pools = defaultdict(
+            lambda: asyncio.Queue(maxsize=connection_pool.pool_size)
+        )
 
         with Session(engine) as session:
             redis_client = RedisClient()
             news_client = NewsClient(session, redis_client)
-
-            connection_pool.pools = defaultdict(
-                lambda: asyncio.Queue(maxsize=connection_pool.pool_size)
-            )
 
             fetch_results = loop.run_until_complete(
                 news_client.fetch_multiple_feeds(feeds_chunk)
