@@ -33,7 +33,7 @@ async def generic_exception_handler(
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "status": 500,
         "error_code": "INTERNAL_SERVER_ERROR",
-        "message": "An unexpected error occured",
+        "message": "An unexpected error occurred",
         "path": request.url.path,
         "type": exc.__class__.__name__,
     }
