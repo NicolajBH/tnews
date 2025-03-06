@@ -6,6 +6,11 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "RSS News API"
 
+    # Security settings
+    SECRET_KEY: str = "acc39f5ae7a709199234a23b97cc1dc3310e074e2ec182eb141b92f0b523f507"
+    ALGORITHM = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
     # Redis settings
     REDIS_URL: str = "redis://localhost:6379/0"
     REDIS_CACHE_TTL: int = 3600

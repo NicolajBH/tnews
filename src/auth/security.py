@@ -3,13 +3,14 @@ from typing import Optional
 from fastapi import HTTPException, status
 from passlib.context import CryptContext
 from jose import JWTError, jwt
+from src.core.config import settings
 
-SECRET_KEY = "acc39f5ae7a709199234a23b97cc1dc3310e074e2ec182eb141b92f0b523f507"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+SECRET_KEY = settings.SECRET_KEY
+ALGORITHM = settings.ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", brcypt__rounds=12)
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=12)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
