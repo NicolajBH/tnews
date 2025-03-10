@@ -2,7 +2,7 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List, Dict
 from sqlmodel import select, col
-from email.utils import parsedate_to_datetime
+from datetime import datetime
 
 from src.api.dependencies import get_date_filters
 from src.constants import RSS_FEEDS
@@ -56,10 +56,8 @@ async def get_latest_articles(
                 title=result.title,
                 pubDate=result.pub_date_raw,
                 source=source.feed_symbol,
-                formatted_time=parsedate_to_datetime(result.pub_date_raw).strftime(
-                    "%H:%M"
-                ),
-            )
+                formatted_time=datetime.strftime(result.pub_date, "%H:%M"),
+            ),
         )
     return articles_to_return
 

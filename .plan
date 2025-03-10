@@ -1,4 +1,4 @@
-# .plan - Updated March 06, 2025
+# .plan - Updated March 10, 2025
 
 Architecture & Structure
   ? Add API versioning support 
@@ -12,7 +12,7 @@ Security Enhancements
   ? Add rate limiting for authentication endpoints
   ? Create a token blacklisting system for logouts
   ? Implement refresh tokens for extended sessions
-  ? Add password strength validation during registration - Validation added. Needs tests.
+  * Add password strength validation during registration
 
 Performance Optimization
   ? Optimize database queries (fix N+1 query in articles endpoint)
@@ -84,5 +84,5 @@ Documentation
 
 # March 10, 2025
   * Move database URL to configuration
-
+  * Add password strength validation during registration
 # Notes
