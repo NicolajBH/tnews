@@ -7,6 +7,7 @@ from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock, patch
 
 from src.main import app
+from src.core.config import settings
 from src.db.database import get_session
 from src.clients.redis import RedisClient
 from src.models.db_models import (
@@ -21,7 +22,7 @@ from src.models.db_models import (
 from src.auth.security import get_password_hash, create_access_token
 
 # Set up test database
-TEST_DATABASE_URL = "sqlite:///./test.db"
+TEST_DATABASE_URL = settings.TEST_DATABASE_URL
 
 
 @pytest.fixture(scope="session")

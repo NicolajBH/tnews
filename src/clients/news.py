@@ -193,6 +193,16 @@ class NewsClient:
             if article.content_hash and article.content_hash not in existing_hashes
         ]
 
+        unique_articles = {}
+        for article in new_articles:
+            if article.content_hash not in unique_articles:
+                unique_articles[article.content_hash] = article
+            else:
+                if article.pub_date < unique_articles[article.content_hash].pub_date:
+                    unique_articles[article.content_hash] = article
+
+        new_articles = list(unique_articles.values())
+
         if new_articles:
             try:
                 new_hashes = []

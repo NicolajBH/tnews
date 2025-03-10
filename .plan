@@ -1,0 +1,85 @@
+# .plan - Updated March 06, 2025
+
+Architecture & Structure
+  ? Add API versioning support - v1 prefix added to routes
+  ? Implement a clear separation between DTOs and domain models
+  ? Create a comprehensive project README with architecture diagram
+  ? Document API endpoints with enhanced OpenAPI comments and examples
+
+Security Enhancements
+  * Fix password hashing typo in CryptContext initialization (brcypt__rounds → bcrypt__rounds)
+  ? Implement CORS middleware with proper configuration
+  ? Add rate limiting for authentication endpoints
+  ? Create a token blacklisting system for logouts
+  ? Implement refresh tokens for extended sessions
+  ? Add password strength validation during registration
+
+Performance Optimization
+  ? Optimize database queries (fix N+1 query in articles endpoint)
+  ? Add Redis caching for frequently accessed endpoints
+  ? Implement cursor-based pagination for article lists
+  ? Create database indexes for common query patterns
+  ? Add ETags for conditional requests
+
+Error Handling & Resilience
+  ? Implement circuit breaker pattern for external service calls
+  ? Fix method name syntax errors in XML parser
+  ? Add request ID tracking for all error responses
+  ? Implement graceful degradation for failed services
+  ? Add comprehensive request validation error handling
+
+Testing Improvements
+  ? Complete the unfinished test_latest_articles_with_date_filters test
+  ? Add tests for XML and JSON parsers
+  ? Implement tests for Celery tasks and connection pooling
+  ? Add integration tests with Redis using docker-compose
+  ? Implement benchmark/performance tests for critical paths
+  ? Set up test coverage reporting
+  ? Add security-focused tests (auth bypass, rate limiting, permissions)
+
+Monitoring & Observability
+  ? Implement structured logging with correlation IDs
+  ? Add performance metrics collection (latency, throughput)
+  ? Create health check endpoints with service status
+  ? Add prometheus metrics endpoint for monitoring
+  ? Implement distributed tracing
+
+Database Management
+  ? Move database URL to configuration
+  ? Implement database migration versioning
+  ? Add database connection retry logic
+  ? Implement soft delete functionality for relevant models
+  ? Add database transaction management
+
+Feature Enhancements
+  ? Add user profile management (update, delete)
+  ? Implement role-based access control
+  ? Create a notification system for new articles
+  ? Add full-text search capabilities
+  ? Implement content recommendation based on user preferences
+
+Terminal User Interface
+  * Research appropriate TUI libraries (textual, rich, urwid)
+  ? Design terminal interface mockups
+  ? Implement basic article viewing functionality
+  ? Add feed subscription management via terminal
+  ? Create a pleasing, teletext-inspired visual style
+
+Containerization & Deployment
+  ? Create Dockerfile for the application
+  ? Set up docker-compose for local development
+  ? Configure environment-specific settings
+  ? Add health checks for container orchestration
+  ? Document deployment procedures
+
+Documentation
+  ? Generate comprehensive API documentation
+  ? Create developer onboarding guide
+  ? Document database schema
+  ? Add architecture decision records (ADRs)
+  ? Create operation and maintenance guides
+
+# Notes
+- Settled on Textual for TUI
+- Fixed bcrypt typo
+

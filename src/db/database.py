@@ -4,7 +4,7 @@ from sqlmodel import QueuePool, Session, create_engine
 from src.core.config import settings
 
 engine = create_engine(
-    "sqlite:///database.db",
+    settings.DATABASE_URL,
     connect_args={"check_same_thread": False},
     poolclass=QueuePool,
     pool_size=settings.DB_POOL_SIZE,

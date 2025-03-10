@@ -18,7 +18,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         lifespan=lifespan,
         title=settings.PROJECT_NAME,
-        description="API for fetching and managing RSS news feeds",
+        description="API for fetching and managing news feeds",
         version="1.0.0",
         docs_url=f"{settings.API_V1_STR}/docs",
         redoc_url=f"{settings.API_V1_STR}/redoc",
