@@ -84,3 +84,18 @@ class HTTPClientError(BaseAPIException):
             error_code="HTTP_CLIENT_ERROR",
             additional_info=additional_info,
         )
+
+
+class PasswordTooWeakError(BaseAPIException):
+    """Raised when password doesn\'t meet requirements"""
+
+    def __init__(self, detail: str, requirements_failed: list[str] | None = None):
+        additional_info = (
+            {"requirements_failed": requirements_failed} if requirements_failed else {}
+        )
+        super().__init__(
+            status_code=400,
+            detail=detail,
+            error_code="PASSWORD_TOO_WEAK",
+            additional_info=additional_info,
+        )

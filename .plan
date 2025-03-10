@@ -1,13 +1,13 @@
 # .plan - Updated March 06, 2025
 
 Architecture & Structure
-  ? Add API versioning support - v1 prefix added to routes
+  ? Add API versioning support 
   ? Implement a clear separation between DTOs and domain models
   ? Create a comprehensive project README with architecture diagram
   ? Document API endpoints with enhanced OpenAPI comments and examples
 
 Security Enhancements
-  * Fix password hashing typo in CryptContext initialization (brcypt__rounds → bcrypt__rounds)
+  * Fix password hashing typo in CryptContext initialization 
   ? Implement CORS middleware with proper configuration
   ? Add rate limiting for authentication endpoints
   ? Create a token blacklisting system for logouts
@@ -23,7 +23,6 @@ Performance Optimization
 
 Error Handling & Resilience
   ? Implement circuit breaker pattern for external service calls
-  ? Fix method name syntax errors in XML parser
   ? Add request ID tracking for all error responses
   ? Implement graceful degradation for failed services
   ? Add comprehensive request validation error handling
@@ -45,7 +44,7 @@ Monitoring & Observability
   ? Implement distributed tracing
 
 Database Management
-  ? Move database URL to configuration
+  * Move database URL to configuration
   ? Implement database migration versioning
   ? Add database connection retry logic
   ? Implement soft delete functionality for relevant models
@@ -83,3 +82,7 @@ Documentation
 - Settled on Textual for TUI
 - Fixed bcrypt typo
 
+# March 10, 2025
+  * Move database URL to configuration
+
+# Notes

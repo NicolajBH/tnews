@@ -1,0 +1,1 @@
+{"timestamp": "2025-03-10 12:47:53,215", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
