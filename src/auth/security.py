@@ -41,11 +41,11 @@ def validate_password_strength(password: str) -> Tuple[bool, str, List[str]]:
     if failed_requirements:
         if "minimum_length" in failed_requirements:
             error_message = "Password must be at least 8 characters long."
-        if "maximum_length" in failed_requirements:
-            error_message = "Password must not exceed 128 characters."
-        if "common_password" in failed_requirements:
+        elif "maximum_length" in failed_requirements:
+            error_message = "Password exceeds maximum length of 128 characters."
+        elif "common_password" in failed_requirements:
             error_message = "Password too common."
-        if "character_diversity" in failed_requirements:
+        elif "character_diversity" in failed_requirements:
             error_message = "Password must contain at least 3 of the following: lowercase letter, uppercase letter, digit, special character."
         else:
             error_message = "Password does not meet security requirements."

@@ -12,7 +12,7 @@ Security Enhancements
   ? Add rate limiting for authentication endpoints
   ? Create a token blacklisting system for logouts
   ? Implement refresh tokens for extended sessions
-  ? Add password strength validation during registration
+  ? Add password strength validation during registration - Validation added. Needs tests.
 
 Performance Optimization
   ? Optimize database queries (fix N+1 query in articles endpoint)
