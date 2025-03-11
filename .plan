@@ -1,4 +1,4 @@
-# .plan - Updated March 10, 2025
+# .plan - Updated March 11, 2025
 
 Architecture & Structure
   ? Add API versioning support 
@@ -28,7 +28,7 @@ Error Handling & Resilience
   ? Add comprehensive request validation error handling
 
 Testing Improvements
-  ? Complete the unfinished test_latest_articles_with_date_filters test
+  * Complete the unfinished test_latest_articles_with_date_filters test
   ? Add tests for XML and JSON parsers
   ? Implement tests for Celery tasks and connection pooling
   ? Add integration tests with Redis using docker-compose
@@ -86,3 +86,9 @@ Documentation
   * Move database URL to configuration
   * Add password strength validation during registration
 # Notes
+- Not all articles from feeds are getting added to db
+
+# March 11, 2025
+  * Complete the unfinished test_latest_articles_with_date_filters test
+# Notes
+- Fixed issue where not all articles were being added to db

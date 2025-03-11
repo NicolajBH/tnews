@@ -71,7 +71,7 @@ def client(db_session):
 @pytest.fixture
 def test_user(db_session):
     """Create a test user in the database"""
-    hashed_password = get_password_hash("testpassword")
+    hashed_password = get_password_hash("Testpassword1")
     user = Users(
         username="testuser",
         password_hash=hashed_password,

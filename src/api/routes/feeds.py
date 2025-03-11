@@ -40,6 +40,11 @@ async def get_latest_articles(
         .where(FeedPreferences.is_active == True)
         .order_by(col(Articles.pub_date).desc())
     )
+    if params.start_date:
+        query = query.where(Articles.pub_date >= params.start_date)
+    if params.end_date:
+        query = query.where(Articles.pub_date <= params.end_date)
+
     query = query.limit(20)
     results = session.exec(query).all()
     articles_to_return = []

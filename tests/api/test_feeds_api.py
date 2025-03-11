@@ -1,9 +1,12 @@
+from datetime import datetime, timezone
 import pytest
 from fastapi import status
 import json
 from unittest.mock import patch, MagicMock, PropertyMock
 
+from src.api.dependencies import get_date_filters
 from src.core.config import settings
+from src.models.article import ArticleQueryParameters
 from src.models.db_models import ArticleCategories, Articles, FeedPreferences
 from tests.factories import (
     UserFactory,
@@ -48,13 +51,60 @@ class TestLatestArticlesEndpoint:
         assert response.status_code == status.HTTP_200_OK
 
         data = response.json()
-        print(data)
         assert len(data) == 3
 
     def test_latest_articles_with_date_filters(
         self, db_session, auth_client, test_user
     ):
-        pass
+        source = SourceFactory()
+        category = CategoryFactory(source_id=source.id)
+        pref = FeedPreferencesFactory(user=test_user, feed_id=category.id)
+
+        date1 = datetime(2025, 3, 1, tzinfo=timezone.utc)
+        date2 = datetime(2025, 3, 15, tzinfo=timezone.utc)
+        date3 = datetime(2025, 3, 30, tzinfo=timezone.utc)
+
+        article1 = ArticleFactory(
+            source_id=source.id, categories=[category], pub_date=date1
+        )
+        article2 = ArticleFactory(
+            source_id=source.id, categories=[category], pub_date=date2
+        )
+        article3 = ArticleFactory(
+            source_id=source.id, categories=[category], pub_date=date3
+        )
+        db_session.commit()
+
+        # test start date filter
+        response = auth_client.get(f"{PREFIX}/articles/latest?start_date=2025-03-02")
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert len(data) == 2
+
+        # test end date filter
+        response = auth_client.get(f"{PREFIX}/articles/latest?end_date=2025-03-29")
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert len(data) == 2
+
+        # test start and end date filter
+        response = auth_client.get(
+            f"{PREFIX}/articles/latest?start_date=2025-03-02&end_date=2025-03-29"
+        )
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert len(data) == 1
+
+        # test invalid date range
+        try:
+            response = auth_client.get(
+                f"{PREFIX}/articles/latest?start_date=2025-03-01&end_date=2025-02-01"
+            )
+            assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+            data = response.json()
+            assert "end_date must be greater than or equal to start_date" in str(data)
+        except ValueError as e:
+            assert "end_date must be greater than or equal to start_date" in str(e)
 
 
 class TestCategoriesEndpoint:
@@ -152,9 +202,7 @@ class TestSubscriptionEndpoints:
 
     def test_resubscribe_to_inactive_feed(self, db_session, auth_client, test_user):
         category = CategoryFactory()
-        FeedPreferencesFactory(
-            user_id=test_user.id, feed_id=category.id, is_active=False
-        )
+        FeedPreferencesFactory(user=test_user, feed_id=category.id, is_active=False)
 
         response = auth_client.post(f"{PREFIX}/subscribe/{category.id}")
         assert response.status_code == status.HTTP_200_OK

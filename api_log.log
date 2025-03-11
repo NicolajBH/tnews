@@ -4,3 +4,236 @@
 {"timestamp": "2025-03-10 18:51:07,236", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
 {"timestamp": "2025-03-10 18:52:16,303", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
 {"timestamp": "2025-03-10 19:00:39,079", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-03-10 22:11:09,521", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-03-11 12:07:48,423", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 401 Unauthorized\""}
+{"timestamp": "2025-03-11 12:11:26,462", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 401 Unauthorized\""}
+{"timestamp": "2025-03-11 12:11:26,476", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-03-11 12:11:26,816", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:11:27,164", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:11:27,483", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:11:27,839", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:11:28,121", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:11:28,402", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:11:28,685", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:11:28,974", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:11:29,261", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:11:29,555", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 400 Bad Request\""}
+{"timestamp": "2025-03-11 12:11:30,338", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:11:30,622", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:11:30,906", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:11:31,223", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:14:01,953", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 401 Unauthorized\""}
+{"timestamp": "2025-03-11 12:14:01,967", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-03-11 12:14:02,282", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:14:02,633", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:14:02,957", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:14:03,314", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:14:03,602", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:14:03,892", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:14:04,182", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:14:04,480", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:14:04,775", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:14:05,085", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 400 Bad Request\""}
+{"timestamp": "2025-03-11 12:14:05,914", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:14:06,207", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:14:06,496", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:14:06,814", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:16:26,006", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 401 Unauthorized\""}
+{"timestamp": "2025-03-11 12:16:26,022", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-03-11 12:16:26,332", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:16:26,676", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:16:27,006", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:16:27,366", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:16:27,651", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:16:27,936", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:16:28,219", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:16:28,509", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:16:28,796", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:16:29,095", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 400 Bad Request\""}
+{"timestamp": "2025-03-11 12:16:29,877", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:16:30,165", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:16:30,448", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:16:30,764", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:24:49,278", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 401 Unauthorized\""}
+{"timestamp": "2025-03-11 12:24:49,296", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-03-11 12:24:49,636", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:24:49,997", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:24:50,321", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:24:50,676", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:24:50,960", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:24:51,241", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:24:51,524", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:24:51,814", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:24:52,100", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:24:52,395", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 400 Bad Request\""}
+{"timestamp": "2025-03-11 12:24:53,207", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:24:53,492", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:24:53,781", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:24:54,103", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:26:08,558", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 401 Unauthorized\""}
+{"timestamp": "2025-03-11 12:26:08,575", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-03-11 12:26:08,890", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:26:09,238", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:26:09,570", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:26:09,954", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:26:10,236", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:26:10,517", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:26:10,801", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:26:11,091", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:26:11,378", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:26:11,672", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 400 Bad Request\""}
+{"timestamp": "2025-03-11 12:26:12,453", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:26:12,736", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:26:13,020", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:26:13,337", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:26:53,177", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 401 Unauthorized\""}
+{"timestamp": "2025-03-11 12:26:53,191", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-03-11 12:26:53,504", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:26:53,851", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:26:54,200", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:26:54,552", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:26:54,836", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:26:55,116", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:26:55,405", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:26:55,691", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:26:55,977", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:26:56,271", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 400 Bad Request\""}
+{"timestamp": "2025-03-11 12:26:57,067", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:26:57,354", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:26:57,638", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:26:57,955", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:28:24,503", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 401 Unauthorized\""}
+{"timestamp": "2025-03-11 12:28:24,517", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-03-11 12:28:24,833", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:28:25,183", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:28:25,512", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:28:25,870", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:28:26,152", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:28:26,434", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:28:26,718", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:28:27,014", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:28:27,297", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:28:27,591", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 400 Bad Request\""}
+{"timestamp": "2025-03-11 12:28:28,368", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:28:28,653", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:28:28,936", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:28:29,253", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:30:59,041", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 401 Unauthorized\""}
+{"timestamp": "2025-03-11 12:30:59,055", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-03-11 12:30:59,367", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:30:59,710", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:31:00,035", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:31:00,052", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:31:00,067", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02&end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:31:01,160", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:31:01,444", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:31:01,725", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:31:02,010", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:31:02,298", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:31:02,584", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:31:02,928", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 400 Bad Request\""}
+{"timestamp": "2025-03-11 12:31:03,705", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:31:03,989", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:31:04,272", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:31:04,589", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:31:42,169", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 401 Unauthorized\""}
+{"timestamp": "2025-03-11 12:31:42,183", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-03-11 12:31:42,499", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:31:42,846", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:31:43,208", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:31:43,230", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:31:43,245", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02&end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:31:44,482", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:31:44,766", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:31:45,049", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:31:45,329", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:31:45,616", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:31:45,901", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:31:46,270", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 400 Bad Request\""}
+{"timestamp": "2025-03-11 12:31:47,074", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:31:47,372", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:31:47,663", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:31:47,974", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:32:47,885", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 401 Unauthorized\""}
+{"timestamp": "2025-03-11 12:32:47,902", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-03-11 12:32:48,217", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:32:48,560", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:32:48,882", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:32:48,901", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:32:48,913", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02&end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:32:49,983", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:32:50,268", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:32:50,548", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:32:50,833", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:32:51,123", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:32:51,409", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:32:51,754", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 400 Bad Request\""}
+{"timestamp": "2025-03-11 12:32:52,052", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:32:52,350", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:32:52,633", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:32:52,915", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:32:53,231", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:36:42,051", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 401 Unauthorized\""}
+{"timestamp": "2025-03-11 12:36:42,064", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-03-11 12:36:42,418", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:36:42,764", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:36:43,084", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:36:43,101", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:36:43,114", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02&end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:36:43,414", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:36:43,706", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:36:43,996", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:36:44,280", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:36:44,570", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:36:44,862", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:36:45,155", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 400 Bad Request\""}
+{"timestamp": "2025-03-11 12:36:45,449", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:36:45,752", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:36:46,040", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:36:46,323", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:36:46,641", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:39,733", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 401 Unauthorized\""}
+{"timestamp": "2025-03-11 12:41:39,748", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-03-11 12:41:40,064", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:40,410", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:40,838", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:40,854", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:40,866", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02&end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:41,180", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:41,469", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:41:41,753", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:42,040", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:41:42,330", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:42,619", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:41:42,917", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 400 Bad Request\""}
+{"timestamp": "2025-03-11 12:41:43,213", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:43,512", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:43,795", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:41:44,081", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:44,396", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:53,923", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/test-source-error \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:41:53,925", "level": "INFO", "module": "test_error_handlers", "message": "{'timestamp': '2025-03-11T11:41:53.919262+00:00', 'status': 404, 'error_code': 'INVALID_SOURCE', 'message': 'Invalid source: Unknown source', 'path': '/api/v1/test-source-error', 'additional_info': {'source': 'Unknown source'}}"}
+{"timestamp": "2025-03-11 12:41:53,937", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/test-generic-error \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:41:54,030", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 401 Unauthorized\""}
+{"timestamp": "2025-03-11 12:41:54,041", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-03-11 12:41:54,352", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:54,696", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:55,021", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:55,033", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:55,046", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02&end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:55,338", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:55,623", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:41:55,908", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:56,196", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-11 12:41:56,486", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:56,771", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:41:57,066", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 400 Bad Request\""}
+{"timestamp": "2025-03-11 12:41:57,362", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:57,661", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:57,948", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-11 12:41:58,232", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:58,549", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-11 12:41:58,878", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4587946400 in process 80263"}
+{"timestamp": "2025-03-11 12:41:58,901", "level": "INFO", "module": "news", "message": "Saved 2 new articles to database"}
+{"timestamp": "2025-03-11 12:41:58,937", "level": "INFO", "module": "news", "message": "Saved 1 new articles to database"}
+{"timestamp": "2025-03-11 12:41:59,024", "level": "ERROR", "module": "news", "message": "Error fetching https://example.com/feed2.xml: 500: Failed to fetch feed"}
