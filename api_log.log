@@ -237,3 +237,54 @@
 {"timestamp": "2025-03-11 12:41:58,901", "level": "INFO", "module": "news", "message": "Saved 2 new articles to database"}
 {"timestamp": "2025-03-11 12:41:58,937", "level": "INFO", "module": "news", "message": "Saved 1 new articles to database"}
 {"timestamp": "2025-03-11 12:41:59,024", "level": "ERROR", "module": "news", "message": "Error fetching https://example.com/feed2.xml: 500: Failed to fetch feed"}
+{"timestamp": "2025-03-12 13:14:34,705", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 13:14:34,707", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 13:14:34,720", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 13:15:56,275", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 13:15:56,276", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 13:15:56,293", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 13:16:53,726", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 13:16:53,728", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 13:16:53,742", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 13:21:00,037", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 13:21:00,039", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 13:21:00,053", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 13:23:48,400", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 13:23:48,400", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 13:23:48,407", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 13:25:28,269", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 13:25:28,270", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 13:25:28,276", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:32:40,321", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:32:40,322", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:32:40,329", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:34:46,490", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:34:46,492", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:34:46,506", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:37:30,808", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:37:30,809", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:37:30,816", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:41:44,269", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:41:44,270", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:41:44,276", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:42:58,395", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:42:58,396", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:42:58,402", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:43:19,223", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:43:19,224", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:43:19,231", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:43:31,260", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:43:31,260", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:43:31,266", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:46:50,692", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:46:50,694", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:46:50,715", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:48:43,015", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:48:43,017", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:48:43,030", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:50:50,703", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:50:50,703", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:50:50,710", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title, pubDate"}
+{"timestamp": "2025-03-12 17:57:48,229", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 17:57:48,233", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: pubDate"}
+{"timestamp": "2025-03-12 17:57:48,234", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
