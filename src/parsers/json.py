@@ -26,11 +26,33 @@ class JSONFeedParser(FeedParser):
         return articles_to_return
 
     async def _create_article_from_json(self, item: Dict[str, str]):
-        return Articles(
-            title=item["headline"],
-            content_hash=hashlib.md5(item["headline"].encode()).hexdigest(),
-            pub_date=datetime.fromisoformat(item["publishedAt"].replace("Z", "+00:00")),
-            pub_date_raw=item["publishedAt"],
-            original_url=item["url"],
-            source_id=self.source_id,
-        )
+        try:
+            missing = []
+            if "headline" not in item or not item["headline"]:
+                missing.append("headline")
+            if "publishedAt" not in item or not item["publishedAt"]:
+                missing.append("publishedAt")
+
+            if missing:
+                logger.warning(
+                    f"Skipping article: Missing critical fields: {', '.join(missing)}"
+                )
+                return None
+
+            url = item.get("url", "")
+            return Articles(
+                title=item["headline"],
+                content_hash=hashlib.md5(item["headline"].encode()).hexdigest(),
+                pub_date=datetime.fromisoformat(
+                    item["publishedAt"].replace("Z", "+00:00")
+                ),
+                pub_date_raw=item["publishedAt"],
+                original_url=url,
+                source_id=self.source_id,
+            )
+        except (KeyError, ValueError) as e:
+            logger.error(f"Error parsing JSON item: {str(e)}", exc_info=True)
+            return None
+        except Exception as e:
+            logger.error(f"Unexpected error parsing JSON item: {str(e)}", exc_info=True)
+            return None

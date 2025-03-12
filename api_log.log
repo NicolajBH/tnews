@@ -288,3 +288,160 @@
 {"timestamp": "2025-03-12 17:57:48,229", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
 {"timestamp": "2025-03-12 17:57:48,233", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: pubDate"}
 {"timestamp": "2025-03-12 17:57:48,234", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:07:33,870", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:07:33,872", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: pubDate"}
+{"timestamp": "2025-03-12 18:07:33,874", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:09:53,726", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:09:53,729", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: pubDate"}
+{"timestamp": "2025-03-12 18:09:53,730", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:10:12,145", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:10:12,147", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: pubDate"}
+{"timestamp": "2025-03-12 18:10:12,149", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:10:30,591", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:10:30,592", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: pubDate"}
+{"timestamp": "2025-03-12 18:10:30,595", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:11:02,734", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:11:02,737", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: pubDate"}
+{"timestamp": "2025-03-12 18:11:02,739", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:18:51,182", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:18:51,185", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: pubDate"}
+{"timestamp": "2025-03-12 18:18:51,186", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:20:53,665", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:20:53,667", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: pubDate"}
+{"timestamp": "2025-03-12 18:20:53,669", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:22:10,956", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:22:10,958", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: pubDate"}
+{"timestamp": "2025-03-12 18:22:10,961", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:23:15,421", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:23:15,423", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: pubDate"}
+{"timestamp": "2025-03-12 18:23:15,424", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:23:53,736", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:23:53,737", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: pubDate"}
+{"timestamp": "2025-03-12 18:23:53,742", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:27:04,436", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:27:04,438", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: pubDate"}
+{"timestamp": "2025-03-12 18:27:04,440", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:48:26,055", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:48:26,056", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: pubDate"}
+{"timestamp": "2025-03-12 18:48:26,058", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:48:26,073", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline"}
+{"timestamp": "2025-03-12 18:48:26,074", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,074", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,074", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,074", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,075", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,075", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,075", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,075", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,075", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,075", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,076", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,076", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,076", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,076", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,076", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,076", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,076", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,077", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,077", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,077", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,077", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,077", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,077", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,077", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,078", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,078", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,078", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,078", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,078", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,078", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,078", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,079", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,079", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,079", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,079", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,079", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,080", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,080", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,080", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,080", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,081", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,081", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,081", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,082", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,082", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,082", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,082", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,082", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,082", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,082", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,083", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,083", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,083", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,083", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,083", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,083", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,084", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,084", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,084", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,084", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,084", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,084", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,085", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,085", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,085", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,085", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,085", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,085", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,085", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,086", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,086", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,086", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,086", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,086", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,087", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,087", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,087", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,087", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,087", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,088", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,088", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,088", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,088", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,088", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,088", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,089", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,089", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,089", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,090", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,090", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,090", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,090", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,091", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,091", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,091", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,091", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,091", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,091", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,092", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,092", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,092", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,092", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,092", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,092", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,092", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,093", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,093", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,093", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,093", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:48:26,093", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:49:13,562", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:49:13,563", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: pubDate"}
+{"timestamp": "2025-03-12 18:49:13,564", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:49:13,582", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline"}
+{"timestamp": "2025-03-12 18:49:13,583", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 18:51:48,998", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:51:48,999", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: pubDate"}
+{"timestamp": "2025-03-12 18:51:49,000", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
+{"timestamp": "2025-03-12 18:51:49,017", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline"}
+{"timestamp": "2025-03-12 18:51:49,018", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}

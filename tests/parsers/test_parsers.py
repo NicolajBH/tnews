@@ -1,7 +1,9 @@
+import json
 import pytest
 from unittest.mock import MagicMock
 import xml.etree.ElementTree as ET
 
+from src.parsers.json import JSONFeedParser
 from src.parsers.xml import XMLFeedParser
 from src.models.db_models import Articles
 
@@ -73,6 +75,7 @@ def mock_html_response():
 
 
 class TestXMLParser:
+    @pytest.mark.asyncio
     async def test_parse_content_returns_articles_list(self, mock_xml_response):
         parser = XMLFeedParser(source_id=1)
         _, content = mock_xml_response
@@ -80,12 +83,14 @@ class TestXMLParser:
         assert isinstance(articles, list)
         assert all(isinstance(article, Articles) for article in articles)
 
+    @pytest.mark.asyncio
     async def test_handles_incomplete_xml(self):
         parser = XMLFeedParser(source_id=1)
         incomplete_xml = "<rss><channel><item><title>Test</title></item></channel>"
         with pytest.raises(ET.ParseError):
             await parser.parse_content(incomplete_xml)
 
+    @pytest.mark.asyncio
     async def test_missing_fields_handled(self):
         parser = XMLFeedParser(source_id=1)
         # xml with missing url
@@ -146,4 +151,83 @@ class TestXMLParser:
 
 
 class TestJSONParser:
-    pass
+    async def test_parse_content_returns_articles_list(self, mock_json_response):
+        parser = JSONFeedParser(source_id=1)
+        _, content = mock_json_response
+        articles = await parser.parse_content(content.decode())
+        assert isinstance(articles, list)
+        assert len(articles) == 2
+        assert articles[0].title == "First JSON Test Article"
+        assert articles[0].original_url == "https://example.com/json-article1"
+
+    @pytest.mark.asyncio
+    async def test_handles_malformed_json(self):
+        parser = JSONFeedParser(source_id=1)
+        malformed_json = "{'headline': 'Test Article'"
+        with pytest.raises(json.JSONDecodeError):
+            await parser.parse_content(malformed_json)
+
+    @pytest.mark.asyncio
+    async def test_datetime_conversion(self):
+        parser = JSONFeedParser(source_id=1)
+        json_content = json.dumps(
+            [
+                {
+                    "headline": "Test Article",
+                    "publishedAt": "2025-01-01T12:00:00Z",
+                    "url": "https://example.com",
+                }
+            ]
+        )
+        articles = await parser.parse_content(json_content)
+
+        assert len(articles) == 1
+        assert articles[0].pub_date.year == 2025
+        assert articles[0].pub_date.month == 1
+        assert articles[0].pub_date.day == 1
+        assert articles[0].pub_date.hour == 12
+        assert articles[0].pub_date.tzinfo is not None
+
+    @pytest.mark.asyncio
+    async def test_missing_fields_handled(self):
+        parser = JSONFeedParser(source_id=1)
+        json_missing_url = json.dumps(
+            [
+                {
+                    "headline": "Test Article",
+                    "publishedAt": "2025-01-01T12:00:00Z",
+                }
+            ]
+        )
+
+        articles = await parser.parse_content(json_missing_url)
+        assert len(articles) == 1
+        assert articles[0].original_url == ""
+
+        json_missing_headline = json.dumps(
+            [
+                {
+                    "publishedAt": "2025-01-01T12:00:00Z",
+                    "url": "https://example.com",
+                }
+            ]
+        )
+
+        articles = await parser.parse_content(json_missing_headline)
+        assert len(articles) == 0
+
+        json_mixed_items = json.dumps(
+            [
+                {
+                    "headline": "Valid Article",
+                    "publishedAt": "2025-01-01T12:00:00Z",
+                },
+                {
+                    "url": "https://example.com/invalid",
+                },
+            ]
+        )
+
+        articles = await parser.parse_content(json_mixed_items)
+        assert len(articles) == 1
+        assert articles[0].title == "Valid Article"
