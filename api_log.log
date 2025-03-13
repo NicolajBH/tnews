@@ -445,3 +445,199 @@
 {"timestamp": "2025-03-12 18:51:49,000", "level": "WARNING", "module": "xml", "message": "Skipping article: Missing critical fields: title"}
 {"timestamp": "2025-03-12 18:51:49,017", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline"}
 {"timestamp": "2025-03-12 18:51:49,018", "level": "WARNING", "module": "json", "message": "Skipping article: Missing critical fields: headline, publishedAt"}
+{"timestamp": "2025-03-12 20:38:47,710", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 2 feeds"}
+{"timestamp": "2025-03-13 10:24:56,278", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 2 feeds"}
+{"timestamp": "2025-03-13 10:30:54,355", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 2 feeds"}
+{"timestamp": "2025-03-13 10:33:50,178", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 2 feeds"}
+{"timestamp": "2025-03-13 10:37:06,459", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 2 feeds"}
+{"timestamp": "2025-03-13 10:37:27,074", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 2 feeds"}
+{"timestamp": "2025-03-13 10:37:27,083", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 0 feeds"}
+{"timestamp": "2025-03-13 10:37:27,084", "level": "WARNING", "module": "feed_tasks", "message": "No feeds to process"}
+{"timestamp": "2025-03-13 10:39:47,540", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 2 feeds"}
+{"timestamp": "2025-03-13 10:39:47,547", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 0 feeds"}
+{"timestamp": "2025-03-13 10:39:47,548", "level": "WARNING", "module": "feed_tasks", "message": "No feeds to process"}
+{"timestamp": "2025-03-13 10:49:08,169", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 2 feeds"}
+{"timestamp": "2025-03-13 10:49:08,178", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 0 feeds"}
+{"timestamp": "2025-03-13 10:49:08,178", "level": "WARNING", "module": "feed_tasks", "message": "No feeds to process"}
+{"timestamp": "2025-03-13 10:54:55,895", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 2 feeds"}
+{"timestamp": "2025-03-13 10:54:55,903", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 0 feeds"}
+{"timestamp": "2025-03-13 10:54:55,903", "level": "WARNING", "module": "feed_tasks", "message": "No feeds to process"}
+{"timestamp": "2025-03-13 11:15:04,426", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 0 feeds"}
+{"timestamp": "2025-03-13 11:15:04,427", "level": "WARNING", "module": "feed_tasks", "message": "No feeds to process"}
+{"timestamp": "2025-03-13 11:25:20,288", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 0 feeds"}
+{"timestamp": "2025-03-13 11:25:20,290", "level": "WARNING", "module": "feed_tasks", "message": "No feeds to process"}
+{"timestamp": "2025-03-13 11:34:14,907", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 0 feeds"}
+{"timestamp": "2025-03-13 11:34:14,908", "level": "WARNING", "module": "feed_tasks", "message": "No feeds to process"}
+{"timestamp": "2025-03-13 11:35:47,714", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 0 feeds"}
+{"timestamp": "2025-03-13 11:35:47,715", "level": "WARNING", "module": "feed_tasks", "message": "No feeds to process"}
+{"timestamp": "2025-03-13 11:36:08,477", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 0 feeds"}
+{"timestamp": "2025-03-13 11:36:08,477", "level": "WARNING", "module": "feed_tasks", "message": "No feeds to process"}
+{"timestamp": "2025-03-13 20:01:41,237", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 0 feeds"}
+{"timestamp": "2025-03-13 20:01:41,239", "level": "WARNING", "module": "feed_tasks", "message": "No feeds to process"}
+{"timestamp": "2025-03-13 20:01:41,251", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 2 feeds"}
+{"timestamp": "2025-03-13 20:02:29,191", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 0 feeds"}
+{"timestamp": "2025-03-13 20:02:29,191", "level": "WARNING", "module": "feed_tasks", "message": "No feeds to process"}
+{"timestamp": "2025-03-13 20:02:29,204", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 2 feeds"}
+{"timestamp": "2025-03-13 20:09:32,781", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 0 feeds"}
+{"timestamp": "2025-03-13 20:09:32,782", "level": "WARNING", "module": "feed_tasks", "message": "No feeds to process"}
+{"timestamp": "2025-03-13 20:09:32,792", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 2 feeds"}
+{"timestamp": "2025-03-13 20:12:32,167", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 0 feeds"}
+{"timestamp": "2025-03-13 20:12:32,169", "level": "WARNING", "module": "feed_tasks", "message": "No feeds to process"}
+{"timestamp": "2025-03-13 20:12:32,184", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 2 feeds"}
+{"timestamp": "2025-03-13 20:13:24,894", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 0 feeds"}
+{"timestamp": "2025-03-13 20:13:24,895", "level": "WARNING", "module": "feed_tasks", "message": "No feeds to process"}
+{"timestamp": "2025-03-13 20:13:24,904", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 2 feeds"}
+{"timestamp": "2025-03-13 20:13:44,621", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 0 feeds"}
+{"timestamp": "2025-03-13 20:13:44,621", "level": "WARNING", "module": "feed_tasks", "message": "No feeds to process"}
+{"timestamp": "2025-03-13 20:13:44,630", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 2 feeds"}
+{"timestamp": "2025-03-13 20:15:34,283", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 0 feeds"}
+{"timestamp": "2025-03-13 20:15:34,284", "level": "WARNING", "module": "feed_tasks", "message": "No feeds to process"}
+{"timestamp": "2025-03-13 20:15:34,295", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 2 feeds"}
+{"timestamp": "2025-03-13 20:18:58,483", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 0 feeds"}
+{"timestamp": "2025-03-13 20:18:58,484", "level": "WARNING", "module": "feed_tasks", "message": "No feeds to process"}
+{"timestamp": "2025-03-13 20:18:58,496", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 2 feeds"}
+{"timestamp": "2025-03-13 20:18:58,504", "level": "ERROR", "module": "feed_tasks", "message": "Feed fetch coordinator task failed: Test exception"}
+{"timestamp": "2025-03-13 20:44:51,497", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 0 feeds"}
+{"timestamp": "2025-03-13 20:44:51,498", "level": "WARNING", "module": "feed_tasks", "message": "No feeds to process"}
+{"timestamp": "2025-03-13 20:44:51,508", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 2 feeds"}
+{"timestamp": "2025-03-13 20:44:51,514", "level": "ERROR", "module": "feed_tasks", "message": "Feed fetch coordinator task failed: Test exception"}
+{"timestamp": "2025-03-13 20:48:21,842", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 0 feeds"}
+{"timestamp": "2025-03-13 20:48:21,843", "level": "WARNING", "module": "feed_tasks", "message": "No feeds to process"}
+{"timestamp": "2025-03-13 20:48:21,853", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 2 feeds"}
+{"timestamp": "2025-03-13 20:48:21,860", "level": "ERROR", "module": "feed_tasks", "message": "Feed fetch coordinator task failed: Test exception"}
+{"timestamp": "2025-03-13 20:48:21,876", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 4 feeds"}
+{"timestamp": "2025-03-13 20:52:45,327", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 0 feeds"}
+{"timestamp": "2025-03-13 20:52:45,328", "level": "WARNING", "module": "feed_tasks", "message": "No feeds to process"}
+{"timestamp": "2025-03-13 20:52:45,339", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 2 feeds"}
+{"timestamp": "2025-03-13 20:52:45,345", "level": "ERROR", "module": "feed_tasks", "message": "Feed fetch coordinator task failed: Test exception"}
+{"timestamp": "2025-03-13 20:52:45,359", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 4 feeds"}
+{"timestamp": "2025-03-13 20:59:21,633", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 0 feeds"}
+{"timestamp": "2025-03-13 20:59:21,634", "level": "WARNING", "module": "feed_tasks", "message": "No feeds to process"}
+{"timestamp": "2025-03-13 20:59:21,647", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 2 feeds"}
+{"timestamp": "2025-03-13 20:59:21,654", "level": "ERROR", "module": "feed_tasks", "message": "Feed fetch coordinator task failed: Test exception"}
+{"timestamp": "2025-03-13 20:59:21,670", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 4 feeds"}
+{"timestamp": "2025-03-13 21:06:51,082", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 0 feeds"}
+{"timestamp": "2025-03-13 21:06:51,083", "level": "WARNING", "module": "feed_tasks", "message": "No feeds to process"}
+{"timestamp": "2025-03-13 21:06:51,095", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 2 feeds"}
+{"timestamp": "2025-03-13 21:06:51,105", "level": "ERROR", "module": "feed_tasks", "message": "Feed fetch coordinator task failed: Test exception"}
+{"timestamp": "2025-03-13 21:06:51,128", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 5 feeds"}
+{"timestamp": "2025-03-13 21:10:22,813", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 0 feeds"}
+{"timestamp": "2025-03-13 21:10:22,814", "level": "WARNING", "module": "feed_tasks", "message": "No feeds to process"}
+{"timestamp": "2025-03-13 21:10:22,823", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 2 feeds"}
+{"timestamp": "2025-03-13 21:10:22,828", "level": "ERROR", "module": "feed_tasks", "message": "Feed fetch coordinator task failed: Test exception"}
+{"timestamp": "2025-03-13 21:10:22,842", "level": "INFO", "module": "feed_tasks", "message": "Starting fetch of 5 feeds"}
+{"timestamp": "2025-03-13 21:46:37,378", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at 1000.0"}
+{"timestamp": "2025-03-13 21:46:37,382", "level": "INFO", "module": "feed_tasks", "message": "Chunk processing complete - 2 feeds", "metrics": {"chunk_size": 2, "total_articles": 0, "successful_fetches": 0, "failed_fetches": 0, "fetch_time_seconds": 10.0}}
+{"timestamp": "2025-03-13 21:51:31,610", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at 1000.0"}
+{"timestamp": "2025-03-13 21:51:31,614", "level": "INFO", "module": "feed_tasks", "message": "Chunk processing complete - 2 feeds", "metrics": {"chunk_size": 2, "total_articles": 0, "successful_fetches": 0, "failed_fetches": 0, "fetch_time_seconds": 10.0}}
+{"timestamp": "2025-03-13 21:52:40,871", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at 1000.0"}
+{"timestamp": "2025-03-13 21:52:40,874", "level": "INFO", "module": "feed_tasks", "message": "Chunk processing complete - 2 feeds", "metrics": {"chunk_size": 2, "total_articles": 0, "successful_fetches": 0, "failed_fetches": 0, "fetch_time_seconds": 10.0}}
+{"timestamp": "2025-03-13 21:56:34,817", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at 1000.0"}
+{"timestamp": "2025-03-13 21:56:34,821", "level": "INFO", "module": "feed_tasks", "message": "Chunk processing complete - 2 feeds", "metrics": {"chunk_size": 2, "total_articles": 0, "successful_fetches": 0, "failed_fetches": 0, "fetch_time_seconds": 10.0}}
+{"timestamp": "2025-03-13 21:59:39,555", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at 1000.0"}
+{"timestamp": "2025-03-13 21:59:39,558", "level": "INFO", "module": "feed_tasks", "message": "Chunk processing complete - 2 feeds", "metrics": {"chunk_size": 2, "total_articles": 5, "successful_fetches": 2, "failed_fetches": 0, "fetch_time_seconds": 10.0}}
+{"timestamp": "2025-03-13 21:59:39,559", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: "}
+{"timestamp": "2025-03-13 22:03:56,093", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at 1000.0"}
+{"timestamp": "2025-03-13 22:03:56,096", "level": "INFO", "module": "feed_tasks", "message": "Chunk processing complete - 2 feeds", "metrics": {"chunk_size": 2, "total_articles": 5, "successful_fetches": 2, "failed_fetches": 0, "fetch_time_seconds": 10.0}}
+{"timestamp": "2025-03-13 22:03:56,098", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: "}
+{"timestamp": "2025-03-13 22:03:56,110", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at 1000.0"}
+{"timestamp": "2025-03-13 22:03:56,117", "level": "INFO", "module": "feed_tasks", "message": "Chunk processing complete - 3 feeds", "metrics": {"chunk_size": 3, "total_articles": 0, "successful_fetches": 0, "failed_fetches": 0, "fetch_time_seconds": 5.0}}
+{"timestamp": "2025-03-13 22:07:33,474", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at 1000.0"}
+{"timestamp": "2025-03-13 22:07:33,476", "level": "INFO", "module": "feed_tasks", "message": "Chunk processing complete - 2 feeds", "metrics": {"chunk_size": 2, "total_articles": 5, "successful_fetches": 2, "failed_fetches": 0, "fetch_time_seconds": 10.0}}
+{"timestamp": "2025-03-13 22:07:33,478", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: "}
+{"timestamp": "2025-03-13 22:07:33,489", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at 1000.0"}
+{"timestamp": "2025-03-13 22:07:33,493", "level": "ERROR", "module": "feed_tasks", "message": "Feed fetch error: Feed fetch error"}
+{"timestamp": "2025-03-13 22:07:33,493", "level": "INFO", "module": "feed_tasks", "message": "Chunk processing complete - 3 feeds", "metrics": {"chunk_size": 3, "total_articles": 5, "successful_fetches": 2, "failed_fetches": 1, "fetch_time_seconds": 5.0}}
+{"timestamp": "2025-03-13 22:07:33,500", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: "}
+{"timestamp": "2025-03-13 22:11:48,241", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at 1000.0"}
+{"timestamp": "2025-03-13 22:11:48,245", "level": "ERROR", "module": "feed_tasks", "message": "Feed chunk processing failed: "}
+{"timestamp": "2025-03-13 22:11:48,248", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: "}
+{"timestamp": "2025-03-13 22:11:48,801", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at 1000.0"}
+{"timestamp": "2025-03-13 22:11:48,805", "level": "ERROR", "module": "feed_tasks", "message": "Feed fetch error: Feed fetch error"}
+{"timestamp": "2025-03-13 22:11:48,806", "level": "ERROR", "module": "feed_tasks", "message": "Feed chunk processing failed: "}
+{"timestamp": "2025-03-13 22:11:48,809", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: "}
+{"timestamp": "2025-03-13 22:18:17,767", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at 1000.0"}
+{"timestamp": "2025-03-13 22:18:17,770", "level": "INFO", "module": "feed_tasks", "message": "Chunk processing complete - 2 feeds", "metrics": {"chunk_size": 2, "total_articles": 5, "successful_fetches": 2, "failed_fetches": 0, "fetch_time_seconds": 0.0}}
+{"timestamp": "2025-03-13 22:18:17,772", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: "}
+{"timestamp": "2025-03-13 22:18:17,866", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at 1000.0"}
+{"timestamp": "2025-03-13 22:18:17,872", "level": "ERROR", "module": "feed_tasks", "message": "Feed fetch error: Feed fetch error"}
+{"timestamp": "2025-03-13 22:18:17,872", "level": "INFO", "module": "feed_tasks", "message": "Chunk processing complete - 3 feeds", "metrics": {"chunk_size": 3, "total_articles": 5, "successful_fetches": 2, "failed_fetches": 1, "fetch_time_seconds": 0.0}}
+{"timestamp": "2025-03-13 22:18:17,874", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: "}
+{"timestamp": "2025-03-13 22:25:11,796", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at 1000.0"}
+{"timestamp": "2025-03-13 22:25:11,799", "level": "ERROR", "module": "feed_tasks", "message": "Feed chunk processing failed: "}
+{"timestamp": "2025-03-13 22:25:11,801", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: "}
+{"timestamp": "2025-03-13 22:25:12,364", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at 1000.0"}
+{"timestamp": "2025-03-13 22:25:12,367", "level": "ERROR", "module": "feed_tasks", "message": "Feed fetch error: Feed fetch error"}
+{"timestamp": "2025-03-13 22:25:12,367", "level": "ERROR", "module": "feed_tasks", "message": "Feed chunk processing failed: "}
+{"timestamp": "2025-03-13 22:25:12,369", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: "}
+{"timestamp": "2025-03-13 22:25:12,877", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at <MagicMock name='time.time()' id='4424491632'>"}
+{"timestamp": "2025-03-13 22:25:12,880", "level": "ERROR", "module": "feed_tasks", "message": "Feed chunk processing failed: Test exception"}
+{"timestamp": "2025-03-13 22:25:12,882", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: Test exception"}
+{"timestamp": "2025-03-13 22:25:12,899", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at 1000.0"}
+{"timestamp": "2025-03-13 22:25:12,901", "level": "ERROR", "module": "feed_tasks", "message": "Feed chunk processing failed: "}
+{"timestamp": "2025-03-13 22:25:12,903", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: "}
+{"timestamp": "2025-03-13 22:26:21,993", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at <MagicMock name='time.time()' id='4508706064'>"}
+{"timestamp": "2025-03-13 22:26:22,037", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: "}
+{"timestamp": "2025-03-13 22:26:22,132", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at <MagicMock name='time.time()' id='4509938560'>"}
+{"timestamp": "2025-03-13 22:26:22,134", "level": "ERROR", "module": "feed_tasks", "message": "Feed fetch error: Feed fetch error"}
+{"timestamp": "2025-03-13 22:26:22,142", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: "}
+{"timestamp": "2025-03-13 22:26:22,166", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at <MagicMock name='time.time()' id='4510511664'>"}
+{"timestamp": "2025-03-13 22:26:22,167", "level": "ERROR", "module": "feed_tasks", "message": "Feed chunk processing failed: Test exception"}
+{"timestamp": "2025-03-13 22:26:22,169", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: Test exception"}
+{"timestamp": "2025-03-13 22:26:22,182", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at <MagicMock name='time.time()' id='4511066704'>"}
+{"timestamp": "2025-03-13 22:26:22,190", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: "}
+{"timestamp": "2025-03-13 22:26:59,346", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at 1000.0"}
+{"timestamp": "2025-03-13 22:26:59,349", "level": "ERROR", "module": "feed_tasks", "message": "Feed chunk processing failed: "}
+{"timestamp": "2025-03-13 22:26:59,350", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: "}
+{"timestamp": "2025-03-13 22:26:59,896", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at 1000.0"}
+{"timestamp": "2025-03-13 22:26:59,898", "level": "ERROR", "module": "feed_tasks", "message": "Feed fetch error: Feed fetch error"}
+{"timestamp": "2025-03-13 22:26:59,899", "level": "ERROR", "module": "feed_tasks", "message": "Feed chunk processing failed: "}
+{"timestamp": "2025-03-13 22:26:59,900", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: "}
+{"timestamp": "2025-03-13 22:27:00,430", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at <MagicMock name='time.time()' id='4561330800'>"}
+{"timestamp": "2025-03-13 22:27:00,432", "level": "ERROR", "module": "feed_tasks", "message": "Feed chunk processing failed: Test exception"}
+{"timestamp": "2025-03-13 22:27:00,433", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: Test exception"}
+{"timestamp": "2025-03-13 22:27:00,444", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at 1000.0"}
+{"timestamp": "2025-03-13 22:27:00,446", "level": "ERROR", "module": "feed_tasks", "message": "Feed chunk processing failed: "}
+{"timestamp": "2025-03-13 22:27:00,447", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: "}
+{"timestamp": "2025-03-13 22:30:50,153", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at 1741901450.153119"}
+{"timestamp": "2025-03-13 22:30:50,156", "level": "INFO", "module": "feed_tasks", "message": "Chunk processing complete - 2 feeds", "metrics": {"chunk_size": 2, "total_articles": 5, "successful_fetches": 2, "failed_fetches": 0, "fetch_time_seconds": 0.0}}
+{"timestamp": "2025-03-13 22:30:50,157", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: "}
+{"timestamp": "2025-03-13 22:32:39,635", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at 1741901559.634994"}
+{"timestamp": "2025-03-13 22:32:39,639", "level": "INFO", "module": "feed_tasks", "message": "Chunk processing complete - 2 feeds", "metrics": {"chunk_size": 2, "total_articles": 5, "successful_fetches": 2, "failed_fetches": 0, "fetch_time_seconds": 0.0}}
+{"timestamp": "2025-03-13 22:32:39,640", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: "}
+{"timestamp": "2025-03-13 22:32:39,655", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at 1000.0"}
+{"timestamp": "2025-03-13 22:32:39,657", "level": "ERROR", "module": "feed_tasks", "message": "Feed fetch error: Feed fetch error"}
+{"timestamp": "2025-03-13 22:32:39,658", "level": "INFO", "module": "feed_tasks", "message": "Chunk processing complete - 3 feeds", "metrics": {"chunk_size": 3, "total_articles": 5, "successful_fetches": 2, "failed_fetches": 1, "fetch_time_seconds": 0.0}}
+{"timestamp": "2025-03-13 22:32:39,665", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: "}
+{"timestamp": "2025-03-13 22:32:39,681", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at 1000.0"}
+{"timestamp": "2025-03-13 22:32:39,683", "level": "ERROR", "module": "feed_tasks", "message": "Feed chunk processing failed: Test exception"}
+{"timestamp": "2025-03-13 22:32:39,684", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: Test exception"}
+{"timestamp": "2025-03-13 22:32:39,696", "level": "INFO", "module": "feed_tasks", "message": "Starting chunk processing at 1000.0"}
+{"timestamp": "2025-03-13 22:32:39,698", "level": "INFO", "module": "feed_tasks", "message": "Chunk processing complete - 0 feeds", "metrics": {"chunk_size": 0, "total_articles": 0, "successful_fetches": 0, "failed_fetches": 0, "fetch_time_seconds": 0.0}}
+{"timestamp": "2025-03-13 22:32:39,700", "level": "WARNING", "module": "feed_tasks", "message": "Error while cancelling pending tasks: "}
+{"timestamp": "2025-03-13 22:33:32,062", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/test-source-error \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-13 22:33:32,065", "level": "INFO", "module": "test_error_handlers", "message": "{'timestamp': '2025-03-13T21:33:32.056864+00:00', 'status': 404, 'error_code': 'INVALID_SOURCE', 'message': 'Invalid source: Unknown source', 'path': '/api/v1/test-source-error', 'additional_info': {'source': 'Unknown source'}}"}
+{"timestamp": "2025-03-13 22:33:32,078", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/test-generic-error \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-13 22:33:32,177", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 401 Unauthorized\""}
+{"timestamp": "2025-03-13 22:33:32,189", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-03-13 22:33:32,545", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-13 22:33:32,949", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-13 22:33:33,286", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-13 22:33:33,299", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-13 22:33:33,315", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02&end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-13 22:33:33,620", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-13 22:33:33,906", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-13 22:33:34,204", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-13 22:33:34,490", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-13 22:33:34,784", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-13 22:33:35,082", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-13 22:33:35,379", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 400 Bad Request\""}
+{"timestamp": "2025-03-13 22:33:35,687", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-13 22:33:35,989", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-13 22:33:36,275", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-13 22:33:36,559", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-13 22:33:36,874", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-13 22:33:37,199", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4379766672 in process 9467"}
+{"timestamp": "2025-03-13 22:33:37,225", "level": "INFO", "module": "news", "message": "Saved 2 new articles to database"}
+{"timestamp": "2025-03-13 22:33:37,263", "level": "INFO", "module": "news", "message": "Saved 1 new articles to database"}
+{"timestamp": "2025-03-13 22:33:37,347", "level": "ERROR", "module": "news", "message": "Error fetching https://example.com/feed2.xml: 500: Failed to fetch feed"}

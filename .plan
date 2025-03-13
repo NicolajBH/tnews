@@ -1,4 +1,4 @@
-# .plan - Updated March 11, 2025
+# .plan - Updated March 12, 2025
 
 Architecture & Structure
   ? Add API versioning support 
@@ -29,7 +29,7 @@ Error Handling & Resilience
 
 Testing Improvements
   * Complete the unfinished test_latest_articles_with_date_filters test
-  ? Add tests for XML and JSON parsers
+  * Add tests for XML and JSON parsers
   ? Implement tests for Celery tasks and connection pooling
   ? Add integration tests with Redis using docker-compose
   ? Implement benchmark/performance tests for critical paths
@@ -92,3 +92,6 @@ Documentation
   * Complete the unfinished test_latest_articles_with_date_filters test
 # Notes
 - Fixed issue where not all articles were being added to db
+
+# March 12, 2025
+  * Add tests for XML and JSON parsers
