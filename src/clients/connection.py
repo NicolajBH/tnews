@@ -67,6 +67,13 @@ class ConnectionPool:
                 f"Initialized ConnectionPool with ID {id(self)} in process {os.getpid()}"
             )
 
+    @classmethod
+    def _reset_for_testing(cls):
+        with cls._lock:
+            process_id = os.getpid()
+            if process_id in cls._instances:
+                del cls._instances[process_id]
+
     async def _create_connection(self, host: str) -> PooledConnection:
         try:
             reader, writer = await asyncio.open_connection(

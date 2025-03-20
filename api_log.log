@@ -641,3 +641,551 @@
 {"timestamp": "2025-03-13 22:33:37,225", "level": "INFO", "module": "news", "message": "Saved 2 new articles to database"}
 {"timestamp": "2025-03-13 22:33:37,263", "level": "INFO", "module": "news", "message": "Saved 1 new articles to database"}
 {"timestamp": "2025-03-13 22:33:37,347", "level": "ERROR", "module": "news", "message": "Error fetching https://example.com/feed2.xml: 500: Failed to fetch feed"}
+{"timestamp": "2025-03-14 07:16:28,761", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/test-source-error \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-14 07:16:28,762", "level": "INFO", "module": "test_error_handlers", "message": "{'timestamp': '2025-03-14T06:16:28.758754+00:00', 'status': 404, 'error_code': 'INVALID_SOURCE', 'message': 'Invalid source: Unknown source', 'path': '/api/v1/test-source-error', 'additional_info': {'source': 'Unknown source'}}"}
+{"timestamp": "2025-03-14 07:16:28,777", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/test-generic-error \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-14 07:16:28,894", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 401 Unauthorized\""}
+{"timestamp": "2025-03-14 07:16:28,908", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-03-14 07:16:29,273", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-14 07:16:29,613", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-14 07:16:29,935", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-14 07:16:29,947", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-14 07:16:29,960", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02&end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-14 07:16:30,263", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-14 07:16:30,548", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-14 07:16:30,832", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-14 07:16:31,115", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-14 07:16:31,405", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-14 07:16:31,694", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-14 07:16:31,988", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 400 Bad Request\""}
+{"timestamp": "2025-03-14 07:16:32,286", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-14 07:16:32,584", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-14 07:16:32,870", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-14 07:16:33,155", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-14 07:16:33,474", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-14 07:16:33,805", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4582859040 in process 12335"}
+{"timestamp": "2025-03-14 07:16:33,873", "level": "INFO", "module": "news", "message": "Saved 2 new articles to database"}
+{"timestamp": "2025-03-14 07:16:33,914", "level": "INFO", "module": "news", "message": "Saved 1 new articles to database"}
+{"timestamp": "2025-03-14 07:16:34,001", "level": "ERROR", "module": "news", "message": "Error fetching https://example.com/feed2.xml: 500: Failed to fetch feed"}
+{"timestamp": "2025-03-14 11:55:28,292", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4403102112 in process 19682"}
+{"timestamp": "2025-03-14 11:57:01,052", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4534469024 in process 19760"}
+{"timestamp": "2025-03-14 11:57:28,016", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4542431648 in process 19824"}
+{"timestamp": "2025-03-14 12:03:12,749", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4484841888 in process 19990"}
+{"timestamp": "2025-03-14 12:03:45,947", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4397711776 in process 20034"}
+{"timestamp": "2025-03-14 12:06:54,430", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4458938784 in process 20219"}
+{"timestamp": "2025-03-14 12:08:21,506", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4437049760 in process 20304"}
+{"timestamp": "2025-03-14 12:14:54,708", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4455171136 in process 20551"}
+{"timestamp": "2025-03-14 12:14:54,709", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 20551"}
+{"timestamp": "2025-03-14 12:14:54,771", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 20551"}
+{"timestamp": "2025-03-14 12:14:54,776", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 20551"}
+{"timestamp": "2025-03-14 12:14:54,784", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 20551"}
+{"timestamp": "2025-03-14 12:16:57,787", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4497179712 in process 20625"}
+{"timestamp": "2025-03-14 12:16:57,788", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 20625"}
+{"timestamp": "2025-03-14 12:16:57,850", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 20625"}
+{"timestamp": "2025-03-14 12:16:57,861", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 20625"}
+{"timestamp": "2025-03-14 12:16:57,871", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 20625"}
+{"timestamp": "2025-03-14 12:19:13,401", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4601267264 in process 20762"}
+{"timestamp": "2025-03-14 12:25:56,909", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4516118608 in process 20888"}
+{"timestamp": "2025-03-14 12:25:56,912", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 20888"}
+{"timestamp": "2025-03-14 12:25:56,929", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4515243152 in process 20888"}
+{"timestamp": "2025-03-14 12:25:56,930", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 20888"}
+{"timestamp": "2025-03-14 12:29:08,172", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4531945552 in process 20993"}
+{"timestamp": "2025-03-14 12:29:08,176", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 20993"}
+{"timestamp": "2025-03-14 12:29:08,203", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4531037968 in process 20993"}
+{"timestamp": "2025-03-14 12:29:10,478", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 20993"}
+{"timestamp": "2025-03-17 17:53:59,563", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4545871952 in process 29836"}
+{"timestamp": "2025-03-17 17:53:59,566", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 29836"}
+{"timestamp": "2025-03-17 17:53:59,588", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4544947984 in process 29836"}
+{"timestamp": "2025-03-17 17:54:01,709", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 29836"}
+{"timestamp": "2025-03-17 17:54:18,564", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/test-source-error \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-17 17:54:18,565", "level": "INFO", "module": "test_error_handlers", "message": "{'timestamp': '2025-03-17T16:54:18.561786+00:00', 'status': 404, 'error_code': 'INVALID_SOURCE', 'message': 'Invalid source: Unknown source', 'path': '/api/v1/test-source-error', 'additional_info': {'source': 'Unknown source'}}"}
+{"timestamp": "2025-03-17 17:54:18,577", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/test-generic-error \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-17 17:54:18,686", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 401 Unauthorized\""}
+{"timestamp": "2025-03-17 17:54:18,699", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-03-17 17:54:19,123", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-17 17:54:19,518", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-17 17:54:19,844", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-17 17:54:19,857", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-17 17:54:19,870", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02&end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-17 17:54:20,167", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-17 17:54:20,456", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-17 17:54:20,764", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-17 17:54:21,047", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-17 17:54:21,343", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-17 17:54:21,636", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-17 17:54:21,929", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 400 Bad Request\""}
+{"timestamp": "2025-03-17 17:54:22,231", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-17 17:54:22,530", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-17 17:54:22,819", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-17 17:54:23,117", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-17 17:54:23,451", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-17 17:54:23,772", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4567035456 in process 29880"}
+{"timestamp": "2025-03-17 17:54:23,774", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 29880"}
+{"timestamp": "2025-03-17 17:54:23,790", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4567584272 in process 29880"}
+{"timestamp": "2025-03-17 17:54:25,735", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 29880"}
+{"timestamp": "2025-03-17 17:54:25,943", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4567586512 in process 29880"}
+{"timestamp": "2025-03-17 17:54:25,982", "level": "INFO", "module": "news", "message": "Saved 2 new articles to database"}
+{"timestamp": "2025-03-17 17:54:26,083", "level": "INFO", "module": "news", "message": "Saved 1 new articles to database"}
+{"timestamp": "2025-03-17 17:54:26,187", "level": "ERROR", "module": "news", "message": "Error fetching https://example.com/feed2.xml: 500: Failed to fetch feed"}
+{"timestamp": "2025-03-17 17:58:59,374", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/test-source-error \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-17 17:58:59,375", "level": "INFO", "module": "test_error_handlers", "message": "{'timestamp': '2025-03-17T16:58:59.371214+00:00', 'status': 404, 'error_code': 'INVALID_SOURCE', 'message': 'Invalid source: Unknown source', 'path': '/api/v1/test-source-error', 'additional_info': {'source': 'Unknown source'}}"}
+{"timestamp": "2025-03-17 17:58:59,391", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/test-generic-error \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-17 17:58:59,516", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 401 Unauthorized\""}
+{"timestamp": "2025-03-17 17:58:59,530", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-03-17 17:58:59,867", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-17 17:59:00,220", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-17 17:59:00,549", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-17 17:59:00,561", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-17 17:59:00,574", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02&end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-17 17:59:00,864", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-17 17:59:01,148", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-17 17:59:01,429", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-17 17:59:01,711", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-17 17:59:02,006", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-17 17:59:02,294", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-17 17:59:02,596", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 400 Bad Request\""}
+{"timestamp": "2025-03-17 17:59:02,896", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-17 17:59:03,202", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-17 17:59:03,489", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-17 17:59:03,773", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-17 17:59:04,146", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-17 17:59:04,458", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4621214992 in process 30670"}
+{"timestamp": "2025-03-17 17:59:04,460", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 30670"}
+{"timestamp": "2025-03-17 17:59:04,477", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4620063184 in process 30670"}
+{"timestamp": "2025-03-17 17:59:06,338", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 30670"}
+{"timestamp": "2025-03-17 17:59:06,498", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4619407824 in process 30670"}
+{"timestamp": "2025-03-17 17:59:06,548", "level": "INFO", "module": "news", "message": "Saved 2 new articles to database"}
+{"timestamp": "2025-03-17 17:59:06,627", "level": "INFO", "module": "news", "message": "Saved 1 new articles to database"}
+{"timestamp": "2025-03-17 17:59:06,749", "level": "ERROR", "module": "news", "message": "Error fetching https://example.com/feed2.xml: 500: Failed to fetch feed"}
+{"timestamp": "2025-03-19 10:15:18,504", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/test-source-error \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-19 10:15:18,505", "level": "INFO", "module": "test_error_handlers", "message": "{'timestamp': '2025-03-19T09:15:18.501550+00:00', 'status': 404, 'error_code': 'INVALID_SOURCE', 'message': 'Invalid source: Unknown source', 'path': '/api/v1/test-source-error', 'additional_info': {'source': 'Unknown source'}}"}
+{"timestamp": "2025-03-19 10:15:18,521", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/test-generic-error \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-19 10:15:18,617", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 401 Unauthorized\""}
+{"timestamp": "2025-03-19 10:15:18,629", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-03-19 10:15:18,984", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-19 10:15:19,321", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-19 10:15:19,636", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-19 10:15:19,648", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-19 10:15:19,660", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02&end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-19 10:15:19,954", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-19 10:15:20,233", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-19 10:15:20,513", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-19 10:15:20,796", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-19 10:15:21,086", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-19 10:15:21,372", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-19 10:15:21,665", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 400 Bad Request\""}
+{"timestamp": "2025-03-19 10:15:21,960", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-19 10:15:22,257", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-19 10:15:22,541", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-19 10:15:22,821", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-19 10:15:23,137", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-19 10:15:23,438", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4382854176 in process 39855"}
+{"timestamp": "2025-03-19 10:15:23,440", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 39855"}
+{"timestamp": "2025-03-19 10:15:23,457", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4381610448 in process 39855"}
+{"timestamp": "2025-03-19 10:15:25,557", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 39855"}
+{"timestamp": "2025-03-19 10:15:25,808", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4381069776 in process 39855"}
+{"timestamp": "2025-03-19 10:15:25,900", "level": "INFO", "module": "news", "message": "Saved 2 new articles to database"}
+{"timestamp": "2025-03-19 10:15:25,953", "level": "INFO", "module": "news", "message": "Saved 1 new articles to database"}
+{"timestamp": "2025-03-19 10:15:26,040", "level": "ERROR", "module": "news", "message": "Error fetching https://example.com/feed2.xml: 500: Failed to fetch feed"}
+{"timestamp": "2025-03-19 10:27:14,323", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4559650896 in process 41273"}
+{"timestamp": "2025-03-19 10:27:14,326", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 41273"}
+{"timestamp": "2025-03-19 10:27:14,346", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4558824272 in process 41273"}
+{"timestamp": "2025-03-19 10:27:14,661", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 41273"}
+{"timestamp": "2025-03-19 10:33:33,583", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4513989024 in process 41383"}
+{"timestamp": "2025-03-19 10:33:33,588", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 41383"}
+{"timestamp": "2025-03-19 10:33:33,613", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4513146000 in process 41383"}
+{"timestamp": "2025-03-19 10:33:33,927", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 41383"}
+{"timestamp": "2025-03-19 10:33:33,954", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4513145680 in process 41383"}
+{"timestamp": "2025-03-19 10:33:33,956", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 41383"}
+{"timestamp": "2025-03-19 10:38:44,146", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4624286448 in process 41496"}
+{"timestamp": "2025-03-19 10:38:44,148", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 41496"}
+{"timestamp": "2025-03-19 10:38:44,163", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4623377872 in process 41496"}
+{"timestamp": "2025-03-19 10:38:44,479", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 41496"}
+{"timestamp": "2025-03-19 10:38:44,505", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4623377552 in process 41496"}
+{"timestamp": "2025-03-19 10:38:44,507", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 41496"}
+{"timestamp": "2025-03-19 10:38:44,524", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4622875872 in process 41496"}
+{"timestamp": "2025-03-19 10:38:44,703", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 41496"}
+{"timestamp": "2025-03-19 10:40:33,149", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4519903984 in process 42823"}
+{"timestamp": "2025-03-19 10:40:33,152", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 42823"}
+{"timestamp": "2025-03-19 10:40:33,168", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4518995408 in process 42823"}
+{"timestamp": "2025-03-19 10:40:33,482", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 42823"}
+{"timestamp": "2025-03-19 10:40:33,508", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4518995088 in process 42823"}
+{"timestamp": "2025-03-19 10:40:33,511", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 42823"}
+{"timestamp": "2025-03-19 10:40:33,527", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4518493408 in process 42823"}
+{"timestamp": "2025-03-19 10:40:34,107", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 42823"}
+{"timestamp": "2025-03-19 10:46:18,877", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4448076528 in process 43054"}
+{"timestamp": "2025-03-19 10:46:18,880", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43054"}
+{"timestamp": "2025-03-19 10:46:18,897", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4447233488 in process 43054"}
+{"timestamp": "2025-03-19 10:46:19,212", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43054"}
+{"timestamp": "2025-03-19 10:46:19,240", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4447233168 in process 43054"}
+{"timestamp": "2025-03-19 10:46:19,243", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43054"}
+{"timestamp": "2025-03-19 10:46:19,263", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4446731184 in process 43054"}
+{"timestamp": "2025-03-19 10:46:19,271", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43054"}
+{"timestamp": "2025-03-19 10:46:50,029", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4428645104 in process 43133"}
+{"timestamp": "2025-03-19 10:46:50,031", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43133"}
+{"timestamp": "2025-03-19 10:46:50,046", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4427752912 in process 43133"}
+{"timestamp": "2025-03-19 10:46:50,361", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43133"}
+{"timestamp": "2025-03-19 10:46:50,387", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4427752592 in process 43133"}
+{"timestamp": "2025-03-19 10:46:50,389", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43133"}
+{"timestamp": "2025-03-19 10:46:50,404", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4427332528 in process 43133"}
+{"timestamp": "2025-03-19 10:46:50,474", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43133"}
+{"timestamp": "2025-03-19 10:47:23,701", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4605412080 in process 43196"}
+{"timestamp": "2025-03-19 10:47:23,705", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43196"}
+{"timestamp": "2025-03-19 10:47:23,721", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4604503504 in process 43196"}
+{"timestamp": "2025-03-19 10:47:24,038", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43196"}
+{"timestamp": "2025-03-19 10:47:24,065", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4604503184 in process 43196"}
+{"timestamp": "2025-03-19 10:47:24,068", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43196"}
+{"timestamp": "2025-03-19 10:47:24,084", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4604066736 in process 43196"}
+{"timestamp": "2025-03-19 10:47:24,162", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43196"}
+{"timestamp": "2025-03-19 10:47:43,957", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4601709296 in process 43257"}
+{"timestamp": "2025-03-19 10:47:43,959", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43257"}
+{"timestamp": "2025-03-19 10:47:43,971", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4600817104 in process 43257"}
+{"timestamp": "2025-03-19 10:47:44,284", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43257"}
+{"timestamp": "2025-03-19 10:47:44,309", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4600816784 in process 43257"}
+{"timestamp": "2025-03-19 10:47:44,311", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43257"}
+{"timestamp": "2025-03-19 10:47:44,326", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4600380640 in process 43257"}
+{"timestamp": "2025-03-19 10:47:44,333", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43257"}
+{"timestamp": "2025-03-19 10:48:02,686", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4572496624 in process 43336"}
+{"timestamp": "2025-03-19 10:48:02,688", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43336"}
+{"timestamp": "2025-03-19 10:48:02,702", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4571604432 in process 43336"}
+{"timestamp": "2025-03-19 10:48:03,018", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43336"}
+{"timestamp": "2025-03-19 10:48:03,046", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4571604112 in process 43336"}
+{"timestamp": "2025-03-19 10:48:03,049", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43336"}
+{"timestamp": "2025-03-19 10:48:03,065", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4571118816 in process 43336"}
+{"timestamp": "2025-03-19 10:48:03,244", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43336"}
+{"timestamp": "2025-03-19 10:59:13,163", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4384277232 in process 43469"}
+{"timestamp": "2025-03-19 10:59:13,167", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43469"}
+{"timestamp": "2025-03-19 10:59:13,189", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4383401424 in process 43469"}
+{"timestamp": "2025-03-19 10:59:13,503", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43469"}
+{"timestamp": "2025-03-19 10:59:13,530", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4383401104 in process 43469"}
+{"timestamp": "2025-03-19 10:59:13,532", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43469"}
+{"timestamp": "2025-03-19 10:59:13,547", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4382915808 in process 43469"}
+{"timestamp": "2025-03-19 10:59:13,822", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43469"}
+{"timestamp": "2025-03-19 10:59:13,968", "level": "ERROR", "module": "base_events", "message": "Task was destroyed but it is pending!\ntask: <Task pending name='Task-21' coro=<test_connection_pool_exhaustion.<locals>.hold_connections() running at /Users/nicolajhansen/dev/side-projects/terminal-news/tests/clients/test_connection_client.py:120> wait_for=<Future pending cb=[Task.task_wakeup()]>>"}
+{"timestamp": "2025-03-19 10:59:13,969", "level": "ERROR", "module": "base_events", "message": "Exception in default exception handler", "error": {"type": "ImportError", "message": "sys.meta_path is None, Python is likely shutting down"}}
+{"timestamp": "2025-03-19 10:59:13,970", "level": "ERROR", "module": "base_events", "message": "Task was destroyed but it is pending!\ntask: <Task pending name='Task-20' coro=<test_connection_pool_exhaustion.<locals>.hold_connections() running at /Users/nicolajhansen/dev/side-projects/terminal-news/tests/clients/test_connection_client.py:120> wait_for=<Future pending cb=[Task.task_wakeup()]>>"}
+{"timestamp": "2025-03-19 10:59:13,970", "level": "ERROR", "module": "base_events", "message": "Exception in default exception handler", "error": {"type": "ImportError", "message": "sys.meta_path is None, Python is likely shutting down"}}
+{"timestamp": "2025-03-19 11:01:01,389", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4501275040 in process 43576"}
+{"timestamp": "2025-03-19 11:01:01,391", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43576"}
+{"timestamp": "2025-03-19 11:01:01,406", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4500399248 in process 43576"}
+{"timestamp": "2025-03-19 11:01:01,721", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43576"}
+{"timestamp": "2025-03-19 11:01:01,747", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4500398928 in process 43576"}
+{"timestamp": "2025-03-19 11:01:01,749", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 43576"}
+{"timestamp": "2025-03-19 11:28:39,512", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4561306352 in process 45876"}
+{"timestamp": "2025-03-19 11:28:39,515", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 45876"}
+{"timestamp": "2025-03-19 11:28:39,531", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4560414160 in process 45876"}
+{"timestamp": "2025-03-19 11:28:39,849", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 45876"}
+{"timestamp": "2025-03-19 11:28:39,878", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4560413840 in process 45876"}
+{"timestamp": "2025-03-19 11:28:39,880", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 45876"}
+{"timestamp": "2025-03-19 11:28:39,895", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4559944624 in process 45876"}
+{"timestamp": "2025-03-19 11:28:39,903", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 45876"}
+{"timestamp": "2025-03-19 11:28:58,544", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4605706992 in process 45947"}
+{"timestamp": "2025-03-19 11:28:58,546", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 45947"}
+{"timestamp": "2025-03-19 11:28:58,570", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4604847568 in process 45947"}
+{"timestamp": "2025-03-19 11:28:58,884", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 45947"}
+{"timestamp": "2025-03-19 11:28:58,910", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4604847248 in process 45947"}
+{"timestamp": "2025-03-19 11:28:58,912", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 45947"}
+{"timestamp": "2025-03-19 11:28:58,929", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4604345264 in process 45947"}
+{"timestamp": "2025-03-19 11:28:59,046", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 45947"}
+{"timestamp": "2025-03-19 11:29:46,219", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4564468464 in process 46026"}
+{"timestamp": "2025-03-19 11:29:46,222", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46026"}
+{"timestamp": "2025-03-19 11:29:46,239", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4563609040 in process 46026"}
+{"timestamp": "2025-03-19 11:29:46,552", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46026"}
+{"timestamp": "2025-03-19 11:29:46,578", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4563608720 in process 46026"}
+{"timestamp": "2025-03-19 11:29:46,580", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46026"}
+{"timestamp": "2025-03-19 11:29:46,596", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4563106736 in process 46026"}
+{"timestamp": "2025-03-19 11:29:46,776", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46026"}
+{"timestamp": "2025-03-19 11:30:14,590", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4547298032 in process 46081"}
+{"timestamp": "2025-03-19 11:30:14,592", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46081"}
+{"timestamp": "2025-03-19 11:30:14,606", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4546422224 in process 46081"}
+{"timestamp": "2025-03-19 11:30:14,922", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46081"}
+{"timestamp": "2025-03-19 11:30:14,949", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4546421904 in process 46081"}
+{"timestamp": "2025-03-19 11:30:14,952", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46081"}
+{"timestamp": "2025-03-19 11:30:14,968", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4545919920 in process 46081"}
+{"timestamp": "2025-03-19 11:30:15,145", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46081"}
+{"timestamp": "2025-03-19 11:36:03,580", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4572988144 in process 46590"}
+{"timestamp": "2025-03-19 11:36:03,583", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46590"}
+{"timestamp": "2025-03-19 11:36:03,601", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4572095632 in process 46590"}
+{"timestamp": "2025-03-19 11:36:03,917", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46590"}
+{"timestamp": "2025-03-19 11:36:03,949", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4572095312 in process 46590"}
+{"timestamp": "2025-03-19 11:36:03,953", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46590"}
+{"timestamp": "2025-03-19 11:36:03,970", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4571725328 in process 46590"}
+{"timestamp": "2025-03-19 11:36:04,149", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46590"}
+{"timestamp": "2025-03-19 11:36:45,602", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4517806832 in process 46640"}
+{"timestamp": "2025-03-19 11:36:45,605", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46640"}
+{"timestamp": "2025-03-19 11:36:45,629", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4516914320 in process 46640"}
+{"timestamp": "2025-03-19 11:36:45,944", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46640"}
+{"timestamp": "2025-03-19 11:36:45,977", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4516914000 in process 46640"}
+{"timestamp": "2025-03-19 11:36:45,980", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46640"}
+{"timestamp": "2025-03-19 11:36:45,997", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4516544016 in process 46640"}
+{"timestamp": "2025-03-19 11:36:46,175", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46640"}
+{"timestamp": "2025-03-19 11:38:13,960", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4606231280 in process 46690"}
+{"timestamp": "2025-03-19 11:38:13,961", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46690"}
+{"timestamp": "2025-03-19 11:38:13,974", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4605338768 in process 46690"}
+{"timestamp": "2025-03-19 11:38:14,290", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46690"}
+{"timestamp": "2025-03-19 11:38:14,323", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4605338448 in process 46690"}
+{"timestamp": "2025-03-19 11:38:14,326", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46690"}
+{"timestamp": "2025-03-19 11:38:14,344", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4606443600 in process 46690"}
+{"timestamp": "2025-03-19 11:38:14,519", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46690"}
+{"timestamp": "2025-03-19 12:00:31,645", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4588421872 in process 46894"}
+{"timestamp": "2025-03-19 12:00:31,649", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46894"}
+{"timestamp": "2025-03-19 12:00:31,666", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4587562128 in process 46894"}
+{"timestamp": "2025-03-19 12:00:31,982", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46894"}
+{"timestamp": "2025-03-19 12:00:32,008", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4587561808 in process 46894"}
+{"timestamp": "2025-03-19 12:00:32,010", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46894"}
+{"timestamp": "2025-03-19 12:00:32,025", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4587093216 in process 46894"}
+{"timestamp": "2025-03-19 12:00:32,202", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46894"}
+{"timestamp": "2025-03-19 12:01:11,750", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4494213872 in process 46969"}
+{"timestamp": "2025-03-19 12:01:11,752", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46969"}
+{"timestamp": "2025-03-19 12:01:11,765", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4493338064 in process 46969"}
+{"timestamp": "2025-03-19 12:01:12,081", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46969"}
+{"timestamp": "2025-03-19 12:01:12,107", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4493337744 in process 46969"}
+{"timestamp": "2025-03-19 12:01:12,110", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46969"}
+{"timestamp": "2025-03-19 12:01:12,126", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4492835760 in process 46969"}
+{"timestamp": "2025-03-19 12:01:12,305", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 46969"}
+{"timestamp": "2025-03-19 12:01:50,666", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4611654384 in process 47009"}
+{"timestamp": "2025-03-19 12:01:50,668", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 47009"}
+{"timestamp": "2025-03-19 12:01:50,681", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4610761872 in process 47009"}
+{"timestamp": "2025-03-19 12:01:50,996", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 47009"}
+{"timestamp": "2025-03-19 12:01:51,029", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4610761552 in process 47009"}
+{"timestamp": "2025-03-19 12:01:51,031", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 47009"}
+{"timestamp": "2025-03-19 12:01:51,049", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4611850320 in process 47009"}
+{"timestamp": "2025-03-19 12:01:51,226", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 47009"}
+{"timestamp": "2025-03-19 12:02:16,533", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4520985328 in process 47100"}
+{"timestamp": "2025-03-19 12:02:16,534", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 47100"}
+{"timestamp": "2025-03-19 12:02:16,547", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4520109520 in process 47100"}
+{"timestamp": "2025-03-19 12:02:16,862", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 47100"}
+{"timestamp": "2025-03-19 12:02:16,888", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4520109200 in process 47100"}
+{"timestamp": "2025-03-19 12:02:16,891", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 47100"}
+{"timestamp": "2025-03-19 12:02:16,912", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4519607216 in process 47100"}
+{"timestamp": "2025-03-19 12:02:17,089", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 47100"}
+{"timestamp": "2025-03-19 12:06:57,145", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4384588528 in process 47176"}
+{"timestamp": "2025-03-19 12:06:57,146", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 47176"}
+{"timestamp": "2025-03-19 12:06:57,159", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4383679952 in process 47176"}
+{"timestamp": "2025-03-19 12:06:57,474", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 47176"}
+{"timestamp": "2025-03-19 12:06:57,500", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4383679632 in process 47176"}
+{"timestamp": "2025-03-19 12:06:57,503", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 47176"}
+{"timestamp": "2025-03-19 12:06:57,518", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4383194032 in process 47176"}
+{"timestamp": "2025-03-19 12:06:57,698", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 47176"}
+{"timestamp": "2025-03-19 12:08:56,240", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4521050864 in process 47274"}
+{"timestamp": "2025-03-19 12:08:56,242", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 47274"}
+{"timestamp": "2025-03-19 12:08:56,255", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4520125904 in process 47274"}
+{"timestamp": "2025-03-19 12:08:56,572", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 47274"}
+{"timestamp": "2025-03-19 12:08:56,600", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4520125584 in process 47274"}
+{"timestamp": "2025-03-19 12:08:56,602", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 47274"}
+{"timestamp": "2025-03-19 12:08:56,617", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4519656672 in process 47274"}
+{"timestamp": "2025-03-19 12:08:56,794", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 47274"}
+{"timestamp": "2025-03-20 10:32:44,944", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4375347952 in process 55709"}
+{"timestamp": "2025-03-20 10:32:44,948", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 55709"}
+{"timestamp": "2025-03-20 10:32:44,967", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4374455760 in process 55709"}
+{"timestamp": "2025-03-20 10:32:45,283", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 55709"}
+{"timestamp": "2025-03-20 10:32:45,310", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4374455440 in process 55709"}
+{"timestamp": "2025-03-20 10:32:45,314", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 55709"}
+{"timestamp": "2025-03-20 10:32:45,334", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4373953760 in process 55709"}
+{"timestamp": "2025-03-20 10:32:45,517", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 55709"}
+{"timestamp": "2025-03-20 10:39:17,707", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4579262880 in process 55876"}
+{"timestamp": "2025-03-20 10:39:17,711", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 55876"}
+{"timestamp": "2025-03-20 10:39:17,740", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4578387088 in process 55876"}
+{"timestamp": "2025-03-20 10:39:18,055", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 55876"}
+{"timestamp": "2025-03-20 10:39:18,087", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4578386768 in process 55876"}
+{"timestamp": "2025-03-20 10:39:18,160", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 55876"}
+{"timestamp": "2025-03-20 10:45:33,896", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4548510448 in process 55992"}
+{"timestamp": "2025-03-20 10:45:33,900", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 55992"}
+{"timestamp": "2025-03-20 10:45:33,922", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4547634640 in process 55992"}
+{"timestamp": "2025-03-20 10:45:34,237", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 55992"}
+{"timestamp": "2025-03-20 10:45:34,265", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4547634320 in process 55992"}
+{"timestamp": "2025-03-20 10:45:34,269", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 55992"}
+{"timestamp": "2025-03-20 10:45:34,284", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4547132336 in process 55992"}
+{"timestamp": "2025-03-20 10:45:34,293", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 55992"}
+{"timestamp": "2025-03-20 10:47:12,745", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4382786288 in process 56074"}
+{"timestamp": "2025-03-20 10:47:12,747", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 56074"}
+{"timestamp": "2025-03-20 10:47:12,766", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4381894096 in process 56074"}
+{"timestamp": "2025-03-20 10:47:13,082", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 56074"}
+{"timestamp": "2025-03-20 10:47:13,111", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4381893776 in process 56074"}
+{"timestamp": "2025-03-20 10:47:13,113", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 56074"}
+{"timestamp": "2025-03-20 10:47:13,131", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4381408176 in process 56074"}
+{"timestamp": "2025-03-20 10:47:13,213", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 56074"}
+{"timestamp": "2025-03-20 10:50:55,601", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4410753776 in process 56150"}
+{"timestamp": "2025-03-20 10:50:55,603", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 56150"}
+{"timestamp": "2025-03-20 10:50:55,615", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4409877968 in process 56150"}
+{"timestamp": "2025-03-20 10:50:55,931", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 56150"}
+{"timestamp": "2025-03-20 10:50:55,955", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4409877648 in process 56150"}
+{"timestamp": "2025-03-20 10:50:55,958", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 56150"}
+{"timestamp": "2025-03-20 10:50:55,978", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4409375664 in process 56150"}
+{"timestamp": "2025-03-20 10:50:56,071", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 56150"}
+{"timestamp": "2025-03-20 10:53:03,608", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4504191728 in process 56227"}
+{"timestamp": "2025-03-20 10:53:03,609", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 56227"}
+{"timestamp": "2025-03-20 10:53:03,624", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4503315920 in process 56227"}
+{"timestamp": "2025-03-20 10:53:03,939", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 56227"}
+{"timestamp": "2025-03-20 10:53:03,971", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4503315600 in process 56227"}
+{"timestamp": "2025-03-20 10:53:03,973", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 56227"}
+{"timestamp": "2025-03-20 10:53:03,991", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4502813616 in process 56227"}
+{"timestamp": "2025-03-20 10:53:04,005", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 56227"}
+{"timestamp": "2025-03-20 10:53:56,984", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4440638192 in process 56306"}
+{"timestamp": "2025-03-20 10:53:56,988", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 56306"}
+{"timestamp": "2025-03-20 10:53:57,006", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4439746000 in process 56306"}
+{"timestamp": "2025-03-20 10:53:57,321", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 56306"}
+{"timestamp": "2025-03-20 10:53:57,348", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4439745680 in process 56306"}
+{"timestamp": "2025-03-20 10:53:57,351", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 56306"}
+{"timestamp": "2025-03-20 10:53:57,373", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4439260080 in process 56306"}
+{"timestamp": "2025-03-20 10:53:57,452", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 56306"}
+{"timestamp": "2025-03-20 10:55:07,672", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4502143728 in process 56381"}
+{"timestamp": "2025-03-20 10:55:07,674", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 56381"}
+{"timestamp": "2025-03-20 10:55:07,689", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4501284304 in process 56381"}
+{"timestamp": "2025-03-20 10:55:08,005", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 56381"}
+{"timestamp": "2025-03-20 10:55:08,032", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4501283984 in process 56381"}
+{"timestamp": "2025-03-20 10:55:08,035", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 56381"}
+{"timestamp": "2025-03-20 10:55:08,055", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4500798384 in process 56381"}
+{"timestamp": "2025-03-20 10:55:08,136", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 56381"}
+{"timestamp": "2025-03-20 11:31:13,584", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4468228848 in process 56603"}
+{"timestamp": "2025-03-20 11:31:13,587", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 56603"}
+{"timestamp": "2025-03-20 11:31:13,602", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4467369424 in process 56603"}
+{"timestamp": "2025-03-20 11:31:13,917", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 56603"}
+{"timestamp": "2025-03-20 11:31:13,951", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4467369104 in process 56603"}
+{"timestamp": "2025-03-20 11:31:13,955", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 56603"}
+{"timestamp": "2025-03-20 11:31:13,970", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4466883504 in process 56603"}
+{"timestamp": "2025-03-20 11:31:14,048", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 56603"}
+{"timestamp": "2025-03-20 11:40:06,372", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4569629424 in process 57890"}
+{"timestamp": "2025-03-20 11:40:06,375", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 57890"}
+{"timestamp": "2025-03-20 11:40:06,393", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4568802768 in process 57890"}
+{"timestamp": "2025-03-20 11:40:06,709", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 57890"}
+{"timestamp": "2025-03-20 11:40:06,736", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4568802448 in process 57890"}
+{"timestamp": "2025-03-20 11:40:06,740", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 57890"}
+{"timestamp": "2025-03-20 11:40:06,757", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4568316848 in process 57890"}
+{"timestamp": "2025-03-20 11:40:06,761", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 57890"}
+{"timestamp": "2025-03-20 11:40:36,505", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4582785776 in process 57962"}
+{"timestamp": "2025-03-20 11:40:36,507", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 57962"}
+{"timestamp": "2025-03-20 11:40:36,520", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4581959120 in process 57962"}
+{"timestamp": "2025-03-20 11:40:36,836", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 57962"}
+{"timestamp": "2025-03-20 11:40:36,869", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4581958800 in process 57962"}
+{"timestamp": "2025-03-20 11:40:36,874", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 57962"}
+{"timestamp": "2025-03-20 11:40:36,890", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4581473504 in process 57962"}
+{"timestamp": "2025-03-20 11:40:36,966", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 57962"}
+{"timestamp": "2025-03-20 11:42:46,347", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4384604912 in process 58032"}
+{"timestamp": "2025-03-20 11:42:46,350", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58032"}
+{"timestamp": "2025-03-20 11:42:46,369", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4383745488 in process 58032"}
+{"timestamp": "2025-03-20 11:42:46,686", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58032"}
+{"timestamp": "2025-03-20 11:42:46,716", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4383745168 in process 58032"}
+{"timestamp": "2025-03-20 11:42:46,720", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58032"}
+{"timestamp": "2025-03-20 11:42:46,736", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4383259568 in process 58032"}
+{"timestamp": "2025-03-20 11:42:46,819", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58032"}
+{"timestamp": "2025-03-20 11:43:14,378", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4629021424 in process 58095"}
+{"timestamp": "2025-03-20 11:43:14,380", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58095"}
+{"timestamp": "2025-03-20 11:43:14,395", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4628162000 in process 58095"}
+{"timestamp": "2025-03-20 11:43:14,710", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58095"}
+{"timestamp": "2025-03-20 11:43:14,742", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4628161680 in process 58095"}
+{"timestamp": "2025-03-20 11:43:14,747", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58095"}
+{"timestamp": "2025-03-20 11:43:14,764", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4627676080 in process 58095"}
+{"timestamp": "2025-03-20 11:43:14,852", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58095"}
+{"timestamp": "2025-03-20 11:43:41,361", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4464362224 in process 58157"}
+{"timestamp": "2025-03-20 11:43:41,363", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58157"}
+{"timestamp": "2025-03-20 11:43:41,378", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4463519184 in process 58157"}
+{"timestamp": "2025-03-20 11:43:41,693", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58157"}
+{"timestamp": "2025-03-20 11:43:41,722", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4463518864 in process 58157"}
+{"timestamp": "2025-03-20 11:43:41,724", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58157"}
+{"timestamp": "2025-03-20 11:43:41,742", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4463016880 in process 58157"}
+{"timestamp": "2025-03-20 11:43:41,836", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58157"}
+{"timestamp": "2025-03-20 11:46:04,575", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4611883760 in process 58279"}
+{"timestamp": "2025-03-20 11:46:04,576", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58279"}
+{"timestamp": "2025-03-20 11:46:04,592", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4610991568 in process 58279"}
+{"timestamp": "2025-03-20 11:46:04,907", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58279"}
+{"timestamp": "2025-03-20 11:46:04,937", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4610991248 in process 58279"}
+{"timestamp": "2025-03-20 11:46:04,941", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58279"}
+{"timestamp": "2025-03-20 11:46:04,958", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4610522032 in process 58279"}
+{"timestamp": "2025-03-20 11:46:05,056", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58279"}
+{"timestamp": "2025-03-20 11:46:19,711", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4396188400 in process 58340"}
+{"timestamp": "2025-03-20 11:46:19,712", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58340"}
+{"timestamp": "2025-03-20 11:46:19,728", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4395328976 in process 58340"}
+{"timestamp": "2025-03-20 11:46:20,043", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58340"}
+{"timestamp": "2025-03-20 11:46:20,076", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4395328656 in process 58340"}
+{"timestamp": "2025-03-20 11:46:20,080", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58340"}
+{"timestamp": "2025-03-20 11:46:20,098", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4394826672 in process 58340"}
+{"timestamp": "2025-03-20 11:46:20,188", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58340"}
+{"timestamp": "2025-03-20 11:49:15,932", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4590453488 in process 58415"}
+{"timestamp": "2025-03-20 11:49:15,935", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58415"}
+{"timestamp": "2025-03-20 11:49:15,956", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4589544912 in process 58415"}
+{"timestamp": "2025-03-20 11:49:16,272", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58415"}
+{"timestamp": "2025-03-20 11:49:16,301", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4589544592 in process 58415"}
+{"timestamp": "2025-03-20 11:49:16,303", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58415"}
+{"timestamp": "2025-03-20 11:49:16,320", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4589058992 in process 58415"}
+{"timestamp": "2025-03-20 11:49:16,419", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58415"}
+{"timestamp": "2025-03-20 11:50:30,676", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4391633648 in process 58493"}
+{"timestamp": "2025-03-20 11:50:30,678", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58493"}
+{"timestamp": "2025-03-20 11:50:30,696", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4390757840 in process 58493"}
+{"timestamp": "2025-03-20 11:50:31,012", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58493"}
+{"timestamp": "2025-03-20 11:50:31,040", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4390757520 in process 58493"}
+{"timestamp": "2025-03-20 11:50:31,044", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58493"}
+{"timestamp": "2025-03-20 11:50:31,065", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4390288304 in process 58493"}
+{"timestamp": "2025-03-20 11:50:31,147", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58493"}
+{"timestamp": "2025-03-20 11:55:57,211", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4461740784 in process 58569"}
+{"timestamp": "2025-03-20 11:55:57,213", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58569"}
+{"timestamp": "2025-03-20 11:55:57,229", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4460864976 in process 58569"}
+{"timestamp": "2025-03-20 11:55:57,544", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58569"}
+{"timestamp": "2025-03-20 11:55:57,573", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4460864656 in process 58569"}
+{"timestamp": "2025-03-20 11:55:57,576", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58569"}
+{"timestamp": "2025-03-20 11:55:57,594", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4460362672 in process 58569"}
+{"timestamp": "2025-03-20 11:55:57,675", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58569"}
+{"timestamp": "2025-03-20 11:58:23,770", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4555293424 in process 58681"}
+{"timestamp": "2025-03-20 11:58:23,774", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58681"}
+{"timestamp": "2025-03-20 11:58:23,791", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4554450384 in process 58681"}
+{"timestamp": "2025-03-20 11:58:24,108", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58681"}
+{"timestamp": "2025-03-20 11:58:24,139", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4554450064 in process 58681"}
+{"timestamp": "2025-03-20 11:58:24,141", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58681"}
+{"timestamp": "2025-03-20 11:58:24,159", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4553948080 in process 58681"}
+{"timestamp": "2025-03-20 11:58:24,173", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58681"}
+{"timestamp": "2025-03-20 11:58:48,574", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4568449776 in process 58750"}
+{"timestamp": "2025-03-20 11:58:48,576", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58750"}
+{"timestamp": "2025-03-20 11:58:48,591", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4567623120 in process 58750"}
+{"timestamp": "2025-03-20 11:58:48,906", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58750"}
+{"timestamp": "2025-03-20 11:58:48,935", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4567622800 in process 58750"}
+{"timestamp": "2025-03-20 11:58:48,938", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58750"}
+{"timestamp": "2025-03-20 11:58:48,955", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4567120816 in process 58750"}
+{"timestamp": "2025-03-20 11:58:48,969", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58750"}
+{"timestamp": "2025-03-20 12:00:08,959", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4443390704 in process 58839"}
+{"timestamp": "2025-03-20 12:00:08,963", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58839"}
+{"timestamp": "2025-03-20 12:00:08,984", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4442514896 in process 58839"}
+{"timestamp": "2025-03-20 12:00:09,300", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58839"}
+{"timestamp": "2025-03-20 12:00:09,329", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4442514576 in process 58839"}
+{"timestamp": "2025-03-20 12:00:09,331", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58839"}
+{"timestamp": "2025-03-20 12:00:09,348", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4442045360 in process 58839"}
+{"timestamp": "2025-03-20 12:00:09,363", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58839"}
+{"timestamp": "2025-03-20 12:00:30,509", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4429611760 in process 58916"}
+{"timestamp": "2025-03-20 12:00:30,512", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58916"}
+{"timestamp": "2025-03-20 12:00:30,535", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4428752336 in process 58916"}
+{"timestamp": "2025-03-20 12:00:30,852", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58916"}
+{"timestamp": "2025-03-20 12:00:30,881", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4428752016 in process 58916"}
+{"timestamp": "2025-03-20 12:00:30,884", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58916"}
+{"timestamp": "2025-03-20 12:00:30,900", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4428250032 in process 58916"}
+{"timestamp": "2025-03-20 12:00:30,985", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58916"}
+{"timestamp": "2025-03-20 12:01:08,522", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4635198192 in process 58981"}
+{"timestamp": "2025-03-20 12:01:08,523", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58981"}
+{"timestamp": "2025-03-20 12:01:08,536", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4634306000 in process 58981"}
+{"timestamp": "2025-03-20 12:01:08,852", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58981"}
+{"timestamp": "2025-03-20 12:01:08,880", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4634305680 in process 58981"}
+{"timestamp": "2025-03-20 12:01:08,884", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58981"}
+{"timestamp": "2025-03-20 12:01:08,902", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4633836464 in process 58981"}
+{"timestamp": "2025-03-20 12:01:08,981", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 58981"}
+{"timestamp": "2025-03-20 12:10:38,288", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4394812144 in process 59079"}
+{"timestamp": "2025-03-20 12:10:38,292", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 59079"}
+{"timestamp": "2025-03-20 12:10:38,312", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4393936336 in process 59079"}
+{"timestamp": "2025-03-20 12:10:38,631", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 59079"}
+{"timestamp": "2025-03-20 12:10:38,659", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4393936016 in process 59079"}
+{"timestamp": "2025-03-20 12:10:38,662", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 59079"}
+{"timestamp": "2025-03-20 12:10:38,684", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4393466800 in process 59079"}
+{"timestamp": "2025-03-20 12:10:38,775", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 59079"}
+{"timestamp": "2025-03-20 12:13:20,099", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4433937136 in process 59151"}
+{"timestamp": "2025-03-20 12:13:20,101", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 59151"}
+{"timestamp": "2025-03-20 12:13:20,114", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4432995792 in process 59151"}
+{"timestamp": "2025-03-20 12:13:20,431", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 59151"}
+{"timestamp": "2025-03-20 12:13:20,458", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4432995472 in process 59151"}
+{"timestamp": "2025-03-20 12:13:20,462", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 59151"}
+{"timestamp": "2025-03-20 12:13:20,480", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4432510176 in process 59151"}
+{"timestamp": "2025-03-20 12:13:20,499", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 59151"}
+{"timestamp": "2025-03-20 12:22:19,738", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4553688128 in process 59275"}
+{"timestamp": "2025-03-20 12:22:19,742", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 59275"}
+{"timestamp": "2025-03-20 12:22:19,768", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4552714000 in process 59275"}
+{"timestamp": "2025-03-20 12:22:20,084", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 59275"}
+{"timestamp": "2025-03-20 12:22:20,111", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4552713680 in process 59275"}
+{"timestamp": "2025-03-20 12:22:20,114", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 59275"}
+{"timestamp": "2025-03-20 12:22:20,135", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4552244144 in process 59275"}
+{"timestamp": "2025-03-20 12:22:20,155", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 59275"}

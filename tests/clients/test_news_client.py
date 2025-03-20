@@ -193,7 +193,7 @@ class TestNewsClient:
             assert parser.__class__.__name__ == "XMLFeedParser"
 
             mock_logger.warning.assert_called_once_with(
-                "Unknown content type: text/plain, defaulting to XML parser"
+                "Unknown content type: text/plain, defaulting to XML parser. Source: 1"
             )
 
     def test_get_parser_caching(self, news_client):

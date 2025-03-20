@@ -107,7 +107,7 @@ class NewsClient:
             parser = JSONFeedParser(source_id)
         else:
             logger.warning(
-                f"Unknown content type: {content_type}, defaulting to XML parser"
+                f"Unknown content type: {content_type}, defaulting to XML parser. Source: {source_id}"
             )
             parser = XMLFeedParser(source_id)
 
