@@ -1,6 +1,7 @@
 from typing import Annotated
 from fastapi import Path, Query
 from datetime import date
+from src.clients.redis import RedisClient
 from src.models.article import ArticleQueryParameters, CategoryParams
 
 
@@ -18,3 +19,12 @@ async def get_category_params(
     category: Annotated[str, Path(description="Category identifier")],
 ) -> CategoryParams:
     return CategoryParams(source=source, category=category)
+
+
+async def get_redis_client() -> RedisClient:
+    redis_client = RedisClient()
+    await redis_client.initialize()
+    try:
+        yield redis_client
+    finally:
+        pass

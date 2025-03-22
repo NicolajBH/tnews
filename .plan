@@ -1,4 +1,4 @@
-# .plan - Updated March 13, 2025
+# .plan - Updated March 21, 2025
 
 Architecture & Structure
   ? Add API versioning support 
@@ -15,8 +15,8 @@ Security Enhancements
   * Add password strength validation during registration
 
 Performance Optimization
-  ? Optimize database queries (fix N+1 query in articles endpoint)
-  ? Add Redis caching for frequently accessed endpoints
+  * Optimize database queries (fix N+1 query in articles endpoint)
+  ? Add Redis caching for frequently accessed endpoints - Need to add caching for /my, invalidation for subscription feeds
   ? Implement cursor-based pagination for article lists
   ? Create database indexes for common query patterns
   ? Add ETags for conditional requests
@@ -30,10 +30,10 @@ Error Handling & Resilience
 Testing Improvements
   * Complete the unfinished test_latest_articles_with_date_filters test
   * Add tests for XML and JSON parsers
-  ? Implement tests for Celery tasks and connection pooling - Need to add connection pooling tests
+  * Implement tests for Celery tasks and connection pooling 
   ? Add integration tests with Redis using docker-compose
   ? Implement benchmark/performance tests for critical paths
-  ? Set up test coverage reporting
+  * Set up test coverage reporting
   ? Add security-focused tests (auth bypass, rate limiting, permissions)
 
 Monitoring & Observability
@@ -100,3 +100,15 @@ Documentation
   ? Implement tests for Celery tasks and connection pooling - Need to add connection pooling tests
 # Notes
 - Added tests for celery. Need to add more tests for connection pooling
+
+# March 20, 2025
+  * Implement tests for Celery tasks and connection pooling 
+  * Set up test coverage reporting
+
+# March 21, 2025
+  * Optimize database queries (fix N+1 query in articles endpoint)
+  ? Add Redis caching for frequently accessed endpoints - Added caching for /categories
+
+# March 22, 2025
+  ? Add Redis caching for frequently accessed endpoints - Added caching for /sources
+

@@ -3,8 +3,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List, Dict
 from sqlmodel import select, col
 from datetime import datetime
+import json
 
-from src.api.dependencies import get_date_filters
+from src.api.dependencies import get_date_filters, get_redis_client
+from src.clients.redis import RedisClient
 from src.constants import RSS_FEEDS
 from src.core.exceptions import RSSFeedError
 from src.models.db_models import (
@@ -48,11 +50,15 @@ async def get_latest_articles(
     query = query.limit(20)
     results = session.exec(query).all()
     articles_to_return = []
+    source_ids = {result.source_id for result in results}
+    sources = {
+        source.id: source
+        for source in session.exec(
+            select(Sources).where(Sources.id.in_(source_ids))
+        ).all()
+    }
     for result in results:
-        # get source and feed_symbol from source id
-        source = session.exec(
-            select(Sources).where(Sources.id == result.source_id)
-        ).first()
+        source = sources.get(result.source_id)
         if source is None:
             logger.error(f"No sources with ID {result.source_id}")
             continue
@@ -68,11 +74,21 @@ async def get_latest_articles(
 
 
 @router.get("/categories")
-async def get_categories() -> Dict[str, List[str]]:
+async def get_categories(
+    redis: RedisClient = Depends(get_redis_client),
+) -> Dict[str, List[str]]:
     try:
-        return {
+        cached = await redis.get("categories")
+        if cached:
+            return json.loads(cached)
+
+        categories = {
             source: list(cats["feeds"].keys()) for source, cats in RSS_FEEDS.items()
         }
+
+        await redis.set("categories", json.dumps(categories), expires=3600)
+
+        return categories
     except Exception as e:
         logger.error(f"Error fetching categories: {str(e)}", exc_info=True)
         raise HTTPException(
@@ -82,9 +98,17 @@ async def get_categories() -> Dict[str, List[str]]:
 
 
 @router.get("/sources")
-async def get_sources() -> Dict[str, List[str]]:
+async def get_sources(
+    redis: RedisClient = Depends(get_redis_client),
+) -> Dict[str, List[str]]:
     try:
-        return {"sources": list(RSS_FEEDS.keys())}
+        cached = await redis.get("sources")
+        if cached:
+            return json.loads(cached)
+
+        sources = {"sources": list(RSS_FEEDS.keys())}
+        await redis.set("sources", json.dumps(sources), expire=3600)
+        return sources
     except Exception as e:
         logger.error(f"Error fetching sources: {str(e)}", exc_info=True)
         raise HTTPException(
