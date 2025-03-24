@@ -86,7 +86,7 @@ async def get_categories(
             source: list(cats["feeds"].keys()) for source, cats in RSS_FEEDS.items()
         }
 
-        await redis.set("categories", json.dumps(categories), expires=3600)
+        await redis.set("categories", json.dumps(categories), expire=3600)
 
         return categories
     except Exception as e:
@@ -122,6 +122,7 @@ async def subscribe_to_feed(
     category_id: int,
     session: SessionDep,
     current_user: Users = Depends(get_current_user),
+    redis: RedisClient = Depends(get_redis_client),
 ):
     category = session.get(Categories, category_id)
     if not category:
@@ -152,6 +153,7 @@ async def subscribe_to_feed(
         session.add(new_preference)
 
     session.commit()
+    await redis.delete(f"user:{current_user.id}:feeds")
     return {"status": "subscribed", "category_id": category_id}
 
 
@@ -160,6 +162,7 @@ async def unsubscribe_from_feed(
     category_id: int,
     session: SessionDep,
     current_user: Users = Depends(get_current_user),
+    redis: RedisClient = Depends(get_redis_client),
 ):
     preference = session.exec(
         select(FeedPreferences)
@@ -177,13 +180,22 @@ async def unsubscribe_from_feed(
     preference.is_active = False
     session.add(preference)
     session.commit()
+    await redis.delete(f"user:{current_user.id}:feeds")
     return {"status": "unsubscribed", "category_id": category_id}
 
 
 @router.get("/my")
 async def get_my_feeds(
-    session: SessionDep, current_user: Users = Depends(get_current_user)
+    session: SessionDep,
+    current_user: Users = Depends(get_current_user),
+    redis: RedisClient = Depends(get_redis_client),
 ):
+    cache_key = f"user:{current_user.id}:feeds"
+
+    cached = await redis.get(cache_key)
+    if cached:
+        return json.loads(cached)
+
     results = session.exec(
         select(FeedPreferences, Categories)
         .join(Categories, FeedPreferences.feed_id == Categories.id)
@@ -191,12 +203,18 @@ async def get_my_feeds(
         .where(FeedPreferences.is_active == True)
     ).all()
 
-    return [
+    feeds = [
         {
             "category_id": cat.id,
             "name": cat.name,
             "feed_url": cat.feed_url,
-            "subscribed_at": pref.created_at,
+            "subscribed_at": pref.created_at.isoformat()
+            if hasattr(pref.created_at, "isoformat")
+            else pref.created_at,
         }
         for pref, cat in results
     ]
+
+    await redis.set(cache_key, json.dumps(feeds), expire=300)
+
+    return feeds

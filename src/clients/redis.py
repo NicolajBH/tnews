@@ -62,6 +62,30 @@ class RedisClient:
                             )
                             return
 
+    async def get(self, key: str) -> str | None:
+        """get value from redis by key with retry logic"""
+
+        async def _operation():
+            return await self.redis.get(key)
+
+        return await self._execute_with_retry(_operation)
+
+    async def set(self, key: str, value: str, expire: int = 3600) -> None:
+        """set a key-value pair in redis with retry logic"""
+
+        async def _operation():
+            await self.redis.set(key, value, ex=expire)
+
+        await self._execute_with_retry(_operation)
+
+    async def delete(self, key: str) -> None:
+        """delete a key from redis with retry logic"""
+
+        async def _operation():
+            await self.redis.delete(key)
+
+        await self._execute_with_retry(_operation)
+
     async def _execute_with_retry(self, operation, *args, **kwargs):
         max_retries = 1
         retry_delay = 0.1

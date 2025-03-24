@@ -1,4 +1,4 @@
-# .plan - Updated March 21, 2025
+# .plan - Updated March 22, 2025
 
 Architecture & Structure
   ? Add API versioning support 
@@ -16,7 +16,7 @@ Security Enhancements
 
 Performance Optimization
   * Optimize database queries (fix N+1 query in articles endpoint)
-  ? Add Redis caching for frequently accessed endpoints - Need to add caching for /my, invalidation for subscription feeds
+  * Add Redis caching for frequently accessed endpoints 
   ? Implement cursor-based pagination for article lists
   ? Create database indexes for common query patterns
   ? Add ETags for conditional requests
@@ -110,5 +110,7 @@ Documentation
   ? Add Redis caching for frequently accessed endpoints - Added caching for /categories
 
 # March 22, 2025
-  ? Add Redis caching for frequently accessed endpoints - Added caching for /sources
+  ? Add Redis caching for frequently accessed endpoints - Added caching for /sources, /my
 
+# March 23, 2025
+  * Add Redis caching for frequently accessed endpoints - Added cache invalidation for /subscribe and /unsubscribe
