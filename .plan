@@ -1,4 +1,4 @@
-# .plan - Updated March 22, 2025
+# .plan - Updated March 23, 2025
 
 Architecture & Structure
   ? Add API versioning support 
@@ -22,7 +22,7 @@ Performance Optimization
   ? Add ETags for conditional requests
 
 Error Handling & Resilience
-  ? Implement circuit breaker pattern for external service calls
+  * Implement circuit breaker pattern for external service calls
   ? Add request ID tracking for all error responses
   ? Implement graceful degradation for failed services
   ? Add comprehensive request validation error handling
@@ -114,3 +114,6 @@ Documentation
 
 # March 23, 2025
   * Add Redis caching for frequently accessed endpoints - Added cache invalidation for /subscribe and /unsubscribe
+  * Implement circuit breaker pattern for external service calls
+# Notes
+- Calls to bloomberg api are returning captcha

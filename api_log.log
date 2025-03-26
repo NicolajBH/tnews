@@ -1409,3 +1409,67 @@
 {"timestamp": "2025-03-24 19:05:09,230", "level": "INFO", "module": "news", "message": "Saved 2 new articles to database"}
 {"timestamp": "2025-03-24 19:05:09,269", "level": "INFO", "module": "news", "message": "Saved 1 new articles to database"}
 {"timestamp": "2025-03-24 19:05:09,357", "level": "ERROR", "module": "news", "message": "Error fetching https://example.com/feed2.xml: 500: Failed to fetch feed"}
+{"timestamp": "2025-03-25 18:25:42,139", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/test-source-error \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-25 18:25:42,147", "level": "INFO", "module": "test_error_handlers", "message": "{'timestamp': '2025-03-25T17:25:42.134130+00:00', 'status': 404, 'error_code': 'INVALID_SOURCE', 'message': 'Invalid source: Unknown source', 'path': '/api/v1/test-source-error', 'additional_info': {'source': 'Unknown source'}}"}
+{"timestamp": "2025-03-25 18:25:42,163", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/test-generic-error \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-25 18:25:42,271", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 401 Unauthorized\""}
+{"timestamp": "2025-03-25 18:25:42,284", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-03-25 18:25:42,630", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-25 18:25:42,980", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-25 18:25:43,303", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-25 18:25:43,316", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-25 18:25:43,329", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02&end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-25 18:25:43,653", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-25 18:25:43,938", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-25 18:25:44,472", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-25 18:25:44,764", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-25 18:25:45,281", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-25 18:25:45,574", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-25 18:25:45,873", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 400 Bad Request\""}
+{"timestamp": "2025-03-25 18:25:47,758", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-25 18:25:48,045", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-25 18:25:49,855", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-25 18:25:50,185", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4586547120 in process 8056"}
+{"timestamp": "2025-03-25 18:25:50,186", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 8056"}
+{"timestamp": "2025-03-25 18:25:50,214", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4584887376 in process 8056"}
+{"timestamp": "2025-03-25 18:25:50,525", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 8056"}
+{"timestamp": "2025-03-25 18:25:50,570", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4584888336 in process 8056"}
+{"timestamp": "2025-03-25 18:25:50,578", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 8056"}
+{"timestamp": "2025-03-25 18:25:50,618", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4587469744 in process 8056"}
+{"timestamp": "2025-03-25 18:25:50,636", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 8056"}
+{"timestamp": "2025-03-25 18:25:50,666", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4587467616 in process 8056"}
+{"timestamp": "2025-03-25 18:25:50,693", "level": "INFO", "module": "news", "message": "Saved 2 new articles to database"}
+{"timestamp": "2025-03-25 18:25:50,728", "level": "INFO", "module": "news", "message": "Saved 1 new articles to database"}
+{"timestamp": "2025-03-25 18:25:50,818", "level": "ERROR", "module": "news", "message": "Error fetching https://example.com/feed2.xml: 500: Failed to fetch feed"}
+{"timestamp": "2025-03-25 18:28:36,804", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/test-source-error \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-25 18:28:36,806", "level": "INFO", "module": "test_error_handlers", "message": "{'timestamp': '2025-03-25T17:28:36.794357+00:00', 'status': 404, 'error_code': 'INVALID_SOURCE', 'message': 'Invalid source: Unknown source', 'path': '/api/v1/test-source-error', 'additional_info': {'source': 'Unknown source'}}"}
+{"timestamp": "2025-03-25 18:28:36,818", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/test-generic-error \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-25 18:28:36,956", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 401 Unauthorized\""}
+{"timestamp": "2025-03-25 18:28:36,968", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-03-25 18:28:37,311", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-25 18:28:37,675", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-25 18:28:38,031", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-25 18:28:38,043", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-25 18:28:38,055", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02&end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-25 18:28:38,359", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-25 18:28:38,643", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-25 18:28:39,171", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-25 18:28:39,462", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-03-25 18:28:39,978", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-25 18:28:40,414", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-25 18:28:40,712", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 400 Bad Request\""}
+{"timestamp": "2025-03-25 18:28:42,773", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-25 18:28:43,062", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-03-25 18:28:44,857", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-03-25 18:28:45,167", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4508116576 in process 8706"}
+{"timestamp": "2025-03-25 18:28:45,168", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 8706"}
+{"timestamp": "2025-03-25 18:28:45,184", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4506457168 in process 8706"}
+{"timestamp": "2025-03-25 18:28:45,495", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 8706"}
+{"timestamp": "2025-03-25 18:28:45,515", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4506457808 in process 8706"}
+{"timestamp": "2025-03-25 18:28:45,519", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 8706"}
+{"timestamp": "2025-03-25 18:28:45,542", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4508852320 in process 8706"}
+{"timestamp": "2025-03-25 18:28:45,561", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 8706"}
+{"timestamp": "2025-03-25 18:28:45,583", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4508858400 in process 8706"}
+{"timestamp": "2025-03-25 18:28:45,617", "level": "INFO", "module": "news", "message": "Saved 2 new articles to database"}
+{"timestamp": "2025-03-25 18:28:45,653", "level": "INFO", "module": "news", "message": "Saved 1 new articles to database"}
+{"timestamp": "2025-03-25 18:28:45,741", "level": "ERROR", "module": "news", "message": "Error fetching https://example.com/feed2.xml: 500: Failed to fetch feed"}

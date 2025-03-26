@@ -1,4 +1,5 @@
 import asyncio
+import subprocess
 import logging
 import random
 import re
@@ -189,7 +190,7 @@ class HTTPClient:
         """prepare request headers with domain specific customizations"""
         result_headers = headers.copy()
 
-        if host == "bloomberg.com":
+        if host == "www.bloomberg.com":
             return {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36",
                 "Referer": "https://www.bloomberg.com/",
@@ -278,6 +279,34 @@ class HTTPClient:
         self._circuit_breakers[host] = breaker
         return breaker
 
+    async def _fetch_with_curl(self) -> Tuple[HTTPHeaders, bytes]:
+        """subprocess to curl to get around fingerprinting"""
+        cmd = [
+            "curl",
+            "-s",
+            "https://www.bloomberg.com/lineup-next/api/stories?limit=25&pageNumber=1&types=ARTICLE,FEATURE,INTERACTIVE,LETTER,EXPLAINERS",
+            "-H",
+            "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36",
+            "-H",
+            "Referer: https://www.bloomberg.com/",
+            "-H",
+            "Accept: */*",
+        ]
+        try:
+            process = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            stdout, stderr = await process.communicate()
+            response_headers = HTTPHeaders.from_bytes(
+                b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n"
+            )
+            return response_headers, stdout
+        except Exception as e:
+            logger.error(f"Error executing curl: {str(e)}")
+            raise HTTPClientError(detail=f"Error fetching with curl: {str(e)}")
+
     async def request(
         self, method: str, url: str, request_headers: Dict[str, str] | None = None
     ) -> Tuple[HTTPHeaders, bytes]:
@@ -288,6 +317,9 @@ class HTTPClient:
             path += "?" + parsed_url.query
 
         circuit_breaker = self._get_circuit_breaker(host)
+
+        if host == "www.bloomberg.com" and "lineup-next/api" in url:
+            return await self._fetch_with_curl()
 
         async def make_request():
             headers = self._prepare_headers(host, request_headers or {})
