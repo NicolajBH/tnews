@@ -117,3 +117,7 @@ Documentation
   * Implement circuit breaker pattern for external service calls
 # Notes
 - Calls to bloomberg api are returning captcha
+
+# March 26, 2025
+# Notes
+- Fixed bloomberg captcha detection by using subprocess 
