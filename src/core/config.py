@@ -53,6 +53,12 @@ class Settings(BaseSettings):
     DB_MAX_OVERFLOW: int = 10
     DB_POOL_TIMEOUT: int = 30
 
+    # CORS settings
+    CORS_ORIGINS: list[str] = ["https://localhost:3000"]
+    CORS_ALLOW_CREDENTIALS: bool = True
+    CORS_ALLOW_METHODS: list[str] = ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"]
+    CORS_ALLOW_HEADERS: list[str] = ["Content-Type", "Authorization", "Accept"]
+
     class Config:
         env_file = ".env"
         case_sensitive = True

@@ -1,4 +1,4 @@
-# .plan - Updated March 23, 2025
+# .plan - Updated March 26, 2025
 
 Architecture & Structure
   ? Add API versioning support 
@@ -119,5 +119,6 @@ Documentation
 - Calls to bloomberg api are returning captcha
 
 # March 26, 2025
+  ? Implement CORS middleware with proper configuration - started implementation, need to deepen understanding and write some tests
 # Notes
 - Fixed bloomberg captcha detection by using subprocess 
