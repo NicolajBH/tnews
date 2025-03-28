@@ -18,13 +18,14 @@ celery_app.conf.update(
     worker_max_tasks_per_child=settings.CELERY_WORKERS_MAX_TASKS_PER_CHILD,
     worker_concurrency=settings.WORKER_CONCURRENCY,
     task_time_limit=settings.CELERY_TASK_TIMEOUT,
+    beat_max_loop_interval=settings.CELERY_BEAT_MAX_LOOP_INTERVAL,
     # result backend settings
     result_expires=settings.CELERY_RESULT_EXPIRES,
     # rate limiting
     task_annotations={"src.tasks.feed_tasks.fetch_feed_chunk": {"rate_limit": "50/m"}},
     # beat schedule
     beat_schedule={
-        "fetch-news-every-5-minutes": {
+        "fetch-news-every-15-minutes": {
             "task": "src.tasks.feed_tasks.fetch_all_feeds",
             "schedule": settings.CELERY_BEAT_SCHEDULE_INTERVAL,
         }
