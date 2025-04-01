@@ -1,3 +1,3 @@
-from .formatters import format_articles
+from .pagination import encode_cursor, decode_cursor, get_pagination_info
 
-__all__ = ["format_articles"]
+__all__ = ["encode_cursor", "decode_cursor", "get_pagination_info"]

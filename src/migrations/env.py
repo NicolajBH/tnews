@@ -11,7 +11,6 @@ from src.models.db_models import (
     Sources,
     Categories,
     Articles,
-    ArticleContent,
     Users,
     FeedPreferences,
     ArticleCategories,

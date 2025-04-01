@@ -1,14 +1,17 @@
 import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List, Dict
-from sqlmodel import select, col
+from sqlmodel import Session, select, col
 from datetime import datetime
 import json
 
+# Dependencies
 from src.api.dependencies import get_date_filters, get_redis_client
 from src.clients.redis import RedisClient
-from src.constants import RSS_FEEDS
-from src.core.exceptions import RSSFeedError
+from src.db.database import get_session
+from src.auth.dependencies import get_current_user
+
+# Models
 from src.models.db_models import (
     ArticleCategories,
     Articles,
@@ -17,60 +20,57 @@ from src.models.db_models import (
     Users,
     FeedPreferences,
 )
-from src.db.database import SessionDep
-from src.models.article import Article, ArticleQueryParameters, CategoryParams
-from src.auth.dependencies import get_current_user
+from src.models.article import Article, ArticleQueryParameters
+from src.models.pagination import PaginatedResponse, PaginationInfo
 
+# Constants and exceptions
+from src.constants import RSS_FEEDS
+from src.core.exceptions import RSSFeedError
+
+# Services and repositories
+from src.repositories.article_repository import ArticleRepository
+from src.services.article_service import ArticleService
+from src.services.cache_service import CacheService
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["auth"], dependencies=[Depends(get_current_user)])
 
 
-@router.get("/articles/latest", response_model=List[Article])
+@router.get("/articles/latest", response_model=PaginatedResponse[Article])
 async def get_latest_articles(
-    session: SessionDep,
+    session: Session = Depends(get_session),
     current_user: Users = Depends(get_current_user),
     params: ArticleQueryParameters = Depends(get_date_filters),
-) -> List[Article]:
-    query = (
-        select(Articles)
-        .join(ArticleCategories, Articles.id == ArticleCategories.article_id)
-        .join(Categories, ArticleCategories.category_id == Categories.id)
-        .join(FeedPreferences, Categories.id == FeedPreferences.feed_id)
-        .where(FeedPreferences.user_id == current_user.id)
-        .where(FeedPreferences.is_active == True)
-        .order_by(col(Articles.pub_date).desc())
-    )
-    if params.start_date:
-        query = query.where(Articles.pub_date >= params.start_date)
-    if params.end_date:
-        query = query.where(Articles.pub_date <= params.end_date)
+    redis: RedisClient = Depends(get_redis_client),
+) -> PaginatedResponse[Article]:
+    try:
+        # initialize services
+        cache_service = CacheService(redis)
+        article_repository = ArticleRepository(session)
+        article_service = ArticleService(article_repository, cache_service)
 
-    query = query.limit(20)
-    results = session.exec(query).all()
-    articles_to_return = []
-    source_ids = {result.source_id for result in results}
-    sources = {
-        source.id: source
-        for source in session.exec(
-            select(Sources).where(Sources.id.in_(source_ids))
-        ).all()
-    }
-    for result in results:
-        source = sources.get(result.source_id)
-        if source is None:
-            logger.error(f"No sources with ID {result.source_id}")
-            continue
-        articles_to_return.append(
-            Article(
-                title=result.title,
-                pubDate=result.pub_date_raw,
-                source=source.feed_symbol,
-                formatted_time=datetime.strftime(result.pub_date, "%H:%M"),
-            ),
+        articles, pagination_info = await article_service.get_paginated_articles(
+            user_id=current_user.id,
+            cursor=params.cursor,
+            limit=params.limit,
+            start_date=params.start_date,
+            end_date=params.end_date,
         )
-    return articles_to_return
+
+        return PaginatedResponse(
+            data=articles,
+            pagination=pagination_info,
+        )
+
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error fetching articles: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occured while fetching articles",
+        )
 
 
 @router.get("/categories")
@@ -120,73 +120,131 @@ async def get_sources(
 @router.post("/subscribe/{category_id}")
 async def subscribe_to_feed(
     category_id: int,
-    session: SessionDep,
+    session: Session = Depends(get_session),
     current_user: Users = Depends(get_current_user),
     redis: RedisClient = Depends(get_redis_client),
 ):
-    category = session.get(Categories, category_id)
-    if not category:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Category not found",
-        )
+    """
+    Subscribe to a feed category
+    """
+    try:
+        # initialize services
+        cache_service = CacheService(redis)
+        article_repository = ArticleRepository(session)
+        article_service = ArticleService(article_repository, cache_service)
 
-    existing = session.exec(
-        select(FeedPreferences)
-        .where(FeedPreferences.user_id == current_user.id)
-        .where(FeedPreferences.feed_id == category_id)
-    ).first()
-
-    if existing:
-        if existing.is_active:
+        # check if category exists
+        category = session.get(Categories, category_id)
+        if not category:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Already subscribed to this feed",
+                status_code=status.HTTP_404_NOT_FOUND, detail="Category not found"
             )
-        existing.is_active = True
-        session.add(existing)
-    else:
-        new_preference = FeedPreferences(
-            user_id=current_user.id,
-            feed_id=category_id,
-        )
-        session.add(new_preference)
 
-    session.commit()
-    await redis.delete(f"user:{current_user.id}:feeds")
-    return {"status": "subscribed", "category_id": category_id}
+        existing = session.exec(
+            select(FeedPreferences)
+            .where(FeedPreferences.user_id == current_user.id)
+            .where(FeedPreferences.feed_id == category_id)
+        ).first()
+
+        if existing:
+            if existing.is_active:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Already subscribed to this feed",
+                )
+            existing.is_active = True
+            session.add(existing)
+        else:
+            new_preference = FeedPreferences(
+                user_id=current_user.id,
+                feed_id=category_id,
+            )
+            session.add(new_preference)
+
+        session.commit()
+
+        await cache_service.invalidate_user_feeds(current_user.id)
+        await article_service.invalidate_user_articles_cache(current_user.id)
+
+        return {
+            "status": "subscribed",
+            "category_id": category_id,
+            "category_name": category.name,
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error subscribing to feed: {str(e)}", exc_info=True)
+        session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occured while subscribing to the feed",
+        )
 
 
 @router.post("/unsubscribe/{category_id}")
 async def unsubscribe_from_feed(
     category_id: int,
-    session: SessionDep,
+    session: Session = Depends(get_session),
     current_user: Users = Depends(get_current_user),
     redis: RedisClient = Depends(get_redis_client),
 ):
-    preference = session.exec(
-        select(FeedPreferences)
-        .where(FeedPreferences.user_id == current_user.id)
-        .where(FeedPreferences.feed_id == category_id)
-        .where(FeedPreferences.is_active == True)
-    ).first()
+    """
+    Unsubscribe from a feed category
+    """
+    try:
+        # initialize services
+        cache_service = CacheService(redis)
+        article_repository = ArticleRepository(session)
+        article_service = ArticleService(article_repository, cache_service)
 
-    if not preference:
+        # find subscription
+        preference = session.exec(
+            select(FeedPreferences)
+            .where(FeedPreferences.user_id == current_user.id)
+            .where(FeedPreferences.feed_id == category_id)
+            .where(FeedPreferences.is_active == True)
+        ).first()
+
+        if not preference:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Not subscribed to this feed",
+            )
+
+        # update sub status
+        preference.is_active = False
+        session.add(preference)
+        session.commit()
+
+        # get category name for response
+        category = session.get(Categories, category_id)
+        category_name = category.name if category else "Unknown"
+
+        # invalidate caches
+        await cache_service.invalidate_user_feeds(current_user.id)
+        await article_service.invalidate_user_articles_cache(current_user.id)
+
+        return {
+            "status": "unsubscribed",
+            "category_id": category_id,
+            "category_name": category_name,
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error unsubscribing from feed: {str(e)}", exc_info=True)
+        session.rollback()
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Not subscribed to this feed",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occured while unsubscribing from the feed",
         )
-
-    preference.is_active = False
-    session.add(preference)
-    session.commit()
-    await redis.delete(f"user:{current_user.id}:feeds")
-    return {"status": "unsubscribed", "category_id": category_id}
 
 
 @router.get("/my")
 async def get_my_feeds(
-    session: SessionDep,
+    session: Session = Depends(get_session),
     current_user: Users = Depends(get_current_user),
     redis: RedisClient = Depends(get_redis_client),
 ):

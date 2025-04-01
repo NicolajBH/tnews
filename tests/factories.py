@@ -4,7 +4,6 @@ from datetime import datetime, timezone
 from sqlmodel import Session
 
 from src.models.db_models import (
-    ArticleContent,
     Articles,
     Categories,
     Sources,
@@ -134,18 +133,6 @@ class FeedPreferencesFactory(BaseFactory):
     feed = factory.SubFactory(CategoryFactory)
 
 
-class ArticleContentFactory(BaseFactory):
-    class Meta:
-        model = ArticleContent
-        sqlalchemy_session = None
-
-    content = factory.Faker("paragraph", nb_sentences=5)
-    content_type = "text/html"
-    last_updated = factory.LazyFunction(lambda: TEST_TIMESTAMP)
-
-    article = factory.SubFactory(ArticleFactory)
-
-
 def set_factory_session(session: Session) -> None:
     if not isinstance(session, Session):
         raise ValueError("Must provide a valid SQLModel Session")
@@ -155,7 +142,6 @@ def set_factory_session(session: Session) -> None:
         SourceFactory,
         CategoryFactory,
         ArticleFactory,
-        ArticleContentFactory,
         FeedPreferencesFactory,
     ]:
         factory_class._meta.sqlalchemy_session = session

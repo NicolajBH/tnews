@@ -55,7 +55,6 @@ class Articles(SQLModel, table=True):
     categories: List[Categories] = Relationship(
         back_populates="articles", link_model=ArticleCategories
     )
-    content: List["ArticleContent"] | None = Relationship(back_populates="article")
 
     @property
     def pub_date_iso(self) -> str:
@@ -65,15 +64,6 @@ class Articles(SQLModel, table=True):
     def slug(self) -> str:
         path = urlparse(self.original_url).path.rstrip("/")
         return unquote(path.rsplit("/", 1)[1]).lower()
-
-
-class ArticleContent(SQLModel, table=True):
-    article_id: int = Field(foreign_key="articles.id", primary_key=True)
-    content: str
-    content_type: str
-    last_updated: datetime = Field(default_factory=datetime.now)
-
-    article: Articles = Relationship(back_populates="content")
 
 
 class Users(SQLModel, table=True):

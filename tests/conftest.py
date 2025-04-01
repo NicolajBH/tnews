@@ -17,7 +17,6 @@ from src.models.db_models import (
     Users,
     FeedPreferences,
     ArticleCategories,
-    ArticleContent,
 )
 from src.auth.security import get_password_hash, create_access_token
 

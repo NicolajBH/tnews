@@ -171,6 +171,76 @@ class RedisClient:
             logger.error(f"Redis batch check failed: {e}")
             return {hash: False for hash in content_hashes}
 
+    async def keys(self, pattern: str) -> List[str]:
+        """
+        Get all keys matching a pattern
+
+        Not recommended for production use with large databases as it may block the server
+
+        Args:
+            pattern: Pattern to match keys (e.g., "user:*:feeds")
+
+        Returns:
+            List of matching keys
+        """
+
+        async def _operation():
+            return await self.redis.keys(pattern)
+
+        result = await self._execute_with_retry(_operation)
+        return result or []
+
+    async def scan(self, match: str | None = None, count: int = 100) -> List[str]:
+        """
+        Incrementally iterate over keys using SCAN
+
+        Safer alternative to keys for production
+
+        Args:
+            match: Optional pattern to match
+            count: Hint for how many keys to scan per iteration
+
+        Returns
+            List of all matching keys
+        """
+
+        async def _scan_operation():
+            all_keys = []
+            cursor = 0
+            while True:
+                cursor, keys = await self.redis.scan(cursor, match=match, count=count)
+                all_keys.extend(keys)
+                if cursor == 0:
+                    break
+            return all_keys
+
+        result = await self._execute_with_retry(_scan_operation)
+        return result or []
+
+    async def delete_keys_by_pattern(self, pattern: str) -> int:
+        """
+        Delete all keys matching a pattern.
+
+        Args
+            pattern: Pattern to match keys
+
+        Returns
+            Number of keys deleted
+        """
+        try:
+            keys_to_delete = await self.scan(match=pattern)
+            if not keys_to_delete:
+                return 0
+
+            async def _operation():
+                return await self.redis.delete(*keys_to_delete)
+
+            result = await self._execute_with_retry(_operation)
+            return result or 0
+        except Exception as e:
+            logger.error(f"Error deleting keys by pattern: {str(e)}")
+            return 0
+
     async def close(self) -> None:
         if self.redis is not None:
             try:
