@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlmodel import select
 
+from src.auth.rate_limit import rate_limit_dependency
 from src.auth.security import verify_password, get_password_hash, create_access_token
 from src.auth.models import Token, UserCreate
 from src.models.db_models import Users
@@ -9,8 +10,12 @@ from src.db.database import SessionDep
 auth_router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@auth_router.post("/register", response_model=Token)
-def register_user(user: UserCreate, session: SessionDep):
+@auth_router.post(
+    "/register",
+    response_model=Token,
+    dependencies=[Depends(rate_limit_dependency("register"))],
+)
+def register_user(user: UserCreate, session: SessionDep, request: Request):
     existing_user = session.exec(
         select(Users).where(Users.username == user.username)
     ).first()
@@ -32,8 +37,12 @@ def register_user(user: UserCreate, session: SessionDep):
     return Token(access_token=access_token, token_type="bearer")
 
 
-@auth_router.post("/login", response_model=Token)
-def login(user: UserCreate, session: SessionDep):
+@auth_router.post(
+    "/login",
+    response_model=Token,
+    dependencies=[Depends(rate_limit_dependency("register"))],
+)
+def login(user: UserCreate, session: SessionDep, request: Request):
     db_user = session.exec(select(Users).where(Users.username == user.username)).first()
 
     if not db_user or not verify_password(user.password, db_user.password_hash):

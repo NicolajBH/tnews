@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from src.api import router, setup_error_handlers, auth_router
+from src.api.middleware import RateLimitHeaderMiddleware
 from src.core import setup_logging
 from src.core.config import settings
 from src.db.operations import initialize_db
@@ -35,6 +36,7 @@ def create_app() -> FastAPI:
         allow_methods=settings.CORS_ALLOW_METHODS,
         allow_headers=settings.CORS_ALLOW_HEADERS,
     )
+    app.add_middleware(RateLimitHeaderMiddleware)
     return app
 
 

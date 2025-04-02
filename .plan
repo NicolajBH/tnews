@@ -62,7 +62,7 @@ Terminal User Interface
   ? Design terminal interface mockups
   ? Implement basic article viewing functionality
   ? Add feed subscription management via terminal
-  ? Create a pleasing, teletext-inspired visual style
+  ? Create a teletext-inspired visual style
 
 Containerization & Deployment
   ? Create Dockerfile for the application

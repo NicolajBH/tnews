@@ -18,6 +18,10 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379/0"
     REDIS_CACHE_TTL: int = 3600
     REDIS_HASH_TTL: int = 86400
+    RATE_LIMIT_ENABLED: bool = True
+    AUTH_RATE_LIMIT_ATTEMPTS: int = 5
+    AUTH_RATE_LIMIT_WINDOW: int = 60
+    AUTH_RATE_LIMIT_TIMEOUT_TIME: int = 300
 
     # Celery settings
     CELERY_BROKER_URL: str = "redis://localhost:6379/0"
