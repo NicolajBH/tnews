@@ -1,4 +1,4 @@
-# .plan - Updated April 01, 2025
+# .plan - Updated April 02, 2025
 
 Architecture & Structure
   ? Add API versioning support 
@@ -9,7 +9,7 @@ Architecture & Structure
 Security Enhancements
   * Fix password hashing typo in CryptContext initialization 
   * Implement CORS middleware with proper configuration
-  ? Add rate limiting for authentication endpoints
+  * Add rate limiting for authentication endpoints
   ? Create a token blacklisting system for logouts
   ? Implement refresh tokens for extended sessions
   * Add password strength validation during registration
@@ -130,3 +130,6 @@ Documentation
 # April 01, 2025
   * Implement cursor-based pagination for article lists
   * Add database connection retry logic
+
+# April 02, 2025
+  * Add rate limiting for authentication endpoints

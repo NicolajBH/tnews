@@ -88,14 +88,16 @@ class RateLimiter:
         await self.initialize()
 
         if self.redis.redis is None:
-            logger.warning(f"Redis not available for rate limiting, skipping increment")
+            logger.warning("Redis not available for rate limiting, skipping increment")
             return
 
         current_time = int(time.time())
         rate_key = f"ratelimit:{key}"
 
+        # generate unique score to avoid collisions
+        unique_score = float(f"{current_time}.{int(time.time() * 1000) % 1000}")
         # add current timestamp to the sorted set with score = current_time
-        await self.redis.redis.zadd(rate_key, {str(current_time): current_time})
+        await self.redis.redis.zadd(rate_key, {str(unique_score): unique_score})
 
         # set expiry on the key to auto cleanup
         await self.redis.redis.expire(rate_key, window_seconds * 2)

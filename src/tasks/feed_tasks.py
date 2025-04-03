@@ -28,7 +28,11 @@ def fetch_all_feeds(self):
     start_time = time.time()
 
     try:
-        with Session(engine) as session:
+        from src.db.database import get_engine
+
+        task_engine = get_engine()
+
+        with Session(task_engine) as session:
             results = fetch_feed_urls(session)
             feeds = [
                 (cat.source_id, cat.id, source.base_url + cat.feed_url)

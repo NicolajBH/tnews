@@ -3,7 +3,7 @@ import threading
 from tenacity import retry, stop_after_attempt, wait_exponential
 from typing import Annotated
 from fastapi import Depends
-from sqlmodel import QueuePool, Session, create_engine
+from sqlmodel import QueuePool, Session, create_engine, text
 from src.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -38,7 +38,7 @@ def get_engine():
             )
             # test connection
             with _engine_store.engine.connect() as conn:
-                conn.execute("SELECT 1")
+                conn.execute(text("SELECT 1")).scalar()
         except Exception as e:
             logger.warning(f"Database connection attempt failed: {str(e)}")
     return _engine_store.engine
