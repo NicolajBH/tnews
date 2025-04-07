@@ -74,6 +74,10 @@ class Users(SQLModel, table=True):
     password_hash: str = Field(index=True, nullable=False)
     is_active: bool = Field(default=True)
 
+    # refresh tokens
+    refresh_token: str | None = Field(default=None)
+    refresh_token_expires: datetime | None = Field(default=None)
+
     feed_preferences: List["FeedPreferences"] = Relationship(back_populates="user")
 
 

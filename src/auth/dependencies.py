@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlmodel import select
-from .security import verify_token
+from .security import verify_token_with_blacklist_check
 from src.models.db_models import Users
 from src.db.database import SessionDep
 
@@ -17,7 +17,7 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    payload = verify_token(token)
+    payload = await verify_token_with_blacklist_check(token)
     username = payload.get("sub")
     if username is None or not isinstance(username, str):
         raise credentials_exception

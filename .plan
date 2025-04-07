@@ -1,4 +1,4 @@
-# .plan - Updated April 02, 2025
+# .plan - Updated April 07, 2025
 
 Architecture & Structure
   ? Add API versioning support 
@@ -10,8 +10,8 @@ Security Enhancements
   * Fix password hashing typo in CryptContext initialization 
   * Implement CORS middleware with proper configuration
   * Add rate limiting for authentication endpoints
-  ? Create a token blacklisting system for logouts
-  ? Implement refresh tokens for extended sessions
+  * Create a token blacklisting system for logouts
+  * Implement refresh tokens for extended sessions
   * Add password strength validation during registration
 
 Performance Optimization
@@ -133,3 +133,12 @@ Documentation
 
 # April 02, 2025
   * Add rate limiting for authentication endpoints
+
+# April 03, 2025
+  * Create a token blacklisting system for logouts
+  ? Implement refresh tokens for extended sessions
+# Notes
+- Started refresh tokens. Need to add blacklisting functionality and update auth routes
+  
+# April 07, 2025
+  * Implement refresh tokens for extended sessions

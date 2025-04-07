@@ -6,12 +6,18 @@ from src.api.middleware import RateLimitHeaderMiddleware
 from src.core import setup_logging
 from src.core.config import settings
 from src.db.operations import initialize_db
+from src.clients.redis import RedisClient
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     initialize_db()
+    redis_client = RedisClient()
+    await redis_client.initialize()
+
     yield
+
+    await redis_client.close()
 
 
 def create_app() -> FastAPI:
