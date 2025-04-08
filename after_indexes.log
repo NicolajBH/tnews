@@ -1,0 +1,16 @@
+Running benchmark tests...
+--------------------------------------------------
+Get User Articles - Run 1: 0.079995 seconds - Result count: 20
+Get User Articles - Run 2: 0.002285 seconds - Result count: 20
+Get User Articles - Run 3: 0.001813 seconds - Result count: 20
+Get User Articles - Run 4: 0.001958 seconds - Result count: 20
+Get User Articles - Run 5: 0.001713 seconds - Result count: 20
+Get User Articles - Average time: 0.017553 seconds
+
+Get User Feeds - Run 1: 0.003122 seconds - Result count: 5
+Get User Feeds - Run 2: 0.000658 seconds - Result count: 5
+Get User Feeds - Run 3: 0.000477 seconds - Result count: 5
+Get User Feeds - Run 4: 0.000466 seconds - Result count: 5
+Get User Feeds - Run 5: 0.000472 seconds - Result count: 5
+Get User Feeds - Average time: 0.001039 seconds
+

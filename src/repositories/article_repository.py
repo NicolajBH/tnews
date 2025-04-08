@@ -56,12 +56,7 @@ class ArticleRepository:
 
         # apply cursor pagination filters
         if pub_date_lt and id_lt:
-            query = query.where(
-                (
-                    (Articles.pub_date < pub_date_lt)
-                    | ((Articles.pub_date == pub_date_lt) & (Articles.id < id_lt))
-                )
-            )
+            query = query.where((Articles.pub_date, Articles.id) < (pub_date_lt, id_lt))
 
         # apply sorting and limit
         query = query.order_by(col(Articles.pub_date).desc(), col(Articles.id).desc())

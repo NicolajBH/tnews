@@ -1501,3 +1501,9 @@
 {"timestamp": "2025-04-07 17:45:12,029", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
 {"timestamp": "2025-04-07 17:46:39,075", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
 {"timestamp": "2025-04-07 17:46:41,722", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-07 18:09:12,796", "level": "ERROR", "module": "database", "message": "Database session error: 401: Invalid refresh token"}
+{"timestamp": "2025-04-07 18:09:24,210", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-04-07 18:10:04,108", "level": "ERROR", "module": "database", "message": "Database session error: 401: Invalid refresh token"}
+{"timestamp": "2025-04-07 18:18:34,330", "level": "ERROR", "module": "database", "message": "Database session error: 401: Token has been revoked"}
+{"timestamp": "2025-04-07 18:18:49,676", "level": "ERROR", "module": "database", "message": "Database session error: 401: Invalid refresh token"}
+{"timestamp": "2025-04-08 18:39:40,898", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
