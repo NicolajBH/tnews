@@ -19,11 +19,11 @@ Performance Optimization
   * Add Redis caching for frequently accessed endpoints 
   * Implement cursor-based pagination for article lists
   * Create database indexes for common query patterns
-  ? Add ETags for conditional requests
+  * Add ETags for conditional requests
 
 Error Handling & Resilience
   * Implement circuit breaker pattern for external service calls
-  ? Add request ID tracking for all error responses
+  * Add request ID tracking for all error responses
   ? Implement graceful degradation for failed services
   ? Add comprehensive request validation error handling
 
@@ -49,6 +49,7 @@ Database Management
   * Add database connection retry logic
   ? Implement soft delete functionality for relevant models
   ? Add database transaction management
+  ? Fix created at being updated when record is updated
 
 Feature Enhancements
   ? Add user profile management (update, delete)
@@ -148,4 +149,8 @@ Documentation
 
 # April 09, 2025
   ? Add ETags for conditional requests - Finish updating routes
+
+# April 10, 2025
+  * Add ETags for conditional requests
+  * Add request ID tracking for all error responses
 

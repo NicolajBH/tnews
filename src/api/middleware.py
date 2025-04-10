@@ -56,3 +56,56 @@ class ETagMiddleware(BaseHTTPMiddleware):
                 return new_response
 
         return response
+
+
+class RequestIDMiddleware(BaseHTTPMiddleware):
+    """
+    Middleware to genereate and track request IDs
+
+    This middleware:
+    1. Checks if incoming request has an X-Request-ID header
+    2. If not, generates a new unique request ID
+    3. Stores the request ID in request.state and logging logging context
+    4. Adds the request ID to resposne headers
+    """
+
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        from src.utils.request_id import (
+            generate_request_id,
+            get_request_id_from_headers,
+        )
+        from src.core.logging import set_request_id
+        import logging
+
+        logger = logging.getLogger("src.api.middleware")
+
+        # check if request already has an id or genereate a new one
+        request_id = (
+            get_request_id_from_headers(request.headers) or generate_request_id()
+        )
+
+        # store in request state for access in route handlers and error handlers
+        request.state.request_id = request_id
+
+        # set request id in logging context
+        set_request_id(request_id)
+
+        extra = {"request_id": request_id}
+        logger.info(
+            f"Processing request: {request.method} {request.url.path}", extra=extra
+        )
+
+        # process request
+        try:
+            response = await call_next(request)
+            response.headers["X-Request-ID"] = request_id
+            return response
+        except Exception as e:
+            logger.exception(
+                f"Unhandled exception in request processing: {str(e)}", extra=extra
+            )
+            raise
+        finally:
+            logger.info(
+                f"Completed request: {request.method} {request.url.path}", extra=extra
+            )

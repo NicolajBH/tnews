@@ -1,17 +1,40 @@
 import logging
 import json
-from typing import Dict, Any
+from typing import Dict, Any, Optional
+from contextvars import ContextVar
 from src.core.config import settings
+
+request_id_var: ContextVar[Optional[str]] = ContextVar("request_id", default=None)
+
+
+def set_request_id(request_id: str) -> None:
+    """
+    Set the request ID in the current context
+    """
+    request_id_var.set(request_id)
+
+
+def get_request_id() -> str | None:
+    """
+    Get the request ID from the current context
+    """
+    return request_id_var.get()
 
 
 class CustomFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
+        if not hasattr(record, "request_id"):
+            record.request_id = get_request_id()
+
         log_entry: Dict[str, Any] = {
             "timestamp": self.formatTime(record),
             "level": record.levelname,
             "module": record.module,
             "message": record.getMessage(),
         }
+
+        if record.request_id:
+            log_entry["request_id"] = record.request_id
 
         metrics = getattr(record, "metrics", None)
         if metrics is not None:

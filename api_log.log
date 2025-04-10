@@ -1564,3 +1564,22 @@
 {"timestamp": "2025-04-10 17:14:10,358", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
 {"timestamp": "2025-04-10 17:14:13,474", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
 {"timestamp": "2025-04-10 17:19:25,130", "level": "ERROR", "module": "database", "message": "Database session error: 401: Could not verify credentials"}
+{"timestamp": "2025-04-10 18:33:19,753", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-10 18:33:58,270", "level": "INFO", "module": "middleware", "message": "Processing request: POST /api/v1/auth/login"}
+{"timestamp": "2025-04-10 18:33:58,311", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-04-10 18:33:58,737", "level": "INFO", "module": "middleware", "message": "Completed request: POST /api/v1/auth/login"}
+{"timestamp": "2025-04-10 18:34:15,414", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/my"}
+{"timestamp": "2025-04-10 18:34:15,427", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/my"}
+{"timestamp": "2025-04-10 18:34:33,520", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/articles/latest"}
+{"timestamp": "2025-04-10 18:34:33,549", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/articles/latest"}
+{"timestamp": "2025-04-10 18:35:19,789", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/articles/lates"}
+{"timestamp": "2025-04-10 18:35:19,789", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/articles/lates"}
+{"timestamp": "2025-04-10 18:40:30,653", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/articles/latest"}
+{"timestamp": "2025-04-10 18:40:30,670", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/articles/latest"}
+{"timestamp": "2025-04-10 18:56:48,644", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-10 18:57:08,677", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-10 18:57:28,591", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/articles/latest"}
+{"timestamp": "2025-04-10 18:57:28,698", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/articles/latest"}
+{"timestamp": "2025-04-10 18:57:35,878", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/articles/lates"}
+{"timestamp": "2025-04-10 18:57:35,879", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/articles/lates"}
+{"timestamp": "2025-04-10 18:58:39,616", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}

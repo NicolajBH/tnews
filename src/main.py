@@ -2,7 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from src.api import router, setup_error_handlers, auth_router
-from src.api.middleware import ETagMiddleware, RateLimitHeaderMiddleware
+from src.api.middleware import (
+    ETagMiddleware,
+    RateLimitHeaderMiddleware,
+    RequestIDMiddleware,
+)
 from src.core import setup_logging
 from src.core.config import settings
 from src.db.operations import initialize_db
@@ -35,6 +39,7 @@ def create_app() -> FastAPI:
     setup_error_handlers(app)
     app.include_router(router, prefix=settings.API_V1_STR)
     app.include_router(auth_router, prefix=settings.API_V1_STR)
+    app.add_middleware(RequestIDMiddleware)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.CORS_ORIGINS,
