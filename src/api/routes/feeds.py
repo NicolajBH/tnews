@@ -1,5 +1,5 @@
 import logging
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from typing import List, Dict
 from sqlmodel import Session, select, col
 from datetime import datetime
@@ -31,6 +31,7 @@ from src.core.exceptions import RSSFeedError
 from src.repositories.article_repository import ArticleRepository
 from src.services.article_service import ArticleService
 from src.services.cache_service import CacheService
+from src.utils.etag import generate_etag
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +40,8 @@ router = APIRouter(tags=["auth"], dependencies=[Depends(get_current_user)])
 
 @router.get("/articles/latest", response_model=PaginatedResponse[Article])
 async def get_latest_articles(
+    request: Request,
+    response: Response,
     session: Session = Depends(get_session),
     current_user: Users = Depends(get_current_user),
     params: ArticleQueryParameters = Depends(get_date_filters),
@@ -50,6 +53,25 @@ async def get_latest_articles(
         article_repository = ArticleRepository(session)
         article_service = ArticleService(article_repository, cache_service)
 
+        # create unique resouce key for this request
+        cursor_part = params.cursor or "first"
+        date_range = "all"
+        if params.start_date or params.end_date:
+            start_str = params.start_date.isoformat() if params.start_date else "start"
+            end_str = params.end_date.isoformat() if params.end_date else "end"
+            date_range = f"{start_str}_to_{end_str}"
+
+        resource_key = f"articles:user:{current_user.id}:page:{cursor_part}:limit:{params.limit}:range:{date_range}"
+
+        # check for etag
+        etag = await cache_service.get_etag(resource_key)
+
+        is_conditional = (
+            hasattr(request.state, "is_conditional") and request.state.is_conditional
+        )
+        client_etag = getattr(request.state, "client_etag", None)
+
+        # get articles and pagination info
         articles, pagination_info = await article_service.get_paginated_articles(
             user_id=current_user.id,
             cursor=params.cursor,
@@ -58,10 +80,23 @@ async def get_latest_articles(
             end_date=params.end_date,
         )
 
-        return PaginatedResponse(
-            data=articles,
-            pagination=pagination_info,
-        )
+        # create response data
+        response_data = PaginatedResponse(data=articles, pagination=pagination_info)
+
+        # generate etag if we dont have on eyet
+        if not etag:
+            etag = generate_etag(
+                {
+                    "articles": [article.model_dump() for article in articles],
+                    "pagination": pagination_info.model_dump(),
+                }
+            )
+            await cache_service.set_etag(resource_key, etag)
+
+        response.headers["ETag"] = etag
+        response.headers["Cache-Control"] = "private, max-age=60"
+
+        return response_data
 
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
@@ -75,20 +110,34 @@ async def get_latest_articles(
 
 @router.get("/categories")
 async def get_categories(
+    request: Request,
+    response: Response,
     redis: RedisClient = Depends(get_redis_client),
 ) -> Dict[str, List[str]]:
     try:
-        cached = await redis.get("categories")
-        if cached:
-            return json.loads(cached)
+        cache_service = CacheService(redis)
+        resource_key = "categories"
+
+        etag, cached_data = await cache_service.get_etag_with_data(resource_key)
+
+        if cached_data:
+            if etag:
+                response.headers["ETag"] = etag
+            response.headers["Cache-Control"] = "public, max-age=3600"
+            return cached_data
 
         categories = {
             source: list(cats["feeds"].keys()) for source, cats in RSS_FEEDS.items()
         }
 
-        await redis.set("categories", json.dumps(categories), expire=3600)
+        new_etag, _ = await cache_service.set_etag_with_data(
+            resource_key, categories, expire=3600
+        )
+        response.headers["ETag"] = new_etag
+        response.headers["Cache-Control"] = "public, max-age=3600"
 
         return categories
+
     except Exception as e:
         logger.error(f"Error fetching categories: {str(e)}", exc_info=True)
         raise HTTPException(
@@ -99,15 +148,28 @@ async def get_categories(
 
 @router.get("/sources")
 async def get_sources(
+    request: Request,
+    response: Response,
     redis: RedisClient = Depends(get_redis_client),
 ) -> Dict[str, List[str]]:
     try:
-        cached = await redis.get("sources")
-        if cached:
-            return json.loads(cached)
+        cache_service = CacheService(redis)
+        resource_key = "sources"
+
+        etag, cached_data = await cache_service.get_etag_with_data(resource_key)
+        if cached_data:
+            if etag:
+                response.headers["ETag"] = etag
+            response.headers["Cache-Control"] = "public, max-age=3600"
+            return cached_data
 
         sources = {"sources": list(RSS_FEEDS.keys())}
-        await redis.set("sources", json.dumps(sources), expire=3600)
+        new_etag, _ = await cache_service.set_etag_with_data(
+            resource_key, sources, expire=3600
+        )
+        response.headers["ETag"] = new_etag
+        response.headers["Cache-Control"] = "public, max-age=3600"
+
         return sources
     except Exception as e:
         logger.error(f"Error fetching sources: {str(e)}", exc_info=True)
@@ -163,15 +225,20 @@ async def subscribe_to_feed(
 
         session.commit()
 
-        await cache_service.invalidate_user_feeds(current_user.id)
-        await article_service.invalidate_user_articles_cache(current_user.id)
+        resource_key = f"user:{current_user.id}:feeds"
+        await cache_service.invalidate(resource_key)
+        await cache_service.invalidate_etag(resource_key)
+
+        await cache_service.invalidate_by_prefix(f"articles:user:{current_user.id}")
+        await cache_service.invalidate_by_prefix(
+            f"etag:articles:user:{current_user.id}"
+        )
 
         return {
             "status": "subscribed",
             "category_id": category_id,
             "category_name": category.name,
         }
-
     except HTTPException:
         raise
     except Exception as e:
@@ -223,8 +290,14 @@ async def unsubscribe_from_feed(
         category_name = category.name if category else "Unknown"
 
         # invalidate caches
-        await cache_service.invalidate_user_feeds(current_user.id)
-        await article_service.invalidate_user_articles_cache(current_user.id)
+        resource_key = f"user:{current_user.id}:feeds"
+        await cache_service.invalidate(resource_key)
+        await cache_service.invalidate_etag(resource_key)
+
+        await cache_service.invalidate_by_prefix(f"articles:user:{current_user.id}")
+        await cache_service.invalidate_by_prefix(
+            f"etag:articles:user:{current_user.id}"
+        )
 
         return {
             "status": "unsubscribed",
@@ -244,35 +317,54 @@ async def unsubscribe_from_feed(
 
 @router.get("/my")
 async def get_my_feeds(
+    request: Request,
+    response: Response,
     session: Session = Depends(get_session),
     current_user: Users = Depends(get_current_user),
     redis: RedisClient = Depends(get_redis_client),
 ):
-    cache_key = f"user:{current_user.id}:feeds"
+    try:
+        cache_service = CacheService(redis)
+        resource_key = f"user:{current_user.id}:feeds"
 
-    cached = await redis.get(cache_key)
-    if cached:
-        return json.loads(cached)
+        etag, cached_data = await cache_service.get_etag_with_data(resource_key)
 
-    results = session.exec(
-        select(FeedPreferences, Categories)
-        .join(Categories, FeedPreferences.feed_id == Categories.id)
-        .where(FeedPreferences.user_id == current_user.id)
-        .where(FeedPreferences.is_active == True)
-    ).all()
+        if cached_data:
+            if etag:
+                response.headers["ETag"] = etag
+            response.headers["Cache-Control"] = "private, max-age=300"
+            return cached_data
 
-    feeds = [
-        {
-            "category_id": cat.id,
-            "name": cat.name,
-            "feed_url": cat.feed_url,
-            "subscribed_at": pref.created_at.isoformat()
-            if hasattr(pref.created_at, "isoformat")
-            else pref.created_at,
-        }
-        for pref, cat in results
-    ]
+        results = session.exec(
+            select(FeedPreferences, Categories)
+            .join(Categories, FeedPreferences.feed_id == Categories.id)
+            .where(FeedPreferences.user_id == current_user.id)
+            .where(FeedPreferences.is_active == True)
+        ).all()
 
-    await redis.set(cache_key, json.dumps(feeds), expire=300)
+        feeds = [
+            {
+                "category_id": cat.id,
+                "name": cat.name,
+                "feed_url": cat.feed_url,
+                "subscribed_at": pref.created_at.isoformat()
+                if hasattr(pref.created_at, "isoformat")
+                else pref.created_at,
+            }
+            for pref, cat in results
+        ]
 
-    return feeds
+        new_etag, _ = await cache_service.set_etag_with_data(
+            resource_key, feeds, expire=300
+        )
+
+        response.headers["ETag"] = new_etag
+        response.headers["Cache-Control"] = "private, max-age=300"
+
+        return feeds
+    except Exception as e:
+        logger.error(f"Error fetching feeds: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error fetching feeds",
+        )

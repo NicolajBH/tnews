@@ -1,9 +1,10 @@
 import json
 import logging
-from typing import Any, Dict, List, Union, TypeVar, Generic, Pattern
+from typing import Any, Dict, List, TypeVar, Tuple
 import re
 
 from src.clients.redis import RedisClient
+from src.utils.etag import generate_etag
 
 logger = logging.getLogger(__name__)
 
@@ -180,3 +181,93 @@ class CacheService:
         """
         logger.info(f"Invalidating article cache for user {user_id}")
         return True
+
+    # etag methods
+
+    async def get_etag(self, resource_key: str) -> str | None:
+        """
+        Get the ETag for a specific resource
+
+        Args:
+            resource_key: The resource identifier
+
+        Returns:
+            The ETag or None if not found
+        """
+        etag_key = f"etag:{resource_key}"
+        return await self.redis.get(etag_key)
+
+    async def set_etag(self, resource_key: str, etag: str, expire: int = 3600) -> bool:
+        """
+        Set the ETag for a specific resource
+
+        Args:
+            resource_key: The resource identifier
+            etag: The ETag value
+            expire: Expiration time in seconds
+
+        Returns:
+            True if successful, False otherwise
+        """
+        etag_key = f"etag:{resource_key}"
+        try:
+            await self.redis.set(etag_key, etag, expire=expire)
+            return True
+        except Exception as e:
+            logger.error(f"Error setting ETag: {str(e)}", exc_info=True)
+            return False
+
+    async def get_etag_with_data(
+        self, resource_key: str
+    ) -> Tuple[str | None, Dict[str, Any] | None]:
+        """
+        Get both the ETag and cached data for a resource
+
+        Args:
+            resource_key: The resource identifier
+
+        Returns:
+            Tuple of (etag, data) where either can be None
+        """
+        etag = await self.get_etag(resource_key)
+        data = await self.get_cached_data(resource_key)
+        return etag, data
+
+    async def set_etag_with_data(
+        self, resource_key: str, data: Dict[str, Any], expire: int = 3600
+    ) -> Tuple[str, bool]:
+        """
+        Set both the ETag and data for a resource
+
+        Args:
+            resource_key: The resource identifier
+            data: The data to cache
+            expire: Expiration time in seconds
+
+        Returns:
+            Tuple of (generated_etag, success_bool)
+        """
+
+        # generate Etag from data
+        etag = generate_etag(data)
+
+        # store data
+        data_success = await self.set_cached_data(resource_key, data, expire=expire)
+
+        # store etag
+        etag_success = await self.set_etag(resource_key, etag, expire=expire)
+
+        return etag, (data_success and etag_success)
+
+    async def invalidate_etag(self, resource_key: str) -> bool:
+        """
+        Invalidate the Etag for a resource
+
+        Args:
+            resource_key: The resource identifier
+
+        Returns:
+            True if successful, False otherwise
+        """
+        etag_key = f"etag:{resource_key}"
+        return await self.invalidate(etag_key)

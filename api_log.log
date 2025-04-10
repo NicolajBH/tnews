@@ -1507,3 +1507,60 @@
 {"timestamp": "2025-04-07 18:18:34,330", "level": "ERROR", "module": "database", "message": "Database session error: 401: Token has been revoked"}
 {"timestamp": "2025-04-07 18:18:49,676", "level": "ERROR", "module": "database", "message": "Database session error: 401: Invalid refresh token"}
 {"timestamp": "2025-04-08 18:39:40,898", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-08 18:43:17,503", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/test-source-error \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-04-08 18:43:17,505", "level": "INFO", "module": "test_error_handlers", "message": "{'timestamp': '2025-04-08T16:43:17.500716+00:00', 'status': 404, 'error_code': 'INVALID_SOURCE', 'message': 'Invalid source: Unknown source', 'path': '/api/v1/test-source-error', 'additional_info': {'source': 'Unknown source'}}"}
+{"timestamp": "2025-04-08 18:43:17,522", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/test-generic-error \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-04-08 18:43:17,604", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-08 18:43:17,633", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 401 Unauthorized\""}
+{"timestamp": "2025-04-08 18:43:17,647", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-08 18:43:17,652", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-04-08 18:43:18,039", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-04-08 18:43:18,147", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-08 18:43:18,479", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-04-08 18:43:18,507", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-08 18:43:18,827", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-04-08 18:43:18,848", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-04-08 18:43:18,861", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/articles/latest?start_date=2025-03-02&end_date=2025-03-29 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-04-08 18:43:18,952", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-08 18:43:19,230", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-04-08 18:43:19,243", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-08 18:43:19,517", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/categories \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-04-08 18:43:19,548", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-08 18:43:19,819", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-04-08 18:43:19,834", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-08 18:43:20,108", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/sources \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-04-08 18:43:20,138", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-08 18:43:20,426", "level": "INFO", "module": "cache_service", "message": "Invalidated 0 keys with prefix: articles:user:1"}
+{"timestamp": "2025-04-08 18:43:20,429", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-04-08 18:43:20,457", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-08 18:43:20,730", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-04-08 18:43:20,748", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-08 18:43:21,033", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 400 Bad Request\""}
+{"timestamp": "2025-04-08 18:43:21,047", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-08 18:43:21,336", "level": "INFO", "module": "cache_service", "message": "Invalidated 0 keys with prefix: articles:user:1"}
+{"timestamp": "2025-04-08 18:43:21,338", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/subscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-04-08 18:43:21,354", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-08 18:43:21,643", "level": "INFO", "module": "cache_service", "message": "Invalidated 0 keys with prefix: articles:user:1"}
+{"timestamp": "2025-04-08 18:43:21,645", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/1 \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-04-08 18:43:21,681", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-08 18:43:21,955", "level": "INFO", "module": "_client", "message": "HTTP Request: POST http://testserver/api/v1/unsubscribe/999 \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-04-08 18:43:21,969", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-08 18:43:22,245", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-04-08 18:43:22,258", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-08 18:43:22,565", "level": "INFO", "module": "_client", "message": "HTTP Request: GET http://testserver/api/v1/my \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-04-08 18:43:22,913", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4550977792 in process 41571"}
+{"timestamp": "2025-04-08 18:43:22,915", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 41571"}
+{"timestamp": "2025-04-08 18:43:22,936", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4548023376 in process 41571"}
+{"timestamp": "2025-04-08 18:43:23,248", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 41571"}
+{"timestamp": "2025-04-08 18:43:23,275", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4548028176 in process 41571"}
+{"timestamp": "2025-04-08 18:43:23,278", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 41571"}
+{"timestamp": "2025-04-08 18:43:23,296", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4551483792 in process 41571"}
+{"timestamp": "2025-04-08 18:43:23,315", "level": "INFO", "module": "connection", "message": "Resetting connection pools for process: 41571"}
+{"timestamp": "2025-04-08 18:43:23,345", "level": "INFO", "module": "connection", "message": "Initialized ConnectionPool with ID 4549586896 in process 41571"}
+{"timestamp": "2025-04-08 18:43:23,375", "level": "INFO", "module": "news", "message": "Saved 2 new articles to database"}
+{"timestamp": "2025-04-08 18:43:23,428", "level": "INFO", "module": "news", "message": "Saved 1 new articles to database"}
+{"timestamp": "2025-04-08 18:43:23,525", "level": "ERROR", "module": "news", "message": "Error fetching https://example.com/feed2.xml: 500: Failed to fetch feed"}
+{"timestamp": "2025-04-10 17:00:06,891", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-10 17:14:10,358", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-10 17:14:13,474", "level": "WARNING", "module": "bcrypt", "message": "(trapped) error reading bcrypt version", "error": {"type": "AttributeError", "message": "module 'bcrypt' has no attribute '__about__'"}}
+{"timestamp": "2025-04-10 17:19:25,130", "level": "ERROR", "module": "database", "message": "Database session error: 401: Could not verify credentials"}

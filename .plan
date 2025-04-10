@@ -1,4 +1,4 @@
-# .plan - Updated April 07, 2025
+# .plan - Updated April 09, 2025
 
 Architecture & Structure
   ? Add API versioning support 
@@ -18,7 +18,7 @@ Performance Optimization
   * Optimize database queries (fix N+1 query in articles endpoint)
   * Add Redis caching for frequently accessed endpoints 
   * Implement cursor-based pagination for article lists
-  ? Create database indexes for common query patterns
+  * Create database indexes for common query patterns
   ? Add ETags for conditional requests
 
 Error Handling & Resilience
@@ -142,3 +142,10 @@ Documentation
   
 # April 07, 2025
   * Implement refresh tokens for extended sessions
+
+# April 08, 2025
+  * Create database indexes for common query patterns
+
+# April 09, 2025
+  ? Add ETags for conditional requests - Finish updating routes
+
