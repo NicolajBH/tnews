@@ -49,7 +49,9 @@ class Articles(SQLModel, table=True):
     source_id: int = Field(foreign_key="sources.id")
     original_url: str
     created_at: datetime = Field(default_factory=datetime.now)
-    updated_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(
+        default_factory=datetime.now, sa_column_kwargs={"onupdate": None}
+    )
 
     source: Sources = Relationship(back_populates="articles")
     categories: List[Categories] = Relationship(

@@ -11,7 +11,7 @@ from urllib.parse import urlparse
 from src.models.http import HTTPHeaders
 from src.clients.connection import ConnectionPool
 from src.constants import DEFAULT_HEADERS, DEFAULT_USER_AGENT
-from src.core.exceptions import HTTPClientError
+from src.core.exceptions import HTTPClientError, ServiceUnavailableError
 
 logger = logging.getLogger(__name__)
 
@@ -127,8 +127,9 @@ class CircuitBreaker:
 
 
 class HTTPClient:
-    def __init__(self, connection_pool: ConnectionPool) -> None:
+    def __init__(self, connection_pool: ConnectionPool, health_service=None) -> None:
         self.connection_pool = connection_pool
+        self.health_service = health_service
         self._cookies: Dict[str, Dict[str, str]] = {}
         self._user_agents = [
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Safari/605.1.15",
@@ -275,7 +276,13 @@ class HTTPClient:
         if not cb_config:
             return None
 
-        breaker = CircuitBreaker(name=host, **cb_config)
+        if self.health_service:
+            breaker = self.health_service.get_circuit_breaker(
+                name=f"http_{host}", **cb_config
+            )
+        else:
+            breaker = CircuitBreaker(name=host, **cb_config)
+
         self._circuit_breakers[host] = breaker
         return breaker
 
@@ -351,20 +358,63 @@ class HTTPClient:
                         body = await self._read_body(conn.reader, content_length)
 
                     if self._check_for_captcha(host, body):
+                        if self.health_service:
+                            self.health_service.update_health_service(
+                                f"http_{host}",
+                                state="degraded",
+                                failure_count=1,
+                                last_failure_time=time.time(),
+                                last_error=f"CAPTCHA challenge detected on {host}",
+                            )
                         raise CaptchaError(f"CAPTCHA challenge detected on {host}")
+
+                    if self.health_service:
+                        self.health_service.update_health_service(
+                            f"https_{host}",
+                            state="operational",
+                            last_success_time=time.time(),
+                        )
 
                     return response_headers, body
 
             except Exception as e:
                 logger.error(f"HTTP request error for {url}: {str(e)}")
+
+                if self.health_service:
+                    self.health_service.update_health_service(
+                        f"https_{host}",
+                        state="degraded",
+                        failure_count=1,
+                        last_failure_time=time.time(),
+                        last_error=str(e),
+                    )
+
                 raise HTTPClientError(
                     detail=f"Failed to make HTTP request: {str(e)}", host=host
                 )
 
+        async def request_fallback():
+            logger.info(f"Using fallback for HTTP request to {host}")
+            if host == "www.bloomberg.com" and "lineup-next/api" not in url:
+                try:
+                    return await self._fetch_with_curl()
+                except Exception as e:
+                    logger.error(f"Fallback to curl also failed: {str(e)}")
+
+            raise ServiceUnavailableError(
+                service=f"https_{host}",
+                detail=f"Service {host} is temporarily unavailable",
+                retry_after=60,
+            )
+
         if circuit_breaker:
             cache_key = f"{host}_{path}"
             try:
-                return await circuit_breaker.execute(make_request, cache_key)
+                return await circuit_breaker.execute(
+                    make_request,
+                    cache_key=cache_key,
+                    fallback=request_fallback,
+                )
             except CaptchaError as e:
                 raise HTTPClientError(detail=str(e), host=host)
 

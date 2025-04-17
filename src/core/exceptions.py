@@ -99,3 +99,50 @@ class PasswordTooWeakError(BaseAPIException):
             error_code="PASSWORD_TOO_WEAK",
             additional_info=additional_info,
         )
+
+
+class ServiceUnavailableError(BaseAPIException):
+    """Raised when a service is currently unavailable"""
+
+    def __init__(
+        self,
+        service: str,
+        detail: str = "Service temporarily unavailable",
+        retry_after: int | None = None,
+    ):
+        additional_info = {"service": service}
+        if retry_after:
+            additional_info["retry_after"] = str(retry_after)
+
+        super().__init__(
+            status_code=503,
+            detail=detail,
+            error_code="SERVICE_UNAVAILABLE",
+            additional_info=additional_info,
+        )
+
+        self.headers = {}
+        if retry_after:
+            self.headers["Retry-After"] = str(retry_after)
+
+
+class DegradedServiceError(BaseAPIException):
+    """Raised when a service is operating in degraded mode"""
+
+    def __init__(
+        self,
+        service: str,
+        detail: str = "Service operating in degraded mode",
+        fallback_used: bool = False,
+    ):
+        additional_info = {
+            "service": service,
+            "fallback_used": fallback_used,
+        }
+
+        super().__init__(
+            status_code=207,
+            detail=detail,
+            error_code="DEGRADED_SERVICE",
+            additional_info=additional_info,
+        )

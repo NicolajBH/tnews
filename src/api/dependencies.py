@@ -1,7 +1,8 @@
 from typing import Annotated
-from fastapi import Path, Query
+from fastapi import Path, Query, Request
 from datetime import datetime, timedelta
 from src.clients.redis import RedisClient
+from src.core.degradation import HealthService
 from src.models.article import ArticleQueryParameters
 
 
@@ -33,6 +34,23 @@ async def get_redis_client() -> RedisClient:
     Returns:
         RedisClient: A configured redis client
     """
-    redis_client = RedisClient()
+    from src.core.container import get_health_service
+
+    health_service = get_health_service()
+
+    redis_client = RedisClient(health_service=health_service)
     await redis_client.initialize()
     return redis_client
+
+
+async def get_health_service(request: Request) -> HealthService:
+    """
+    Get the health service from the application state
+
+    Args:
+        request: The FastAPI request
+
+    Returns:
+        The health service instance
+    """
+    return request.app.state.health_service

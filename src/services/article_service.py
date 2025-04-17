@@ -104,8 +104,8 @@ class ArticleService:
         # store in cache if enabled
         if use_cache and self.cache_service and articles:
             cache_data = {
-                "articles": [article.dict() for article in articles],
-                "pagination": pagination_info.dict(),
+                "articles": [article.model_dump() for article in articles],
+                "pagination": pagination_info.model_dump(),
             }
 
             await self.cache_service.set_article_page(

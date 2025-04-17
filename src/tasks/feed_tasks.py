@@ -1,3 +1,4 @@
+from typing import Tuple
 from celery import shared_task, group, chord
 from sqlmodel import Session
 import asyncio
@@ -6,6 +7,7 @@ import time
 import random
 from collections import defaultdict
 from src.clients.connection import ConnectionPool
+from src.core.container import get_health_service
 from src.db.database import engine
 from src.clients.news import NewsClient
 from src.clients.redis import RedisClient
@@ -127,7 +129,8 @@ def fetch_feed_chunk(self, feeds_chunk):
         )
 
         with Session(engine) as session:
-            redis_client = RedisClient()
+            health_service = get_health_service()
+            redis_client = RedisClient(health_service=health_service)
             news_client = NewsClient(session, redis_client)
 
             fetch_results = loop.run_until_complete(
@@ -136,7 +139,7 @@ def fetch_feed_chunk(self, feeds_chunk):
             loop.run_until_complete(redis_client.close())
 
             for result in fetch_results:
-                if isinstance(result, Exception):
+                if isinstance(result[1], Exception):
                     logger.error(f"Feed fetch error: {result}")
                     failed_fetches += 1
                 else:

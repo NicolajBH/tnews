@@ -1583,3 +1583,77 @@
 {"timestamp": "2025-04-10 18:57:35,878", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/articles/lates"}
 {"timestamp": "2025-04-10 18:57:35,879", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/articles/lates"}
 {"timestamp": "2025-04-10 18:58:39,616", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-15 15:42:26,539", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-15 15:42:48,116", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-15 15:49:23,617", "level": "INFO", "module": "middleware", "message": "Processing request: GET /", "request_id": "9110c080-b5bc-4217-81a0-eeed1facc393"}
+{"timestamp": "2025-04-15 15:49:23,622", "level": "INFO", "module": "middleware", "message": "Completed request: GET /", "request_id": "9110c080-b5bc-4217-81a0-eeed1facc393"}
+{"timestamp": "2025-04-15 15:49:23,680", "level": "INFO", "module": "middleware", "message": "Processing request: GET /favicon.ico", "request_id": "4a892e35-7244-43c2-908c-9450d1f86ad5"}
+{"timestamp": "2025-04-15 15:49:23,681", "level": "INFO", "module": "middleware", "message": "Completed request: GET /favicon.ico", "request_id": "4a892e35-7244-43c2-908c-9450d1f86ad5"}
+{"timestamp": "2025-04-15 15:49:24,288", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/docs", "request_id": "36a68679-82f8-4422-b81a-5e4192250d17"}
+{"timestamp": "2025-04-15 15:49:24,291", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/docs", "request_id": "36a68679-82f8-4422-b81a-5e4192250d17"}
+{"timestamp": "2025-04-15 15:49:24,726", "level": "INFO", "module": "middleware", "message": "Processing request: GET /openapi.json", "request_id": "2bb62570-b3ca-46d1-b3d3-308aeb3a659c"}
+{"timestamp": "2025-04-15 15:49:24,771", "level": "INFO", "module": "middleware", "message": "Completed request: GET /openapi.json", "request_id": "2bb62570-b3ca-46d1-b3d3-308aeb3a659c"}
+{"timestamp": "2025-04-15 15:49:37,554", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/docs", "request_id": "d8469a68-f69c-4b8a-9b80-547fc630c038"}
+{"timestamp": "2025-04-15 15:49:37,555", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/docs", "request_id": "d8469a68-f69c-4b8a-9b80-547fc630c038"}
+{"timestamp": "2025-04-15 15:49:37,640", "level": "INFO", "module": "middleware", "message": "Processing request: GET /openapi.json", "request_id": "bed7c50d-1d3c-4e0d-ad3d-c08fe3b3ffc0"}
+{"timestamp": "2025-04-15 15:49:37,641", "level": "INFO", "module": "middleware", "message": "Completed request: GET /openapi.json", "request_id": "bed7c50d-1d3c-4e0d-ad3d-c08fe3b3ffc0"}
+{"timestamp": "2025-04-15 15:49:39,895", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/health/health", "request_id": "f3a53e58-47a4-4210-af3e-0f493313e06c"}
+{"timestamp": "2025-04-15 15:49:39,897", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/health/health", "request_id": "f3a53e58-47a4-4210-af3e-0f493313e06c"}
+{"timestamp": "2025-04-15 15:49:39,912", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/health/health/", "request_id": "1c271d34-bfb5-4e00-ab1e-f3adb4cf4c39"}
+{"timestamp": "2025-04-15 15:49:39,914", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/health/health/", "request_id": "1c271d34-bfb5-4e00-ab1e-f3adb4cf4c39"}
+{"timestamp": "2025-04-15 15:50:29,771", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/docs", "request_id": "5781ebf6-5d2b-4894-a36c-a9876c608fe3"}
+{"timestamp": "2025-04-15 15:50:29,772", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/docs", "request_id": "5781ebf6-5d2b-4894-a36c-a9876c608fe3"}
+{"timestamp": "2025-04-15 15:50:30,026", "level": "INFO", "module": "middleware", "message": "Processing request: GET /openapi.json", "request_id": "52766c06-3907-4253-b5ce-577887134350"}
+{"timestamp": "2025-04-15 15:50:30,027", "level": "INFO", "module": "middleware", "message": "Completed request: GET /openapi.json", "request_id": "52766c06-3907-4253-b5ce-577887134350"}
+{"timestamp": "2025-04-15 15:51:07,093", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/health/health/services", "request_id": "723bf61d-2129-43d9-9fa4-7ff2eeed3ec2"}
+{"timestamp": "2025-04-15 15:51:07,095", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/health/health/services", "request_id": "723bf61d-2129-43d9-9fa4-7ff2eeed3ec2"}
+{"timestamp": "2025-04-15 15:51:23,520", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/health/health/", "request_id": "88509bce-6f04-4754-b172-58edafb83f0e"}
+{"timestamp": "2025-04-15 15:51:23,521", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/health/health/", "request_id": "88509bce-6f04-4754-b172-58edafb83f0e"}
+{"timestamp": "2025-04-15 15:51:25,642", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/health/health/circuit_breakers", "request_id": "70cef1e0-fec7-4dd4-98dd-3583ffb4be01"}
+{"timestamp": "2025-04-15 15:51:25,644", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/health/health/circuit_breakers", "request_id": "70cef1e0-fec7-4dd4-98dd-3583ffb4be01"}
+{"timestamp": "2025-04-15 15:51:38,738", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/health/health/circuit-breakers", "request_id": "8ba5a52c-32ef-4f96-8591-6da249b5f7f3"}
+{"timestamp": "2025-04-15 15:51:38,740", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/health/health/circuit-breakers", "request_id": "8ba5a52c-32ef-4f96-8591-6da249b5f7f3"}
+{"timestamp": "2025-04-15 15:52:35,039", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/health/health/circuit-breakers", "request_id": "6fec7f9a-f79c-4f97-899d-328d663ea0b3"}
+{"timestamp": "2025-04-15 15:52:35,040", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/health/health/circuit-breakers", "request_id": "6fec7f9a-f79c-4f97-899d-328d663ea0b3"}
+{"timestamp": "2025-04-15 15:52:36,404", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/health/health/", "request_id": "9436c60d-59fa-4ca1-82fc-f329a81f222e"}
+{"timestamp": "2025-04-15 15:52:36,405", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/health/health/", "request_id": "9436c60d-59fa-4ca1-82fc-f329a81f222e"}
+{"timestamp": "2025-04-15 15:52:38,966", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/health/health/", "request_id": "e26a0599-ca5c-4e62-98d1-5b964cb92f8c"}
+{"timestamp": "2025-04-15 15:52:38,967", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/health/health/", "request_id": "e26a0599-ca5c-4e62-98d1-5b964cb92f8c"}
+{"timestamp": "2025-04-15 15:56:27,128", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-15 15:57:12,586", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-15 17:22:14,773", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-15 17:22:23,886", "level": "INFO", "module": "middleware", "message": "Processing request: GET /", "request_id": "a588db19-ce78-4ba6-acbc-d1fcf3038f66"}
+{"timestamp": "2025-04-15 17:22:23,887", "level": "INFO", "module": "middleware", "message": "Completed request: GET /", "request_id": "a588db19-ce78-4ba6-acbc-d1fcf3038f66"}
+{"timestamp": "2025-04-15 17:22:28,634", "level": "INFO", "module": "middleware", "message": "Processing request: GET /", "request_id": "de364bf1-6184-4882-b582-bc6ee3c1c60a"}
+{"timestamp": "2025-04-15 17:22:28,634", "level": "INFO", "module": "middleware", "message": "Completed request: GET /", "request_id": "de364bf1-6184-4882-b582-bc6ee3c1c60a"}
+{"timestamp": "2025-04-15 17:22:30,634", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/docs", "request_id": "0c291d73-1986-4e72-9bca-7429ed1cefda"}
+{"timestamp": "2025-04-15 17:22:30,635", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/docs", "request_id": "0c291d73-1986-4e72-9bca-7429ed1cefda"}
+{"timestamp": "2025-04-15 17:22:30,872", "level": "INFO", "module": "middleware", "message": "Processing request: GET /openapi.json", "request_id": "448fbe7c-b05c-4fe5-ae3f-0aa53885c778"}
+{"timestamp": "2025-04-15 17:22:30,906", "level": "INFO", "module": "middleware", "message": "Completed request: GET /openapi.json", "request_id": "448fbe7c-b05c-4fe5-ae3f-0aa53885c778"}
+{"timestamp": "2025-04-15 17:22:38,794", "level": "INFO", "module": "middleware", "message": "Processing request: GET /", "request_id": "102e41a3-6d84-48bb-90c5-21eb49c73ec3"}
+{"timestamp": "2025-04-15 17:22:38,794", "level": "INFO", "module": "middleware", "message": "Completed request: GET /", "request_id": "102e41a3-6d84-48bb-90c5-21eb49c73ec3"}
+{"timestamp": "2025-04-15 17:22:39,411", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/docs", "request_id": "c1da1919-9632-45f5-93b9-273bac0835ad"}
+{"timestamp": "2025-04-15 17:22:39,411", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/docs", "request_id": "c1da1919-9632-45f5-93b9-273bac0835ad"}
+{"timestamp": "2025-04-15 17:22:39,626", "level": "INFO", "module": "middleware", "message": "Processing request: GET /openapi.json", "request_id": "ba24e9c3-6b84-4d7a-bbc4-5cc45be9ea38"}
+{"timestamp": "2025-04-15 17:22:39,629", "level": "INFO", "module": "middleware", "message": "Completed request: GET /openapi.json", "request_id": "ba24e9c3-6b84-4d7a-bbc4-5cc45be9ea38"}
+{"timestamp": "2025-04-15 17:22:41,167", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/health/health/", "request_id": "7183c2de-b82b-4dc9-ac9c-5bd46f060e16"}
+{"timestamp": "2025-04-15 17:22:41,168", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/health/health/", "request_id": "7183c2de-b82b-4dc9-ac9c-5bd46f060e16"}
+{"timestamp": "2025-04-15 17:22:46,815", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/health/health/circuit-breakers", "request_id": "bb0af836-08a2-4c34-a05f-e25a293b1a66"}
+{"timestamp": "2025-04-15 17:22:46,816", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/health/health/circuit-breakers", "request_id": "bb0af836-08a2-4c34-a05f-e25a293b1a66"}
+{"timestamp": "2025-04-15 17:22:46,963", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/health/", "request_id": "42e7f484-aafc-4f34-a46d-a8809062b76b"}
+{"timestamp": "2025-04-15 17:22:46,966", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/health/", "request_id": "42e7f484-aafc-4f34-a46d-a8809062b76b"}
+{"timestamp": "2025-04-15 17:33:37,745", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-15 17:33:42,086", "level": "INFO", "module": "middleware", "message": "Processing request: GET /api/v1/health/", "request_id": "c29b4520-fde6-4c1d-9263-eca140ba74b6"}
+{"timestamp": "2025-04-15 17:33:42,087", "level": "INFO", "module": "middleware", "message": "Completed request: GET /api/v1/health/", "request_id": "c29b4520-fde6-4c1d-9263-eca140ba74b6"}
+{"timestamp": "2025-04-15 17:41:43,126", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-15 17:41:47,284", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-15 17:41:56,116", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-15 17:48:58,785", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-15 17:49:39,324", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-15 18:19:47,071", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-15 18:20:19,373", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-15 18:29:17,592", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-15 18:29:30,293", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-15 18:30:47,307", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-15 18:31:26,188", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}
+{"timestamp": "2025-04-15 18:31:30,319", "level": "INFO", "module": "operations", "message": "Database initialized successfully"}

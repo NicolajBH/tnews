@@ -1,4 +1,4 @@
-# .plan - Updated April 09, 2025
+# .plan - Updated April 17, 2025
 
 Architecture & Structure
   ? Add API versioning support 
@@ -26,6 +26,7 @@ Error Handling & Resilience
   * Add request ID tracking for all error responses
   ? Implement graceful degradation for failed services
   ? Add comprehensive request validation error handling
+  * Fix failed fetches not tracking properly
 
 Testing Improvements
   * Complete the unfinished test_latest_articles_with_date_filters test
@@ -39,7 +40,7 @@ Testing Improvements
 Monitoring & Observability
   ? Implement structured logging with correlation IDs
   ? Add performance metrics collection (latency, throughput)
-  ? Create health check endpoints with service status
+  * Create health check endpoints with service status
   ? Add prometheus metrics endpoint for monitoring
   ? Implement distributed tracing
 
@@ -49,7 +50,7 @@ Database Management
   * Add database connection retry logic
   ? Implement soft delete functionality for relevant models
   ? Add database transaction management
-  ? Fix created at being updated when record is updated
+  * Fix created_at being updated when record is updated
 
 Feature Enhancements
   ? Add user profile management (update, delete)
@@ -57,6 +58,7 @@ Feature Enhancements
   ? Create a notification system for new articles
   ? Add full-text search capabilities
   ? Implement content recommendation based on user preferences
+  ? Add additional news sources
 
 Terminal User Interface
   * Research appropriate TUI libraries (textual, rich, urwid)
@@ -154,3 +156,22 @@ Documentation
   * Add ETags for conditional requests
   * Add request ID tracking for all error responses
 
+# April 11, 2025
+  ? Implement graceful degradation for failed services
+  ? Create health check endpoints with service status
+
+# April 12, 2025
+  ? Implement graceful degradation for failed services - Updating redis client set_article
+  ? Create health check endpoints with service status
+
+# April 13, 2025
+  ? Implement graceful degradation for failed services - Updating news client
+  ? Create health check endpoints with service status
+
+# April 15, 2025
+  * Implement graceful degradation for failed services 
+  ? Fix failed fetches not tracking properly
+
+# April 17, 2025
+  * Fix failed fetches not tracking properly
+  * Fix created_at being updated when record is updated
