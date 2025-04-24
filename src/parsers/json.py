@@ -1,19 +1,19 @@
+from src.core.logging import LogContext, PerformanceLogger
 from .base import FeedParser
 from typing import List, Dict
 from src.models.db_models import Articles
-import logging
 import json
-from email.utils import parsedate_to_datetime
 import hashlib
 from datetime import datetime
 
-logger = logging.getLogger(__name__)
+logger = LogContext(__name__)
 
 
 class JSONFeedParser(FeedParser):
     async def parse_content(self, content: str) -> List[Articles]:
-        json_content = json.loads(content)
-        return await self._parse_json_response(json_content)
+        with PerformanceLogger(logger, f"json_parse_source_{self.source_id}"):
+            json_content = json.loads(content)
+            return await self._parse_json_response(json_content)
 
     async def _parse_json_response(
         self, content: List[Dict[str, str]]
@@ -23,6 +23,15 @@ class JSONFeedParser(FeedParser):
             article = await self._create_article_from_json(item)
             if article:
                 articles_to_return.append(article)
+
+        logger.info(
+            "JSON parsing complete",
+            extra={
+                "source_id": self.source_id,
+                "total_items": len(content),
+                "successful_items": len(articles_to_return),
+            },
+        )
         return articles_to_return
 
     async def _create_article_from_json(self, item: Dict[str, str]):
@@ -35,7 +44,12 @@ class JSONFeedParser(FeedParser):
 
             if missing:
                 logger.warning(
-                    f"Skipping article: Missing critical fields: {', '.join(missing)}"
+                    "Skipping article",
+                    extra={
+                        "source_id": self.source_id,
+                        "missing": ", ".join(missing),
+                        "available_fields": list(item.keys()),
+                    },
                 )
                 return None
 
@@ -51,8 +65,23 @@ class JSONFeedParser(FeedParser):
                 source_id=self.source_id,
             )
         except (KeyError, ValueError) as e:
-            logger.error(f"Error parsing JSON item: {str(e)}", exc_info=True)
+            logger.error(
+                "Error parsing JSON",
+                extra={
+                    "error": str(e),
+                    "source_id": self.source_id,
+                    "item": item,
+                    "error_type": e.__class__.__name__,
+                },
+            )
             return None
         except Exception as e:
-            logger.error(f"Unexpected error parsing JSON item: {str(e)}", exc_info=True)
+            logger.error(
+                "Unexpected error parsing JSON",
+                extra={
+                    "error": str(e),
+                    "item": item,
+                    "error_type": e.__class__.__name__,
+                },
+            )
             return None

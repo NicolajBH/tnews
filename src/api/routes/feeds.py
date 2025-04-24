@@ -1,9 +1,6 @@
-import logging
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from typing import List, Dict
-from sqlmodel import Session, select, col
-from datetime import datetime
-import json
+from sqlmodel import Session, select
 
 # Dependencies
 from src.api.dependencies import get_date_filters, get_redis_client
@@ -25,7 +22,7 @@ from src.models.pagination import PaginatedResponse, PaginationInfo
 
 # Constants and exceptions
 from src.constants import RSS_FEEDS
-from src.core.exceptions import RSSFeedError
+from src.core.logging import LogContext
 
 # Services and repositories
 from src.repositories.article_repository import ArticleRepository
@@ -33,7 +30,7 @@ from src.services.article_service import ArticleService
 from src.services.cache_service import CacheService
 from src.utils.etag import generate_etag
 
-logger = logging.getLogger(__name__)
+logger = LogContext(__name__)
 
 router = APIRouter(tags=["auth"], dependencies=[Depends(get_current_user)])
 
@@ -101,7 +98,10 @@ async def get_latest_articles(
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
-        logger.error(f"Error fetching articles: {str(e)}", exc_info=True)
+        logger.error(
+            "Error fetching articles",
+            extra={"error": str(e), "error_type": e.__class__.__name__},
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occured while fetching articles",
@@ -139,7 +139,10 @@ async def get_categories(
         return categories
 
     except Exception as e:
-        logger.error(f"Error fetching categories: {str(e)}", exc_info=True)
+        logger.error(
+            "Error fetching categories",
+            extra={"error": str(e), "error_type": e.__class__.__name__},
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error fetching categories",
@@ -172,7 +175,10 @@ async def get_sources(
 
         return sources
     except Exception as e:
-        logger.error(f"Error fetching sources: {str(e)}", exc_info=True)
+        logger.error(
+            "Error fetching sources",
+            extra={"error": str(e), "error_type": e.__class__.__name__},
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error fetching sources",
@@ -242,7 +248,10 @@ async def subscribe_to_feed(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error subscribing to feed: {str(e)}", exc_info=True)
+        logger.error(
+            "Error subscribing to feed",
+            extra={"error": str(e), "error_type": e.__class__.__name__},
+        )
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -307,7 +316,10 @@ async def unsubscribe_from_feed(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error unsubscribing from feed: {str(e)}", exc_info=True)
+        logger.error(
+            "Error unsubscribing from feed",
+            extra={"error": str(e), "error_type": e.__class__.__name__},
+        )
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -363,7 +375,10 @@ async def get_my_feeds(
 
         return feeds
     except Exception as e:
-        logger.error(f"Error fetching feeds: {str(e)}", exc_info=True)
+        logger.error(
+            "Error fetching feeds",
+            extra={"error": str(e), "error_type": e.__class__.__name__},
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error fetching feeds",

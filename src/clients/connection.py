@@ -1,15 +1,16 @@
 import asyncio
 import os
 import ssl
-import logging
 import itertools
 from collections import defaultdict
+import time
 import threading
 from contextlib import asynccontextmanager
 from asyncio import Queue, QueueFull, QueueEmpty
 from src.core.config import settings
+from src.core.logging import LogContext, PerformanceLogger
 
-logger = logging.getLogger(__name__)
+logger = LogContext(__name__)
 
 
 class PooledConnection:
@@ -23,17 +24,46 @@ class PooledConnection:
         self.writer = writer
         self.host = host
         self.in_use = False
-        logger.debug(f"Created connection {self.id} for {host}")
+        self.created_at = time.time()
+        self.last_used_at = time.time()
+        self.use_count = 0
+
+        logger.debug(
+            "Connection created", extra={"connection_id": self.id, "host": host}
+        )
 
     async def close(self):
         try:
             self.writer.close()
             try:
                 await asyncio.wait_for(self.writer.wait_closed(), timeout=1.0)
-            except asyncio.TimeoutError:
-                logger.warning(f"Timeout waiting for connection {self.id} to close")
+                logger.debug(
+                    "Connection closed",
+                    extra={
+                        "connection_id": self.id,
+                        "host": self.host,
+                        "lifetime_s": round(time.time() - self.created_at, 2),
+                        "use_count": self.use_count,
+                    },
+                )
+            except asyncio.TimeoutError as e:
+                logger.warning(
+                    "Timeout waiting for connection to close",
+                    extra={
+                        "error": str(e),
+                        "id": self.id,
+                        "error_type": e.__class__.__name__,
+                    },
+                )
         except Exception as e:
-            logger.warning(f"Error closing connection {self.id}: {e}")
+            logger.warning(
+                "Error closing connection",
+                extra={
+                    "error": str(e),
+                    "id": self.id,
+                    "error_type": e.__class__.__name__,
+                },
+            )
 
 
 class ConnectionPool:
@@ -63,8 +93,17 @@ class ConnectionPool:
             )
             self.ssl_context = ssl.create_default_context()
             self._initialized = True
+            self.connection_stats = defaultdict(
+                lambda: {"created_at": 0, "reused": 0, "errors": 0}
+            )
             logger.info(
-                f"Initialized ConnectionPool with ID {id(self)} in process {os.getpid()}"
+                "Initialized ConnectionPool",
+                extra={
+                    "ID": id(self),
+                    "process_id": os.getpid(),
+                    "pool_size": pool_size,
+                    "max_concurrent_requests": max_concurrent_requests,
+                },
             )
 
     @classmethod
@@ -79,9 +118,19 @@ class ConnectionPool:
             reader, writer = await asyncio.open_connection(
                 host, 443, ssl=self.ssl_context
             )
-            return PooledConnection(reader, writer, host)
+            conn = PooledConnection(reader, writer, host)
+            self.connection_stats[host]["created"] += 1
+            return conn
         except Exception as e:
-            logger.error(f"Error creating connection to {host}: {str(e)}")
+            self.connection_stats[host]["errors"] += 1
+            logger.error(
+                "Error creating connection",
+                extra={
+                    "error": str(e),
+                    "host": host,
+                    "error_type": e.__class__.__name__,
+                },
+            )
             raise
 
     @asynccontextmanager
@@ -90,11 +139,36 @@ class ConnectionPool:
         semaphore = self.host_semaphores[host]
         conn = None
 
+        if pool.qsize() <= self.pool_size * 0.2:
+            logger.debug(
+                "Connection pool utilization high",
+                extra={
+                    "host": host,
+                    "available": pool.qsize(),
+                    "capacity": self.pool_size,
+                    "utilization_pct": round(
+                        (self.pool_size - pool.qsize()) / self.pool_size * 100
+                    ),
+                },
+            )
         async with semaphore:
+            start_time = time.time()
             try:
                 conn = await self.get_or_create_connection(pool, host)
                 conn.in_use = True
-                logger.debug(f"Using connection {conn.id} for {host}")
+                conn.last_used_at = time.time()
+                conn.use_count += 1
+
+                acquisition_time = (time.time() - start_time) * 1000
+                if acquisition_time > 100:
+                    logger.warning(
+                        "Slow connection acquisition",
+                        extra={
+                            "host": host,
+                            "connection_id": conn.id,
+                            "acquisition_ms": round(acquisition_time, 2),
+                        },
+                    )
                 yield conn
             finally:
                 if conn:
@@ -103,24 +177,42 @@ class ConnectionPool:
                         if not conn.writer.is_closing():
                             pool.put_nowait(conn)
                             logger.debug(
-                                f"Returned connection {conn.id} to pool for {host}"
+                                "Connection returned to pool",
+                                extra={
+                                    "connection_id": conn.id,
+                                    "host": host,
+                                    "usage_ms": round(
+                                        (time.time() - conn.last_used_at) * 1000, 2
+                                    ),
+                                    "use_count": conn.use_count,
+                                },
                             )
                         else:
-                            logger.debug(
-                                f"Connection {conn.id} closed, not returning to pool"
-                            )
                             try:
                                 await asyncio.wait_for(conn.close(), timeout=0.5)
-                            except asyncio.TimeoutError:
-                                logger.warning(f"Timeout closing connection {conn.id}")
+                            except asyncio.TimeoutError as e:
+                                logger.warning(
+                                    "Timeout closing connection",
+                                    extra={
+                                        "error": str(e),
+                                        "connection_id": conn.id,
+                                        "error_type": e.__class__.__name__,
+                                    },
+                                )
                             except Exception as e:
                                 logger.warning(
-                                    f"Error closing connection {conn.id}: {e}"
+                                    "Error closing connection",
+                                    extra={
+                                        "error": str(e),
+                                        "connection_id": conn.id,
+                                        "error_type": e.__class__.__name__,
+                                    },
                                 )
 
                     except QueueFull:
                         logger.debug(
-                            f"Pool for {host} full, closing connection {conn.id}"
+                            "Pool full. Closing connection",
+                            extra={"host": host, "connection_id": conn.id},
                         )
                         await conn.close()
 
@@ -128,53 +220,102 @@ class ConnectionPool:
         self, pool: Queue, host: str
     ) -> PooledConnection:
         try:
-            logger.debug(
-                f"Attempting to get existing connection for {host}, pool size: {pool.qsize()}/{self.pool_size}"
-            )
             conn = pool.get_nowait()
+            self.connection_stats[host]["reused"] += 1
 
             if conn.writer.is_closing():
-                logger.debug(
-                    f"Connection {conn.id} for {host} was closed, creating new one"
-                )
                 try:
                     await asyncio.wait_for(conn.close(), timeout=0.5)
                 except (asyncio.TimeoutError, Exception) as e:
-                    logger.warning(f"Error closing old connection {conn.id}: {e}")
+                    logger.warning(
+                        "Error closing old connection",
+                        extra={
+                            "error": str(e),
+                            "connection_id": conn.id,
+                            "error_type": e.__class__.__name__,
+                        },
+                    )
                 return await self._create_connection(host)
+            idle_time = time.time() - conn.last_used_at
+            if idle_time > 60:
+                logger.debug(
+                    "Reusing idle connection",
+                    extra={
+                        "connection_id": conn.id,
+                        "host": host,
+                        "idle_time_ms": round(idle_time, 2),
+                        "use_count": conn.use_count,
+                    },
+                )
             return conn
         except QueueEmpty:
-            logger.debug(
-                f"No available connections for {host}, creating new one. Pool size: {pool.qsize()}/{self.pool_size}"
-            )
             if pool.qsize() < self.pool_size:
                 return await self._create_connection(host)
-            logger.debug(
-                f"Pool is at capacity, waiting for connection to be returned for {host}"
-            )
             return await pool.get()
 
     async def async_reset_pools(self):
-        logger.info(f"Resetting connection pools for process: {os.getpid()}")
+        with PerformanceLogger(logger, "reset_pools"):
+            close_tasks = []
+            for host, pool in self.pools.items():
+                connection_count = 0
+                while not pool.empty():
+                    try:
+                        conn = pool.get_nowait()
+                        connection_count += 1
+                        close_tasks.append(asyncio.wait_for(conn.close(), timeout=0.5))
+                    except QueueEmpty:
+                        break
+                    except Exception as e:
+                        logger.warning(
+                            "Error getting connection from pool",
+                            extra={
+                                "error": str(e),
+                                "host": host,
+                                "pool": pool,
+                                "error_type": e.__class__.__name__,
+                            },
+                        )
+                logger.info(
+                    "Closing connection pool",
+                    extra={
+                        "host": host,
+                        "connections_closed": connection_count,
+                        "total_created": self.connection_stats[host]["created"],
+                        "total_resused": self.connection_stats[host]["reused"],
+                        "total_errors": self.connection_stats[host]["errors"],
+                    },
+                )
 
-        close_tasks = []
-        for host, pool in self.pools.items():
-            while not pool.empty():
+            if close_tasks:
                 try:
-                    conn = pool.get_nowait()
-                    close_tasks.append(asyncio.wait_for(conn.close(), timeout=0.5))
-                except QueueEmpty:
-                    break
+                    await asyncio.gather(*close_tasks, return_exceptions=True)
                 except Exception as e:
-                    logger.warning(f"Error getting connection from pool: {e}")
+                    logger.warning(
+                        "Error during connection pool cleanup",
+                        extra={
+                            "error": str(e),
+                            "tasks": close_tasks,
+                            "error_type": e.__class__.__name__,
+                        },
+                    )
 
-        if close_tasks:
-            try:
-                await asyncio.gather(*close_tasks, return_exceptions=True)
-            except Exception as e:
-                logger.warning(f"Error during connection pool cleanup: {e}")
-
-        self.pools = defaultdict(lambda: asyncio.Queue(maxsize=self.pool_size))
+            self.pools = defaultdict(lambda: asyncio.Queue(maxsize=self.pool_size))
+            self.connection_stats = defaultdict(
+                lambda: {"created": 0, "reused": 0, "errors": 0}
+            )
 
     def reset_pools(self):
+        for host, stats in self.connection_stats.items():
+            logger.info(
+                "Connection pool stats before reset",
+                extra={
+                    "host": host,
+                    "total_created": stats["created"],
+                    "total_resused": stats["reused"],
+                    "total_errors": stats["errors"],
+                },
+            )
         self.pools = defaultdict(lambda: asyncio.Queue(maxsize=self.pool_size))
+        self.connection_stats = defaultdict(
+            lambda: {"created": 0, "reused": 0, "errors": 0}
+        )

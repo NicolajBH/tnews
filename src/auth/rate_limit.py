@@ -1,13 +1,13 @@
 import time
-import logging
 from fastapi import Request, HTTPException, status
 from functools import wraps
 from typing import Callable, Dict, Tuple, Any
 
 from src.clients.redis import RedisClient
 from src.core.config import settings
+from src.core.logging import LogContext
 
-logger = logging.getLogger(__name__)
+logger = LogContext(__name__)
 
 
 class RateLimiter:
@@ -39,7 +39,7 @@ class RateLimiter:
         await self.initialize()
 
         if self.redis.redis is None:
-            logger.warning(f"Redis not available for rate limiting, allowing request")
+            logger.warning("Redis not available for rate limiting, allowing request")
             return False, max_attempts, 0
 
         # check if key is in a lockout state

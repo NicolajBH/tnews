@@ -1,7 +1,7 @@
-import logging
 from datetime import datetime
 from typing import List, Tuple, Dict, Any
 
+from src.core.logging import LogContext, PerformanceLogger, add_correlation_id
 from src.models.db_models import Articles, Sources
 from src.models.article import Article
 from src.models.pagination import PaginationInfo
@@ -9,7 +9,7 @@ from src.utils.pagination import encode_cursor, decode_cursor
 from src.repositories.article_repository import ArticleRepository
 from src.services.cache_service import CacheService
 
-logger = logging.getLogger(__name__)
+logger = LogContext(__name__)
 
 
 class ArticleService:
@@ -18,6 +18,11 @@ class ArticleService:
     ):
         self.repository = repository
         self.cache_service = cache_service
+
+        logger.debug(
+            "ArticleService initialized",
+            extra={"has_cache_service": cache_service is not None},
+        )
 
     async def get_paginated_articles(
         self,
@@ -42,92 +47,189 @@ class ArticleService:
         Returns:
             A tuple containing (list of article objects, pagination info)
         """
-        # create a date range identifier for cache keys
-        date_range = "all"
-        if start_date or end_date:
-            start_str = start_date.isoformat() if start_date else "start"
-            end_str = end_date.isoformat() if end_date else "end"
-            date_range = f"{start_str}_to_{end_str}"
+        # Add operation information to correlation context
+        add_correlation_id("operation", "get_paginated_articles")
+        add_correlation_id("user_id", user_id)
+        add_correlation_id("limit", limit)
+        add_correlation_id("cursor", cursor)
 
-        # try to get from cache first if enabled
-        if use_cache and self.cache_service:
-            cached_data = await self.cache_service.get_article_page(
-                user_id=user_id,
-                cursor=cursor,
-                limit=limit,
-                date_range=date_range,
-            )
-            if cached_data:
-                return self._reconstruct_from_cache(cached_data)
-
-        pub_date_lt = None
-        id_lt = None
-        if cursor:
-            try:
-                pub_date_lt, id_lt = decode_cursor(cursor)
-            except ValueError as e:
-                logger.error(f"Invalid cursor: {str(e)}")
-                raise ValueError(f"Invalid cursor format: {str(e)}")
-
-        # fetch one more item than requested to determine if there are more
-        db_articles = self.repository.get_articles_for_user(
-            user_id=user_id,
-            start_date=start_date,
-            end_date=end_date,
-            pub_date_lt=pub_date_lt,
-            id_lt=id_lt,
-            limit=limit + 1,
+        logger.info(
+            "Fetching paginated articles",
+            extra={
+                "user_id": user_id,
+                "cursor": cursor,
+                "limit": limit,
+                "has_start_date": start_date is not None,
+                "has_end_date": end_date is not None,
+                "use_cache": use_cache,
+            },
         )
 
-        # check if there are more items
-        has_more = len(db_articles) > limit
-        if has_more:
-            db_articles = db_articles[:-1]
+        # Create a performance logger for the entire operation
+        with PerformanceLogger(logger, f"get_articles_user_{user_id}"):
+            # create a date range identifier for cache keys
+            date_range = "all"
+            if start_date or end_date:
+                start_str = start_date.isoformat() if start_date else "start"
+                end_str = end_date.isoformat() if end_date else "end"
+                date_range = f"{start_str}_to_{end_str}"
 
-        # fetch all needed sources
-        source_ids = [article.source_id for article in db_articles]
-        sources = self.repository.get_sources_by_id(source_ids)
+            # try to get from cache first if enabled
+            if use_cache and self.cache_service:
+                with PerformanceLogger(logger, "get_article_page_from_cache"):
+                    cached_data = await self.cache_service.get_article_page(
+                        user_id=user_id,
+                        cursor=cursor,
+                        limit=limit,
+                        date_range=date_range,
+                    )
 
-        # convert to response model
-        articles = self._convert_to_response_models(db_articles, sources)
+                    if cached_data:
+                        logger.info(
+                            "Cache hit for article page",
+                            extra={
+                                "user_id": user_id,
+                                "cursor": cursor,
+                                "limit": limit,
+                                "article_count": len(cached_data.get("articles", [])),
+                            },
+                        )
+                        return self._reconstruct_from_cache(cached_data)
+                    else:
+                        logger.debug("Cache miss for article page")
 
-        # create pagination info
-        pagination_info = PaginationInfo(has_more=has_more)
+            # Parse cursor if provided
+            pub_date_lt = None
+            id_lt = None
+            if cursor:
+                try:
+                    pub_date_lt, id_lt = decode_cursor(cursor)
+                    logger.debug(
+                        "Cursor decoded",
+                        extra={
+                            "pub_date_lt": pub_date_lt.isoformat()
+                            if pub_date_lt
+                            else None,
+                            "id_lt": id_lt,
+                        },
+                    )
+                except ValueError as e:
+                    logger.error(
+                        "Invalid cursor",
+                        extra={
+                            "error": str(e),
+                            "user_id": user_id,
+                            "cursor": cursor,
+                            "error_type": e.__class__.__name__,
+                        },
+                    )
+                    raise ValueError(f"Invalid cursor format: {str(e)}")
 
-        if has_more and db_articles:
-            last_item = db_articles[-1]
-            pagination_info.next_cursor = encode_cursor(
-                last_item.pub_date,
-                last_item.id,
+            # fetch one more item than requested to determine if there are more
+            with PerformanceLogger(logger, "get_articles_from_repository"):
+                db_articles = self.repository.get_articles_for_user(
+                    user_id=user_id,
+                    start_date=start_date,
+                    end_date=end_date,
+                    pub_date_lt=pub_date_lt,
+                    id_lt=id_lt,
+                    limit=limit + 1,
+                )
+
+            # check if there are more items
+            has_more = len(db_articles) > limit
+            if has_more:
+                db_articles = db_articles[:-1]
+
+            # fetch all needed sources
+            source_ids = list(set(article.source_id for article in db_articles))
+            with PerformanceLogger(logger, "get_sources_by_id"):
+                sources = self.repository.get_sources_by_id(source_ids)
+
+            logger.debug(
+                "Retrieved articles and sources",
+                extra={
+                    "article_count": len(db_articles),
+                    "source_count": len(sources),
+                    "unique_source_count": len(source_ids),
+                    "has_more": has_more,
+                },
             )
 
-        # store in cache if enabled
-        if use_cache and self.cache_service and articles:
-            cache_data = {
-                "articles": [article.model_dump() for article in articles],
-                "pagination": pagination_info.model_dump(),
-            }
+            # convert to response model
+            articles = self._convert_to_response_models(db_articles, sources)
 
-            await self.cache_service.set_article_page(
-                user_id=user_id,
-                cursor=cursor,
-                limit=limit,
-                date_range=date_range,
-                data=cache_data,
+            # create pagination info
+            pagination_info = PaginationInfo(has_more=has_more)
+
+            if has_more and db_articles:
+                last_item = db_articles[-1]
+                pagination_info.next_cursor = encode_cursor(
+                    last_item.pub_date,
+                    last_item.id,
+                )
+                logger.debug(
+                    "Created next cursor",
+                    extra={"next_cursor": pagination_info.next_cursor},
+                )
+
+            # store in cache if enabled
+            if use_cache and self.cache_service and articles:
+                with PerformanceLogger(logger, "cache_article_page"):
+                    cache_data = {
+                        "articles": [article.model_dump() for article in articles],
+                        "pagination": pagination_info.model_dump(),
+                    }
+
+                    await self.cache_service.set_article_page(
+                        user_id=user_id,
+                        cursor=cursor,
+                        limit=limit,
+                        date_range=date_range,
+                        data=cache_data,
+                    )
+                    logger.debug(
+                        "Article page cached",
+                        extra={
+                            "user_id": user_id,
+                            "cursor": cursor,
+                            "article_count": len(articles),
+                        },
+                    )
+
+            logger.info(
+                "Article retrieval complete",
+                extra={
+                    "user_id": user_id,
+                    "articles_returned": len(articles),
+                    "has_more": has_more,
+                    "source_count": len(sources),
+                },
             )
 
-        return articles, pagination_info
+            return articles, pagination_info
 
     def _convert_to_response_models(
         self, db_articles: List[Articles], sources: Dict[int, Sources]
     ) -> List[Article]:
         """Convert database models to response models"""
         articles_to_return = []
+        missing_sources = set()
 
         for article in db_articles:
             source = sources.get(article.source_id)
             if source is None:
-                logger.error(f"No sources with ID {article.source_id}")
+                missing_sources.add(article.source_id)
+                logger.warning(
+                    "Missing source for article",
+                    extra={
+                        "article_id": article.id,
+                        "source_id": article.source_id,
+                        "article_title": article.title[:30] + "..."
+                        if len(article.title) > 30
+                        else article.title,
+                    },
+                )
                 continue
 
             articles_to_return.append(
@@ -140,15 +242,38 @@ class ArticleService:
                 )
             )
 
+        if missing_sources:
+            logger.error(
+                "Articles referencing missing sources",
+                extra={
+                    "missing_source_ids": list(missing_sources),
+                    "total_missing": len(missing_sources),
+                    "affected_articles": len(db_articles) - len(articles_to_return),
+                },
+            )
+
         return articles_to_return
 
     def _reconstruct_from_cache(
         self, cached_data: Dict[str, Any]
     ) -> Tuple[List[Article], PaginationInfo]:
         """Reconstruct article and pagination objects from cached data"""
-        articles = [Article(**article_data) for article_data in cached_data["articles"]]
-        pagination = PaginationInfo(**cached_data["pagination"])
-        return articles, pagination
+        with PerformanceLogger(logger, "reconstruct_from_cache"):
+            articles = [
+                Article(**article_data) for article_data in cached_data["articles"]
+            ]
+            pagination = PaginationInfo(**cached_data["pagination"])
+
+            logger.debug(
+                "Reconstructed objects from cache",
+                extra={
+                    "article_count": len(articles),
+                    "has_more": pagination.has_more,
+                    "has_next_cursor": pagination.next_cursor is not None,
+                },
+            )
+
+            return articles, pagination
 
     async def invalidate_user_articles_cache(self, user_id: int) -> bool:
         """
@@ -163,8 +288,43 @@ class ArticleService:
         Returns:
             True if successful, False otherwise
         """
+        logger.info(
+            "Invalidating user article cache",
+            extra={
+                "user_id": user_id,
+                "has_cache_service": self.cache_service is not None,
+            },
+        )
+
         if self.cache_service:
-            return await self.cache_service.invalidate_by_prefix(
-                f"articles:user:{user_id}"
-            )
+            with PerformanceLogger(logger, f"invalidate_user_{user_id}_cache"):
+                success = await self.cache_service.invalidate_by_prefix(
+                    f"articles:user:{user_id}"
+                )
+
+                logger.info(
+                    "Cache invalidation complete",
+                    extra={"user_id": user_id, "success": success},
+                )
+                return success
+
         return False
+
+    async def get_article_count(self, filters: Dict[str, Any] = None) -> int:
+        """
+        Get total count of articles matching filters
+
+        Args:
+            filters: Optional dictionary of filters
+
+        Returns:
+            Total count of matching articles
+        """
+        with PerformanceLogger(logger, "get_article_count"):
+            count = await self.repository.get_article_count(filters)
+
+            logger.debug(
+                "Retrieved article count", extra={"count": count, "filters": filters}
+            )
+
+            return count

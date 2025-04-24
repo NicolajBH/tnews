@@ -1,4 +1,3 @@
-import logging
 from typing import Callable
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -6,8 +5,9 @@ from starlette.status import HTTP_503_SERVICE_UNAVAILABLE, HTTP_207_MULTI_STATUS
 
 from src.core.exceptions import ServiceUnavailableError, DegradedServiceError
 from src.core.degradation import HealthService, ServiceState
+from src.core.logging import LogContext
 
-logger = logging.getLogger(__name__)
+logger = LogContext(__name__)
 
 
 class ServiceDegradationMiddleware(BaseHTTPMiddleware):

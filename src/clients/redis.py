@@ -1,13 +1,13 @@
 import json
-import logging
 import asyncio
+import time
 import redis.asyncio as aioredis
 from typing import Dict, List, Any
 from src.core.config import settings
 from src.core.degradation import HealthService
+from src.core.logging import LogContext, PerformanceLogger, add_correlation_id
 
-
-logger = logging.getLogger(__name__)
+logger = LogContext(__name__)
 
 
 class RedisClient:
@@ -40,7 +40,16 @@ class RedisClient:
                     backoff_multiplier=2.0,
                     max_timeout=60.0,
                 )
+            else:
+                self._circuit_breaker = None
 
+            logger.info(
+                "Redis client initialized",
+                extra={
+                    "redis_url": redis_url.split("@")[-1],  # Hide credentials
+                    "has_health_service": health_service is not None,
+                },
+            )
             self._initialized = True
 
     async def initialize(self) -> "RedisClient":
@@ -49,8 +58,11 @@ class RedisClient:
                 max_retries = 2
                 retry_delay = 0.5
 
+                init_start_time = time.time()
+
                 for attempt in range(max_retries):
                     try:
+                        connection_start = time.time()
                         self.redis = aioredis.from_url(
                             self.redis_url,
                             decode_responses=True,
@@ -61,8 +73,20 @@ class RedisClient:
                             retry_on_timeout=True,
                         )
 
+                        ping_start = time.time()
                         await self.redis.ping()
-                        logger.debug("Redis connection established successfully")
+                        ping_time = time.time() - ping_start
+
+                        connection_time = ping_start - connection_start
+                        logger.info(
+                            "Redis connection established successfully",
+                            extra={
+                                "connection_time_ms": round(connection_time * 1000, 2),
+                                "ping_time_ms": round(ping_time * 1000, 2),
+                                "pool_size": settings.POOL_SIZE,
+                                "attempts": attempt + 1,
+                            },
+                        )
                         self.connection_retries = 0
 
                         if self.health_service:
@@ -75,7 +99,16 @@ class RedisClient:
                     except (aioredis.RedisError, ConnectionError, OSError) as e:
                         self.connection_retries += 1
                         logger.warning(
-                            f"Redis connection attempt {attempt + 1}/{max_retries} failed: {e}"
+                            "Redis connection attempt failed",
+                            extra={
+                                "error": str(e),
+                                "attempt": attempt + 1,
+                                "max_retries": max_retries,
+                                "error_type": e.__class__.__name__,
+                                "retry_delay_ms": round(
+                                    retry_delay * (2**attempt) * 1000, 2
+                                ),
+                            },
                         )
 
                         if self.health_service:
@@ -92,26 +125,49 @@ class RedisClient:
                         if attempt < max_retries - 1:
                             await asyncio.sleep(retry_delay * (2**attempt))
                         else:
+                            total_init_time = time.time() - init_start_time
                             logger.error(
-                                f"Failed to connect to redis after {max_retries} attempts"
+                                "Failed to connect to Redis after all attempts",
+                                extra={
+                                    "attempts": max_retries,
+                                    "total_init_time_ms": round(
+                                        total_init_time * 1000, 2
+                                    ),
+                                    "error_type": e.__class__.__name__,
+                                },
                             )
                             return self
 
     async def get(self, key: str) -> str | None:
         """get value from redis by key with retry logic"""
+        # Create a safe key name for logging (truncate if too long)
+        log_key = key[:15] + "..." if len(key) > 15 else key
 
         async def _operation():
-            return await self.redis.get(key)
+            with PerformanceLogger(logger, f"redis_get_{log_key}"):
+                result = await self.redis.get(key)
+                # Log cache hit/miss statistics
+                logger.debug(
+                    "Redis GET operation",
+                    extra={
+                        "key": log_key,
+                        "hit": result is not None,
+                        "operation": "GET",
+                    },
+                )
+                return result
 
         if self._circuit_breaker:
 
             async def _fallback(*args, **kwargs):
-                logger.info(f"Redis fallback used for GET operation on key: {key}")
+                logger.info(
+                    "Redis fallback used for GET operation", extra={"key": log_key}
+                )
                 return None
 
             return await self._circuit_breaker.execute(
                 self._execute_with_retry,
-                cache_key=f"get_{key}",
+                cache_key=f"get_{log_key}",
                 fallback=_fallback,
                 operation=_operation,
             )
@@ -120,9 +176,15 @@ class RedisClient:
 
     async def set(self, key: str, value: str, expire: int = 3600) -> None:
         """set a key-value pair in redis with retry logic"""
+        log_key = key[:15] + "..." if len(key) > 15 else key
 
         async def _operation():
-            await self.redis.set(key, value, ex=expire)
+            with PerformanceLogger(logger, f"redis_set_{log_key}"):
+                await self.redis.set(key, value, ex=expire)
+                logger.debug(
+                    "Redis SET operation",
+                    extra={"key": log_key, "expire_s": expire, "operation": "SET"},
+                )
 
         if self._circuit_breaker:
             try:
@@ -130,24 +192,52 @@ class RedisClient:
                     self._execute_with_retry, operation=_operation
                 )
             except Exception as e:
-                logger.warning(f"Redis SET opeation failed for key {key}: {e}")
+                logger.warning(
+                    "Redis SET operation failed",
+                    extra={
+                        "error": str(e),
+                        "key": log_key,
+                        "error_type": e.__class__.__name__,
+                    },
+                )
         else:
             await self._execute_with_retry(_operation)
 
     async def set_with_expiry(self, key: str, value: Any, expiry: int = 3600) -> None:
         """Set a value with expiration, serializing if necessary"""
+        log_key = key[:15] + "..." if len(key) > 15 else key
+
         try:
-            if isinstance(value, (dict, list)):
-                value = json.dumps(value)
-            await self.set(key, value, expiry)
+            with PerformanceLogger(logger, f"redis_set_with_expiry_{log_key}"):
+                if isinstance(value, (dict, list)):
+                    value = json.dumps(value)
+                await self.set(key, value, expiry)
         except Exception as e:
-            logger.error(f"Error setting value with expiry: {e}")
+            logger.error(
+                "Error setting value with expiry",
+                extra={
+                    "error": str(e),
+                    "key": log_key,
+                    "error_type": e.__class__.__name__,
+                    "value_type": type(value).__name__,
+                },
+            )
 
     async def delete(self, key: str) -> None:
         """delete a key from redis with retry logic"""
+        log_key = key[:15] + "..." if len(key) > 15 else key
 
         async def _operation():
-            await self.redis.delete(key)
+            with PerformanceLogger(logger, f"redis_delete_{log_key}"):
+                result = await self.redis.delete(key)
+                logger.debug(
+                    "Redis DELETE operation",
+                    extra={
+                        "key": log_key,
+                        "deleted": result > 0,
+                        "operation": "DELETE",
+                    },
+                )
 
         if self._circuit_breaker:
             try:
@@ -155,12 +245,19 @@ class RedisClient:
                     self._execute_with_retry, operation=_operation
                 )
             except Exception as e:
-                logger.warning(f"Redis DELETE operation failed for key {key}: {e}")
-
+                logger.warning(
+                    "Redis DELETE operation failed",
+                    extra={
+                        "error": str(e),
+                        "key": log_key,
+                        "error_type": e.__class__.__name__,
+                    },
+                )
         else:
             await self._execute_with_retry(_operation)
 
     async def _execute_with_retry(self, operation, *args, **kwargs):
+        """Execute Redis operation with retry logic"""
         max_retries = 1
         retry_delay = 0.1
 
@@ -177,12 +274,24 @@ class RedisClient:
             except (aioredis.RedisError, ConnectionError) as e:
                 if attempt < max_retries:
                     logger.warning(
-                        f"Redis operation failed, retrying ({attempt + 1}/{max_retries}): {e}"
+                        "Redis operation failed. Retrying...",
+                        extra={
+                            "error": str(e),
+                            "attempt": attempt + 1,
+                            "max_retries": max_retries,
+                            "error_type": e.__class__.__name__,
+                        },
                     )
                     await asyncio.sleep(retry_delay * (2**attempt))
                 else:
                     logger.error(
-                        f"Redis operation failed after {max_retries} retries: {e}"
+                        "Redis operation failed after retries",
+                        extra={
+                            "error": str(e),
+                            "attempt": attempt + 1,
+                            "max_retries": max_retries,
+                            "error_type": e.__class__.__name__,
+                        },
                     )
                     if self.health_service:
                         self.health_service.update_service_health(
@@ -195,19 +304,31 @@ class RedisClient:
                     return None
 
     async def get_article(self, content_hash: str) -> Dict[str, Any] | None:
+        """Get article data by content hash"""
+        log_hash = content_hash[:10] + "..." if len(content_hash) > 10 else content_hash
+        add_correlation_id("content_hash", log_hash)
+
         async def _operation():
-            data = await self.redis.get(f"article:{content_hash}")
-            return json.loads(data) if data else None
+            with PerformanceLogger(logger, f"redis_get_article_{log_hash}"):
+                data = await self.redis.get(f"article:{content_hash}")
+                hit = data is not None
+                logger.debug(
+                    "Redis article lookup", extra={"content_hash": log_hash, "hit": hit}
+                )
+                return json.loads(data) if data else None
 
         if self._circuit_breaker:
 
             async def _fallback(*args, **kwargs):
-                logger.info(f"Redis fallback used for articles: {content_hash}")
+                logger.info(
+                    "Redis fallback used for article lookup",
+                    extra={"content_hash": log_hash},
+                )
                 return None
 
             return await self._circuit_breaker.execute(
                 self._execute_with_retry,
-                cache_key=f"article_{content_hash}",
+                cache_key=f"article_{log_hash}",
                 fallback=_fallback,
                 operation=_operation,
             )
@@ -217,9 +338,21 @@ class RedisClient:
     async def set_article(
         self, content_hash: str, article_data: Dict[str, Any], expire: int = 3600
     ) -> None:
+        """Cache article data by content hash"""
+        log_hash = content_hash[:10] + "..." if len(content_hash) > 10 else content_hash
+
         async def _operation():
-            serialized = json.dumps(article_data)
-            await self.redis.set(f"article:{content_hash}", serialized, ex=expire)
+            with PerformanceLogger(logger, f"redis_set_article_{log_hash}"):
+                serialized = json.dumps(article_data)
+                await self.redis.set(f"article:{content_hash}", serialized, ex=expire)
+                logger.debug(
+                    "Redis article cached",
+                    extra={
+                        "content_hash": log_hash,
+                        "expire_s": expire,
+                        "data_size_bytes": len(serialized),
+                    },
+                )
 
         if self._circuit_breaker:
             try:
@@ -227,14 +360,28 @@ class RedisClient:
                     self._execute_with_retry, operation=_operation
                 )
             except Exception as e:
-                logger.warning(f"Redis set_article failed for {content_hash}: {e}")
-
+                logger.warning(
+                    "Redis set_article failed",
+                    extra={
+                        "error": str(e),
+                        "content_hash": log_hash,
+                        "error_type": e.__class__.__name__,
+                    },
+                )
         else:
             await self._execute_with_retry(_operation)
 
     async def add_hash(self, content_hash: str, expires: int = 86400) -> None:
+        """Add a content hash marker to Redis"""
+        log_hash = content_hash[:10] + "..." if len(content_hash) > 10 else content_hash
+
         async def _operation():
-            await self.redis.set(f"hash:{content_hash}", "1", ex=expires)
+            with PerformanceLogger(logger, f"redis_add_hash_{log_hash}"):
+                await self.redis.set(f"hash:{content_hash}", "1", ex=expires)
+                logger.debug(
+                    "Redis hash added",
+                    extra={"content_hash": log_hash, "expire_s": expires},
+                )
 
         if self._circuit_breaker:
             try:
@@ -242,21 +389,49 @@ class RedisClient:
                     self._execute_with_retry, operation=_operation
                 )
             except Exception as e:
-                logger.warning(f"Redis add_hash failed for {content_hash}: {e}")
+                logger.warning(
+                    "Redis add_hash failed",
+                    extra={
+                        "error": str(e),
+                        "content_hash": log_hash,
+                        "error_type": e.__class__.__name__,
+                    },
+                )
         else:
             await self._execute_with_retry(_operation)
 
     async def pipeline_add_hashes(
         self, content_hashes: List[str], expires: int = 86400
     ) -> None:
+        """Add multiple content hashes in a single pipeline operation"""
         if not content_hashes:
             return
 
+        # Create a shortened representation for logging
+        hash_count = len(content_hashes)
+        sample_hash = (
+            content_hashes[0][:10] + "..."
+            if len(content_hashes[0]) > 10
+            else content_hashes[0]
+        )
+
+        add_correlation_id("hash_count", hash_count)
+
         async def _operation():
-            async with self.redis.pipeline(transaction=False) as pipe:
-                for content_hash in content_hashes:
-                    pipe.set(f"hash:{content_hash}", "1", ex=expires)
-                await pipe.execute()
+            with PerformanceLogger(logger, f"redis_pipeline_add_hashes_{hash_count}"):
+                async with self.redis.pipeline(transaction=False) as pipe:
+                    for content_hash in content_hashes:
+                        pipe.set(f"hash:{content_hash}", "1", ex=expires)
+                    await pipe.execute()
+
+                logger.debug(
+                    "Redis hash batch added",
+                    extra={
+                        "hash_count": hash_count,
+                        "sample_hash": sample_hash,
+                        "expire_s": expires,
+                    },
+                )
 
         if self._circuit_breaker:
             try:
@@ -264,13 +439,30 @@ class RedisClient:
                     self._execute_with_retry, operation=_operation
                 )
             except Exception as e:
-                logger.warning(f"Redis pipeline_add_hashes failed: {e}")
+                logger.warning(
+                    "Redis pipeline_add_hashes failed",
+                    extra={
+                        "error": str(e),
+                        "hash_count": hash_count,
+                        "error_type": e.__class__.__name__,
+                    },
+                )
         else:
             await self._execute_with_retry(_operation)
 
     async def pipeline_check_hashes(self, content_hashes: List[str]) -> Dict[str, bool]:
+        """Check if multiple content hashes exist in Redis"""
         if not content_hashes:
             return {}
+
+        hash_count = len(content_hashes)
+        sample_hash = (
+            content_hashes[0][:10] + "..."
+            if len(content_hashes[0]) > 10
+            else content_hashes[0]
+        )
+
+        add_correlation_id("hash_check_count", hash_count)
 
         async def _operation():
             if self.redis is None:
@@ -279,17 +471,36 @@ class RedisClient:
             if self.redis is None:
                 return {hash: False for hash in content_hashes}
 
-            result = {}
-            async with self.redis.pipeline(transaction=False) as pipe:
-                for content_hash in content_hashes:
-                    pipe.exists(f"hash:{content_hash}")
-                responses = await pipe.execute()
-                for i, content_hash in enumerate(content_hashes):
-                    result[content_hash] = bool(responses[i])
-            return result
+            with PerformanceLogger(logger, f"redis_pipeline_check_hashes_{hash_count}"):
+                result = {}
+                async with self.redis.pipeline(transaction=False) as pipe:
+                    for content_hash in content_hashes:
+                        pipe.exists(f"hash:{content_hash}")
+                    responses = await pipe.execute()
+                    for i, content_hash in enumerate(content_hashes):
+                        result[content_hash] = bool(responses[i])
+
+                # Calculate hit rate for metrics
+                hits = sum(1 for v in result.values() if v)
+                hit_rate = hits / hash_count if hash_count > 0 else 0
+
+                logger.debug(
+                    "Redis hash batch check completed",
+                    extra={
+                        "hash_count": hash_count,
+                        "sample_hash": sample_hash,
+                        "hit_count": hits,
+                        "hit_rate": round(hit_rate, 2),
+                    },
+                )
+
+                return result
 
         async def _fallback(*args, **kwargs):
-            logger.info("Redis fallback used for pipeline_check_hashes")
+            logger.info(
+                "Redis fallback used for pipeline_check_hashes",
+                extra={"hash_count": hash_count},
+            )
             return {hash: False for hash in content_hashes}
 
         if self._circuit_breaker:
@@ -298,13 +509,27 @@ class RedisClient:
                     lambda: _operation(), fallback=_fallback
                 )
             except Exception as e:
-                logger.error(f"Redis batch check failed: {e}")
+                logger.error(
+                    "Redis batch check failed",
+                    extra={
+                        "error": str(e),
+                        "hash_count": hash_count,
+                        "error_type": e.__class__.__name__,
+                    },
+                )
                 return {hash: False for hash in content_hashes}
         else:
             try:
                 return await _operation()
             except Exception as e:
-                logger.error(f"Redis batch check failed: {e}")
+                logger.error(
+                    "Redis batch check failed",
+                    extra={
+                        "error": str(e),
+                        "hash_count": hash_count,
+                        "error_type": e.__class__.__name__,
+                    },
+                )
                 return {hash: False for hash in content_hashes}
 
     async def keys(self, pattern: str) -> List[str]:
@@ -321,10 +546,18 @@ class RedisClient:
         """
 
         async def _operation():
-            return await self.redis.keys(pattern)
+            with PerformanceLogger(logger, f"redis_keys_{pattern}"):
+                keys = await self.redis.keys(pattern)
+                logger.debug(
+                    "Redis keys operation",
+                    extra={"pattern": pattern, "key_count": len(keys)},
+                )
+                return keys
 
         async def _fallback(*args, **kwargs):
-            logger.info(f"Redis fallback used for keys pattern: {pattern}")
+            logger.info(
+                "Redis fallback used for keys pattern", extra={"pattern": pattern}
+            )
             return []
 
         if self._circuit_breaker:
@@ -354,17 +587,34 @@ class RedisClient:
         """
 
         async def _scan_operation():
-            all_keys = []
-            cursor = 0
-            while True:
-                cursor, keys = await self.redis.scan(cursor, match=match, count=count)
-                all_keys.extend(keys)
-                if cursor == 0:
-                    break
-            return all_keys
+            with PerformanceLogger(logger, f"redis_scan_{match}"):
+                all_keys = []
+                cursor = 0
+                iteration_count = 0
+
+                while True:
+                    iteration_count += 1
+                    cursor, keys = await self.redis.scan(
+                        cursor, match=match, count=count
+                    )
+                    all_keys.extend(keys)
+                    if cursor == 0:
+                        break
+
+                logger.debug(
+                    "Redis scan completed",
+                    extra={
+                        "pattern": match,
+                        "iterations": iteration_count,
+                        "key_count": len(all_keys),
+                    },
+                )
+                return all_keys
 
         async def _fallback(*args, **kwargs):
-            logger.info(f"Redis fallback used for scan pattern: {match}")
+            logger.info(
+                "Redis fallback used for scan pattern", extra={"pattern": match}
+            )
             return []
 
         if self._circuit_breaker:
@@ -390,35 +640,68 @@ class RedisClient:
             Number of keys deleted
         """
         try:
-            keys_to_delete = await self.scan(match=pattern)
-            if not keys_to_delete:
-                return 0
-
-            async def _operation():
-                return await self.redis.delete(*keys_to_delete)
-
-            if self._circuit_breaker:
-                try:
-                    result = await self._circuit_breaker.execute(
-                        self._execute_with_retry, operation=_operation
+            with PerformanceLogger(logger, f"redis_delete_pattern_{pattern}"):
+                keys_to_delete = await self.scan(match=pattern)
+                if not keys_to_delete:
+                    logger.debug(
+                        "No keys found for deletion pattern", extra={"pattern": pattern}
                     )
-                except Exception as e:
-                    logger.error(f"Error deleting keys by pattern: {str(e)}")
                     return 0
-            else:
-                result = await self._execute_with_retry(_operation)
-                return result or 0
+
+                async def _operation():
+                    deleted = await self.redis.delete(*keys_to_delete)
+                    logger.debug(
+                        "Redis keys deleted by pattern",
+                        extra={
+                            "pattern": pattern,
+                            "deleted_count": deleted,
+                            "requested_count": len(keys_to_delete),
+                        },
+                    )
+                    return deleted
+
+                if self._circuit_breaker:
+                    try:
+                        result = await self._circuit_breaker.execute(
+                            self._execute_with_retry, operation=_operation
+                        )
+                    except Exception as e:
+                        logger.error(
+                            "Error deleting keys by pattern",
+                            extra={
+                                "error": str(e),
+                                "pattern": pattern,
+                                "error_type": e.__class__.__name__,
+                                "key_count": len(keys_to_delete),
+                            },
+                        )
+                        return 0
+                else:
+                    result = await self._execute_with_retry(_operation)
+                    return result or 0
         except Exception as e:
-            logger.error(f"Error deleting keys by pattern: {str(e)}")
+            logger.error(
+                "Error deleting keys by pattern",
+                extra={
+                    "error": str(e),
+                    "pattern": pattern,
+                    "error_type": e.__class__.__name__,
+                },
+            )
             return 0
 
     async def close(self) -> None:
+        """Close Redis connection"""
         if self.redis is not None:
             try:
-                await self.redis.aclose()
-                logger.debug("Redis connection returned to pool")
+                with PerformanceLogger(logger, "redis_close"):
+                    await self.redis.aclose()
+                    logger.info("Redis connection closed")
             except Exception as e:
-                logger.error(f"Error with Redis connection: {e}")
+                logger.error(
+                    "Error closing Redis connection",
+                    extra={"error": str(e), "error_type": e.__class__.__name__},
+                )
 
     async def invalidate_by_prefix(self, prefix: str) -> bool:
         """
@@ -431,11 +714,22 @@ class RedisClient:
             True if successful, False otherwise
         """
         try:
-            count = await self.delete_keys_by_pattern(f"{prefix}*")
-            logger.info(f"Invalidated {count} cache entries with prefix {prefix}")
-            return True
+            with PerformanceLogger(logger, f"redis_invalidate_prefix_{prefix}"):
+                count = await self.delete_keys_by_pattern(f"{prefix}*")
+                logger.info(
+                    "Invalidated cache entries by prefix",
+                    extra={"count": count, "prefix": prefix},
+                )
+                return True
         except Exception as e:
-            logger.error(f"Failed to invalidate cache with prefix {prefix}: {e}")
+            logger.error(
+                "Failed to invalidate cache with prefix",
+                extra={
+                    "error": str(e),
+                    "prefix": prefix,
+                    "error_type": e.__class__.__name__,
+                },
+            )
             return False
 
     async def publish(self, channel: str, message: str) -> int:
@@ -451,7 +745,17 @@ class RedisClient:
         """
 
         async def _operation():
-            return await self.redis.publish(channel, message)
+            with PerformanceLogger(logger, f"redis_publish_{channel}"):
+                receivers = await self.redis.publish(channel, message)
+                logger.debug(
+                    "Redis message published",
+                    extra={
+                        "channel": channel,
+                        "receivers": receivers,
+                        "message_size": len(message),
+                    },
+                )
+                return receivers
 
         if self._circuit_breaker:
             try:
@@ -462,7 +766,16 @@ class RedisClient:
                     or 0
                 )
             except Exception as e:
-                logger.warning(f"Redis publish failed for channel {channel}: {e}")
+                logger.warning(
+                    "Redis publish failed",
+                    extra={
+                        "error": str(e),
+                        "channel": channel,
+                        "message_size": len(message),
+                        "error_type": e.__class__.__name__,
+                    },
+                )
+                return 0
         else:
             result = await self._execute_with_retry(_operation)
             return result or 0
@@ -478,14 +791,24 @@ class RedisClient:
             await self.initialize()
 
         if self.redis is None:
-            logger.warning(f"Redis not available, cannot subscribe")
+            logger.warning(
+                "Redis not available, cannot subscribe", extra={"channel": channel}
+            )
             return
 
         try:
-            await self.redis.subscribe(channel)
-            logger.debug(f"Subscribed to Redis channel: {channel}")
+            with PerformanceLogger(logger, f"redis_subscribe_{channel}"):
+                await self.redis.subscribe(channel)
+                logger.info("Subscribed to Redis channel", extra={"channel": channel})
         except Exception as e:
-            logger.error(f"Failed to subscribe to Redis channel {channel}: {e}")
+            logger.error(
+                "Failed to subscribe to Redis channel",
+                extra={
+                    "error": str(e),
+                    "channel": channel,
+                    "error_type": e.__class__.__name__,
+                },
+            )
 
             if self.health_service:
                 self.health_service.update_service_health(
@@ -511,7 +834,23 @@ class RedisClient:
             return None
 
         try:
-            return await self.redis.get_message(timeout=timeout)
+            start_time = time.time()
+            result = await self.redis.get_message(timeout=timeout)
+
+            if result:
+                duration_ms = (time.time() - start_time) * 1000
+                logger.debug(
+                    "Redis message received",
+                    extra={
+                        "channel": result.get("channel", "unknown"),
+                        "duration_ms": round(duration_ms, 2),
+                    },
+                )
+
+            return result
         except Exception as e:
-            logger.error(f"Failed to get message from Redis: {e}")
+            logger.error(
+                "Failed to get message from Redis",
+                extra={"error": str(e), "error_type": e.__class__.__name__},
+            )
             return None

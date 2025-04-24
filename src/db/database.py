@@ -1,12 +1,12 @@
-import logging
 import threading
 from tenacity import retry, stop_after_attempt, wait_exponential
 from typing import Annotated
 from fastapi import Depends
 from sqlmodel import QueuePool, Session, create_engine, text
 from src.core.config import settings
+from src.core.logging import LogContext
 
-logger = logging.getLogger(__name__)
+logger = LogContext(__name__)
 
 _engine_store = threading.local()
 
@@ -40,14 +40,20 @@ def get_engine():
             with _engine_store.engine.connect() as conn:
                 conn.execute(text("SELECT 1")).scalar()
         except Exception as e:
-            logger.warning(f"Database connection attempt failed: {str(e)}")
+            logger.warning(
+                "Database connection attempt failed",
+                extra={"error": str(e), "error_type": e.__class__.__name__},
+            )
     return _engine_store.engine
 
 
 try:
     engine = get_engine()
 except Exception as e:
-    logger.error(f"Failed to initialize database engine: {str(e)}")
+    logger.error(
+        "Failed to initialize database engine",
+        extra={"error": str(e), "error_type": e.__class__.__name__},
+    )
     engine = None
 
 
@@ -61,7 +67,10 @@ def get_session():
             yield session
         except Exception as e:
             session.rollback()
-            logger.error(f"Database session error: {str(e)}")
+            logger.error(
+                "Database session error",
+                extra={"error": str(e), "error_type": e.__class__.__name__},
+            )
             raise
 
 

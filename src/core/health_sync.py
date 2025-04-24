@@ -1,12 +1,10 @@
-import json
-import logging
 import asyncio
-from typing import Dict, Any
 
-from src.core.degradation import HealthService, ServiceState
+from src.core.degradation import HealthService
 from src.clients.redis import RedisClient
+from src.core.logging import LogContext
 
-logger = logging.getLogger(__name__)
+logger = LogContext(__name__)
 
 HEALTH_SYNC_KEY = "health:sync"
 

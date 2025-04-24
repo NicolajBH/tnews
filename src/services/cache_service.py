@@ -1,12 +1,11 @@
 import json
-import logging
 from typing import Any, Dict, List, TypeVar, Tuple
-import re
 
 from src.clients.redis import RedisClient
 from src.utils.etag import generate_etag
+from src.core.logging import LogContext
 
-logger = logging.getLogger(__name__)
+logger = LogContext(__name__)
 
 T = TypeVar("T")
 
@@ -32,7 +31,10 @@ class CacheService:
                 return json.loads(cached)
             return default
         except Exception as e:
-            logger.error(f"Error retrieving from cache: {str(e)}", exc_info=True)
+            logger.error(
+                "Error retrieving from cache",
+                extra={"key": key, "error": str(e), "error_type": e.__class__.__name__},
+            )
             return default
 
     async def set_cached_data(self, key: str, data: Any, expire: int = 300) -> bool:
@@ -51,7 +53,10 @@ class CacheService:
             await self.redis.set(key, json.dumps(data), expire=expire)
             return True
         except Exception as e:
-            logger.error(f"Error setting cache: {str(e)}", exc_info=True)
+            logger.error(
+                "Error setting cache",
+                extra={"key": key, "error": str(e), "error_type": e.__class__.__name__},
+            )
             return False
 
     async def invalidate(self, key: str) -> bool:
@@ -67,7 +72,10 @@ class CacheService:
             await self.redis.delete(key)
             return True
         except Exception as e:
-            logger.error(f"Error invalidating cache: {str(e)})", exc_info=True)
+            logger.error(
+                "Error invalidating cache",
+                extra={"error": str(e), "key": key, "error_type": e.__class__.__name__},
+            )
             return False
 
     async def keys_by_pattern(self, pattern: str) -> List[str]:
@@ -84,7 +92,14 @@ class CacheService:
             # use scan isntead of keys for production safety
             return await self.redis.scan(match=pattern)
         except Exception as e:
-            logger.error(f"Error getting keys by pattern: {str(e)}", exc_info=True)
+            logger.error(
+                "Error getting keys by pattern",
+                extra={
+                    "error": str(e),
+                    "pattern": pattern,
+                    "error_type": e.__class__.__name__,
+                },
+            )
             return []
 
     async def invalidate_by_prefix(self, prefix: str) -> bool:
@@ -100,10 +115,19 @@ class CacheService:
         """
         try:
             deleted = await self.redis.delete_keys_by_pattern(f"{prefix}*")
-            logger.info(f"Invalidated {deleted} keys with prefix: {prefix}")
+            logger.info(
+                "Invalidated keys by prefix", extra={"count": deleted, "prefix": prefix}
+            )
             return True
         except Exception as e:
-            logger.error(f"Error invalidating by prefix: {str(e)}", exc_info=True)
+            logger.error(
+                "Error invalidating by prefix",
+                extra={
+                    "error": str(e),
+                    "prefix": prefix,
+                    "error_type": e.__class__.__name__,
+                },
+            )
             return False
 
     # application specific cache methods
@@ -179,7 +203,7 @@ class CacheService:
         Returns:
             True if successful, False otherwise
         """
-        logger.info(f"Invalidating article cache for user {user_id}")
+        logger.info("Invalidating user article cache", extra={"user": user_id})
         return True
 
     # etag methods
@@ -214,7 +238,15 @@ class CacheService:
             await self.redis.set(etag_key, etag, expire=expire)
             return True
         except Exception as e:
-            logger.error(f"Error setting ETag: {str(e)}", exc_info=True)
+            logger.error(
+                "Error setting ETag",
+                extra={
+                    "error": str(e),
+                    "etag_key": etag_key,
+                    "etag": etag,
+                    "error_type": e.__class__.__name__,
+                },
+            )
             return False
 
     async def get_etag_with_data(

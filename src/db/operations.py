@@ -1,10 +1,10 @@
 from sqlmodel import SQLModel, Session, select
 from src.constants import RSS_FEEDS
+from src.core.logging import LogContext
 from src.db.database import engine, DatabaseConnectionError
 from src.models.db_models import Sources, Categories
-import logging
 
-logger = logging.getLogger(__name__)
+logger = LogContext(__name__)
 
 
 def create_db_and_tables():
@@ -54,7 +54,10 @@ def initialize_db():
 
         logger.info("Database initialized successfully")
     except Exception as e:
-        logger.critical(f"Database initialization failed: {str(e)}")
+        logger.error(
+            "Database initialization failed",
+            extra={"error": str(e), "error_type": e.__class__.__name__},
+        )
         raise
 
 

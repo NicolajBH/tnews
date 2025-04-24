@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 import re
-import logging
 import secrets
 from typing import Optional, Tuple, List
 from fastapi import HTTPException, status
@@ -9,8 +8,9 @@ from jose import JWTError, jwt
 from src.core.config import settings
 from src.core.exceptions import PasswordTooWeakError
 from src.clients.redis import RedisClient
+from src.core.logging import LogContext
 
-logger = logging.getLogger(__name__)
+logger = LogContext(__name__)
 
 SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = settings.ALGORITHM
@@ -122,7 +122,10 @@ async def blacklist_token(token: str) -> bool:
         await redis_client.set(f"blacklist:{token}", "1", expire=ttl)
         return True
     except Exception as e:
-        logger.error(f"Failed to blacklist token: {e}")
+        logger.error(
+            "Failed to blacklist token",
+            extra={"error": str(e), "token": token, "error_type": e.__class__.__name__},
+        )
         return False
 
 
@@ -138,7 +141,10 @@ async def is_token_blacklisted(token: str) -> bool:
         result = await redis_client.get(f"blacklist:{token}")
         return result is not None
     except Exception as e:
-        logger.error(f"Failed to check token blacklist: {e}")
+        logger.error(
+            "Failed to check token blacklist",
+            extra={"error": str(e), "token": token, "error_type": e.__class__.__name__},
+        )
         return False
 
 
@@ -214,7 +220,14 @@ async def blacklist_refresh_token(refresh_token: str, expires_at: datetime) -> b
         await redis_client.set(f"refresh_blacklist{refresh_token}", "1", expire=ttl)
         return True
     except Exception as e:
-        logger.error(f"Failed to blacklist refresh token: {str(e)}")
+        logger.error(
+            "Failed to blacklist refresh token",
+            extra={
+                "error": str(e),
+                "refresh_token": refresh_token,
+                "error_type": e.__class__.__name__,
+            },
+        )
         return False
 
 
@@ -234,5 +247,12 @@ async def is_refresh_token_blacklisted(refresh_token: str) -> bool:
         result = await redis_client.get(f"refresh_blacklist:{refresh_token}")
         return result is not None
     except Exception as e:
-        logger.error(f"Failed to check refresh token blacklist: {str(e)}")
+        logger.error(
+            "Failed to check refresh token blacklist",
+            extra={
+                "error": str(e),
+                "refresh_token": refresh_token,
+                "error_type": e.__class__.__name__,
+            },
+        )
         return False

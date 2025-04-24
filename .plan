@@ -175,3 +175,4 @@ Documentation
 # April 17, 2025
   * Fix failed fetches not tracking properly
   * Fix created_at being updated when record is updated
+  ? Implement structured logging with correlation IDs

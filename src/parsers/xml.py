@@ -1,20 +1,21 @@
+from src.core.logging import LogContext, PerformanceLogger
 from .base import FeedParser
 import xml.etree.ElementTree as ET
 from typing import List, no_type_check, Optional
 from src.models.db_models import Articles
 import html
-import logging
 from email.utils import parsedate_to_datetime
 import hashlib
 from datetime import timezone
 
-logger = logging.getLogger(__name__)
+logger = LogContext(__name__)
 
 
 class XMLFeedParser(FeedParser):
     async def parse_content(self, content: str) -> List[Articles]:
-        tree = ET.fromstring(content)
-        return await self._parse_xml_response(tree)
+        with PerformanceLogger(logger, f"xml_parse_source_id_{self.source_id}"):
+            tree = ET.fromstring(content)
+            return await self._parse_xml_response(tree)
 
     async def _parse_xml_response(self, tree: ET.Element) -> List[Articles]:
         articles_to_return = []
@@ -23,6 +24,14 @@ class XMLFeedParser(FeedParser):
             if article:
                 articles_to_return.append(article)
 
+        logger.info(
+            "XML parsing complete",
+            extra={
+                "source_id": self.source_id,
+                "total_items": len(tree.findall(".//item")),
+                "successful_items": len(articles_to_return),
+            },
+        )
         return articles_to_return
 
     @no_type_check
@@ -46,7 +55,12 @@ class XMLFeedParser(FeedParser):
                 if pub_date_elem is None or pub_date_elem.text is None:
                     missing.append("pubDate")
                 logger.warning(
-                    f"Skipping article: Missing critical fields: {', '.join(missing)}"
+                    "Skipping article",
+                    extra={
+                        "source_id": self.source_id,
+                        "missing": ", ".join(missing),
+                        "available_fields": [child.tag for child in item],
+                    },
                 )
                 return None
 
@@ -67,7 +81,22 @@ class XMLFeedParser(FeedParser):
                 source_id=self.source_id,
             )
         except (TypeError, AttributeError) as e:
-            logger.error(f"Error parsing XML item: {str(e)}", exc_info=True)
+            logger.error(
+                "Error parsing XML item",
+                extra={
+                    "error": str(e),
+                    "source_id": self.source_id,
+                    "error_type": e.__class__.__name__,
+                    "title": getattr(title_elem, "text", None) if title_elem else None,
+                },
+            )
             return None
         except Exception as e:
-            logger.error(f"Unexpected error parsing XML item: {str(e)}", exc_info=True)
+            logger.error(
+                "Unexpected error parsing XML item",
+                extra={
+                    "error": str(e),
+                    "source_id": self.source_id,
+                    "error_type": e.__class__.__name__,
+                },
+            )

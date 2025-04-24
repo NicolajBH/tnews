@@ -1,6 +1,5 @@
 import asyncio
 import subprocess
-import logging
 import random
 import re
 import time
@@ -8,12 +7,13 @@ from typing import Dict, Tuple, Any, Callable, Awaitable, TypeVar
 from io import BytesIO
 from urllib.parse import urlparse
 
+from src.core.logging import LogContext
 from src.models.http import HTTPHeaders
 from src.clients.connection import ConnectionPool
 from src.constants import DEFAULT_HEADERS, DEFAULT_USER_AGENT
 from src.core.exceptions import HTTPClientError, ServiceUnavailableError
 
-logger = logging.getLogger(__name__)
+logger = LogContext(__name__)
 
 T = TypeVar("T")
 
@@ -67,21 +67,27 @@ class CircuitBreaker:
         if self.state == CircuitState.OPEN:
             if time.time() - self.last_failure_time < self.current_timeout:
                 if cache_key in self.cache:
-                    logger.info(f"Circuit {self.name} OPEN - using cached data")
+                    logger.info(
+                        "Circuit OPEN - using cached data",
+                        extra={"circuit_name": self.name, "cache_key": cache_key},
+                    )
                     return self.cache[cache_key]
                 raise HTTPClientError(detail=f"Circuit {self.name} is OPEN")
 
-            logger.info(f"Circuit {self.name} switching to HALF_OPEN")
+            logger.info(
+                "Circuit switching to HALF_OPEN",
+                extra={"circuit_name": self.name, "cache_key": cache_key},
+            )
             self.state = CircuitState.HALF_OPEN
 
         try:
             result = await func(*args, **kwargs)
 
             if self.state == CircuitState.HALF_OPEN:
-                logger.info(f"Circuit {self.name} recovery successful - CLOSED")
-                self._reset()
-            elif self.state == CircuitState.CLOSED:
-                self.failure_count = 0
+                logger.info(
+                    "Circuit recovery successful - CLOSED",
+                    extra={"circuit_name": self.name},
+                )
 
             if cache_key is not None:
                 self.cache[cache_key] = result
@@ -95,16 +101,34 @@ class CircuitBreaker:
                 self.state == CircuitState.CLOSED
                 and self.failure_count >= self.failure_threshold
             ):
-                logger.warning(
-                    f"Circuit {self.name} OPEN - threshold reached ({self.failure_count})"
-                )
                 self.state = CircuitState.OPEN
+                logger.warning(
+                    "Circuit OPEN - threshold reached",
+                    extra={
+                        "error": str(e),
+                        "circuit_name": self.name,
+                        "state": self.state,
+                        "failure_count": self.failure_count,
+                        "last_failure_time": self.last_failure_time,
+                        "error_type": e.__class__.__name__,
+                    },
+                )
 
             elif self.state == CircuitState.HALF_OPEN:
-                logger.warning(f"Circuit {self.name} OPEN - test failed")
                 self.state = CircuitState.OPEN
                 self.current_timeout = min(
                     self.current_timeout * self.backoff_multiplier, self.max_timeout
+                )
+                logger.warning(
+                    "Circuit OPEN - test failed",
+                    extra={
+                        "error": str(e),
+                        "circuit_name": self.name,
+                        "state": self.state,
+                        "failure_count": self.failure_count,
+                        "last_failure_time": self.last_failure_time,
+                        "error_type": e.__class__.__name__,
+                    },
                 )
 
             raise
@@ -258,7 +282,9 @@ class HTTPClient:
             body_text = body.decode("utf-8", errors="replace")
             for phrase in captcha_phrases:
                 if phrase in body_text:
-                    logger.warning(f"CAPTCHA detected in response from {host}")
+                    logger.warning(
+                        "CAPTCHA detected", extra={"host": host, "phrase": phrase}
+                    )
                     return True
         except:
             pass
@@ -311,7 +337,14 @@ class HTTPClient:
             )
             return response_headers, stdout
         except Exception as e:
-            logger.error(f"Error executing curl: {str(e)}")
+            logger.error(
+                "Error executing curl",
+                extra={
+                    "error": str(e),
+                    "error_type": e.__class__.__name__,
+                    "command": " ".join(cmd),
+                },
+            )
             raise HTTPClientError(detail=f"Error fetching with curl: {str(e)}")
 
     async def request(
@@ -378,7 +411,14 @@ class HTTPClient:
                     return response_headers, body
 
             except Exception as e:
-                logger.error(f"HTTP request error for {url}: {str(e)}")
+                logger.error(
+                    "HTTP Request error",
+                    extra={
+                        "error": str(e),
+                        "url": url,
+                        "error_type": e.__class__.__name__,
+                    },
+                )
 
                 if self.health_service:
                     self.health_service.update_health_service(
@@ -394,12 +434,20 @@ class HTTPClient:
                 )
 
         async def request_fallback():
-            logger.info(f"Using fallback for HTTP request to {host}")
+            logger.info("Using fallback for HTTP request", extra={"host": host})
             if host == "www.bloomberg.com" and "lineup-next/api" not in url:
                 try:
                     return await self._fetch_with_curl()
                 except Exception as e:
-                    logger.error(f"Fallback to curl also failed: {str(e)}")
+                    logger.error(
+                        "Fallback to curl also failed",
+                        extra={
+                            "error": str(e),
+                            "host": host,
+                            "url": url,
+                            "error_type": e.__class__.__name__,
+                        },
+                    )
 
             raise ServiceUnavailableError(
                 service=f"https_{host}",
