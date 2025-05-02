@@ -48,8 +48,8 @@ class Settings(BaseSettings):
     PREFETCH_MULTIPLIER: int = 1
 
     # Logging settings
-    LOG_LEVEL: str = "INFO"
-    LOG_FILE: str = "api_log.log"
+    LOG_LEVEL: str = "WARNING"
+    LOG_FILE: str = "logs/api_log.log"
     LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     LOG_DATE_FORMAT: str = "%Y-%m-%d %H:%M:%S"
 

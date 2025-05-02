@@ -78,7 +78,7 @@ async def get_latest_articles(
         )
 
         # create response data
-        response_data = PaginatedResponse(data=articles, pagination=pagination_info)
+        response_data = PaginatedResponse(items=articles, pagination=pagination_info)
 
         # generate etag if we dont have on eyet
         if not etag:

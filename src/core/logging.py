@@ -1,9 +1,11 @@
 import logging
+import os
 import json
 import time
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional
 from contextvars import ContextVar
 from src.core.config import settings
+from logging.handlers import TimedRotatingFileHandler
 
 request_id_var: ContextVar[Optional[str]] = ContextVar("request_id", default=None)
 correlation_context_var: ContextVar[Dict[str, Any]] = ContextVar(
@@ -193,13 +195,24 @@ class PerformanceLogger:
 def setup_logging() -> None:
     root_logger = logging.getLogger()
     root_logger.setLevel(settings.LOG_LEVEL)
-    root_logger.handlers = []
+    root_logger.handlers = []  # Clear existing handlers
 
     formatter = CustomFormatter()
 
-    file_handler = logging.FileHandler(settings.LOG_FILE)
+    # Create logs directory if it doesn't exist
+    log_dir = os.path.dirname(settings.LOG_FILE)
+    os.makedirs(log_dir, exist_ok=True)
+
+    # Replace FileHandler with TimedRotatingFileHandler
+    file_handler = TimedRotatingFileHandler(
+        settings.LOG_FILE,
+        when="midnight",
+        interval=1,  # Daily rotation
+        backupCount=30,  # Keep 30 days of logs
+    )
     file_handler.setFormatter(formatter)
     file_handler.setLevel(logging.DEBUG)
+    file_handler.suffix = "%Y-%m-%d"  # Use date suffix for rotated files
     root_logger.addHandler(file_handler)
 
     console_handler = logging.StreamHandler()
@@ -208,3 +221,10 @@ def setup_logging() -> None:
     root_logger.addHandler(console_handler)
 
     reset_correlation_context()
+
+    # Log that rotation has been set up
+    logger = LogContext("logging_setup")
+    logger.info(
+        "Logging configured with daily rotation",
+        extra={"log_file": settings.LOG_FILE, "rotation": "daily", "backup_count": 30},
+    )

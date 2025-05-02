@@ -2,8 +2,18 @@ from typing import Callable
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.status import HTTP_304_NOT_MODIFIED
+from src.core.logging import LogContext
 from src.utils.etag import extract_etag_header, is_etag_match
 from src.auth.rate_limit import apply_rate_limit_headers
+import time
+from src.core.metrics import (
+    http_requests_total,
+    http_request_duration,
+    active_requests,
+    cache_hits,
+)
+
+logger = LogContext(__name__)
 
 
 class RateLimitHeaderMiddleware(BaseHTTPMiddleware):
@@ -82,7 +92,6 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
             reset_correlation_context,
             LogContext,
         )
-        import time
 
         logger = LogContext("src.api.middleware")
 
@@ -131,3 +140,87 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
 
             logger.exception(f"Unhandled exception in request processing: {str(e)}")
             raise
+
+
+class PrometheusMiddleware(BaseHTTPMiddleware):
+    """
+    Middleware for collecting Prometheus metrics for HTTP requests
+
+    This middleware tracks:
+    1. Total HTTP requests with labels for method, endpoint, and status code
+    2. HTTP request duration in seconds
+    3. Number of currently active requests
+    """
+
+    async def dispatch(self, request: Request, call_next):
+        if request.url.path == "/metrics":
+            return await call_next(request)
+
+        active_requests.inc()
+
+        start_time = time.time()
+
+        try:
+            response = await call_next(request)
+            duration = time.time() - start_time
+
+            # normalize path to avoid cardinality explosion
+            endpoint = self._normalize_path(request.url.path)
+
+            http_request_duration.labels(
+                method=request.method, endpoint=endpoint
+            ).observe(duration)
+
+            http_requests_total.labels(
+                method=request.method,
+                endpoint=endpoint,
+                status_code=response.status_code,
+            ).inc()
+
+            if response.status_code == HTTP_304_NOT_MODIFIED:
+                cache_hits.labels(cache_type="etag").inc()
+
+            return response
+        except Exception as e:
+            endpoint = self._normalize_path(request.url.path)
+            http_requests_total.labels(
+                method=request.method, endpoint=endpoint, status_code=500
+            ).inc()
+
+            logger.error(
+                "Request error in PrometheusMiddleware",
+                extra={
+                    "error": str(e),
+                    "error_type": e.__class__.__name__,
+                    "path": request.url.path,
+                    "method": request.method,
+                },
+            )
+            raise
+        finally:
+            active_requests.dec()
+
+    def _normalize_path(self, path: str) -> str:
+        """
+        Normalize API paths to prevent high cardinality in metrics
+        """
+        parts = path.split("/")
+        normalized_parts = []
+
+        for i, part in enumerate(parts):
+            if not part:
+                normalized_parts.append(part)
+                continue
+
+            if (
+                i > 0
+                and part.isdigit()
+                and parts[i - 1] in ["subscribe", "unsubscribe"]
+            ):
+                normalized_parts.append("{id}")
+            elif i > 0 and parts[i - 1] == "services" and i < len(parts) - 1:
+                normalized_parts.append("{name}")
+            else:
+                normalized_parts.append(part)
+
+        return "/".join(normalized_parts)

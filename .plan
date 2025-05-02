@@ -1,4 +1,4 @@
-# .plan - Updated April 17, 2025
+# .plan - Updated April 28, 2025
 
 Architecture & Structure
   ? Add API versioning support 
@@ -24,9 +24,10 @@ Performance Optimization
 Error Handling & Resilience
   * Implement circuit breaker pattern for external service calls
   * Add request ID tracking for all error responses
-  ? Implement graceful degradation for failed services
+  * Implement graceful degradation for failed services
   ? Add comprehensive request validation error handling
   * Fix failed fetches not tracking properly
+  ? Fix article counter not tracking properly
 
 Testing Improvements
   * Complete the unfinished test_latest_articles_with_date_filters test
@@ -38,7 +39,7 @@ Testing Improvements
   ? Add security-focused tests (auth bypass, rate limiting, permissions)
 
 Monitoring & Observability
-  ? Implement structured logging with correlation IDs
+  * Implement structured logging with correlation IDs
   ? Add performance metrics collection (latency, throughput)
   * Create health check endpoints with service status
   ? Add prometheus metrics endpoint for monitoring
@@ -50,15 +51,12 @@ Database Management
   * Add database connection retry logic
   ? Implement soft delete functionality for relevant models
   ? Add database transaction management
-  * Fix created_at being updated when record is updated
+  ? Fix created_at being updated when record is updated
 
 Feature Enhancements
   ? Add user profile management (update, delete)
   ? Implement role-based access control
-  ? Create a notification system for new articles
   ? Add full-text search capabilities
-  ? Implement content recommendation based on user preferences
-  ? Add additional news sources
 
 Terminal User Interface
   * Research appropriate TUI libraries (textual, rich, urwid)
@@ -66,6 +64,12 @@ Terminal User Interface
   ? Implement basic article viewing functionality
   ? Add feed subscription management via terminal
   ? Create a teletext-inspired visual style
+  ? Subscribe/unsubscribe interface
+  ? Channels functionality
+  ? Live market data
+  ? World clock
+  ? Article selector
+  ? Sports channel
 
 Containerization & Deployment
   ? Create Dockerfile for the application
@@ -176,3 +180,11 @@ Documentation
   * Fix failed fetches not tracking properly
   * Fix created_at being updated when record is updated
   ? Implement structured logging with correlation IDs
+
+# April 24, 2025
+  * Implement structured logging with correlation IDs
+  * Add prometheus metrics endpoint for monitoring
+
+# April 29 2025
+  ? Fix duplication of articles - Articles are duplicating when headlines are changed
+  ? Get refresh-info elemenet to work correctly

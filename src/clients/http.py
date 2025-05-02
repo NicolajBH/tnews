@@ -1,9 +1,8 @@
 import asyncio
-import subprocess
 import random
 import re
 import time
-from typing import Dict, Tuple, Any, Callable, Awaitable, TypeVar
+from typing import Dict, Tuple, Any, Callable, Awaitable, TypeVar, Optional
 from io import BytesIO
 from urllib.parse import urlparse
 
@@ -161,12 +160,40 @@ class HTTPClient:
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
         ]
         self._circuit_breakers: Dict[str, CircuitBreaker] = {}
+
+        # Special domains configuration
         self._special_domains = {
             "www.bloomberg.com": {
                 "rotate_user_agent": True,
                 "browser_headers": True,
                 "preserve_cookies": True,
+                "use_curl": True,
+                "curl_endpoints": ["lineup-next/api"],
+                "curl_headers": [
+                    "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36",
+                    "Referer: https://www.bloomberg.com/",
+                    "Accept: */*",
+                ],
                 "captcha_detection": ["Are you a robot", "unusual activity"],
+                "circuit_breaker": {
+                    "failure_threshold": 2,
+                    "reset_timeout": 15 * 60,  # 15 minutes
+                    "backoff_multiplier": 2.0,
+                    "max_timeout": 4 * 60 * 60,  # 4 hours
+                },
+            },
+            "tradingeconomics.com": {
+                "rotate_user_agent": True,
+                "browser_headers": True,
+                "preserve_cookies": True,
+                "use_curl": True,
+                "curl_endpoints": ["ws/stream.ashx"],
+                "curl_headers": [
+                    "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36",
+                    "Referer: https://tradingeconomics.com/",
+                    "Accept: */*",
+                ],
+                "captcha_detection": ["bot", "automated", "captcha"],
                 "circuit_breaker": {
                     "failure_threshold": 2,
                     "reset_timeout": 15 * 60,  # 15 minutes
@@ -214,15 +241,6 @@ class HTTPClient:
     def _prepare_headers(self, host: str, headers: Dict[str, str]) -> Dict[str, str]:
         """prepare request headers with domain specific customizations"""
         result_headers = headers.copy()
-
-        if host == "www.bloomberg.com":
-            return {
-                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36",
-                "Referer": "https://www.bloomberg.com/",
-                "Accept": "*/*",
-                "Host": host,
-            }
-
         config = self._get_domain_config(host)
 
         if config.get("rotate_user_agent", False):
@@ -291,7 +309,7 @@ class HTTPClient:
 
         return False
 
-    def _get_circuit_breaker(self, host: str) -> CircuitBreaker | None:
+    def _get_circuit_breaker(self, host: str) -> Optional[CircuitBreaker]:
         """get or create domain-specific circuit breaker"""
         if host in self._circuit_breakers:
             return self._circuit_breakers[host]
@@ -312,19 +330,32 @@ class HTTPClient:
         self._circuit_breakers[host] = breaker
         return breaker
 
-    async def _fetch_with_curl(self) -> Tuple[HTTPHeaders, bytes]:
-        """subprocess to curl to get around fingerprinting"""
-        cmd = [
-            "curl",
-            "-s",
-            "https://www.bloomberg.com/lineup-next/api/stories?limit=25&pageNumber=1&types=ARTICLE,FEATURE,INTERACTIVE,LETTER,EXPLAINERS",
-            "-H",
-            "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36",
-            "-H",
-            "Referer: https://www.bloomberg.com/",
-            "-H",
-            "Accept: */*",
-        ]
+    def _should_use_curl(self, host: str, url: str) -> bool:
+        """Determine if curl should be used for this domain and endpoint"""
+        config = self._get_domain_config(host)
+
+        if not config.get("use_curl", False):
+            return False
+
+        curl_endpoints = config.get("curl_endpoints", [])
+        if not curl_endpoints:
+            return True  # Use curl for all endpoints if no specific ones listed
+
+        # Check if any of the endpoints are in the URL
+        return any(endpoint in url for endpoint in curl_endpoints)
+
+    async def _fetch_with_curl(self, url: str, host: str) -> Tuple[HTTPHeaders, bytes]:
+        """Fetch content using curl with domain-specific configurations"""
+        config = self._get_domain_config(host)
+
+        # Base curl command
+        cmd = ["curl", "-s", url]
+
+        # Add headers from config
+        curl_headers = config.get("curl_headers", [])
+        for header in curl_headers:
+            cmd.extend(["-H", header])
+
         try:
             process = await asyncio.create_subprocess_exec(
                 *cmd,
@@ -332,6 +363,18 @@ class HTTPClient:
                 stderr=asyncio.subprocess.PIPE,
             )
             stdout, stderr = await process.communicate()
+
+            if stderr:
+                logger.warning(
+                    "Curl reported errors",
+                    extra={
+                        "stderr": stderr.decode("utf-8", errors="replace"),
+                        "host": host,
+                        "url": url,
+                    },
+                )
+
+            # Create default headers
             response_headers = HTTPHeaders.from_bytes(
                 b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n"
             )
@@ -343,6 +386,8 @@ class HTTPClient:
                     "error": str(e),
                     "error_type": e.__class__.__name__,
                     "command": " ".join(cmd),
+                    "host": host,
+                    "url": url,
                 },
             )
             raise HTTPClientError(detail=f"Error fetching with curl: {str(e)}")
@@ -358,8 +403,9 @@ class HTTPClient:
 
         circuit_breaker = self._get_circuit_breaker(host)
 
-        if host == "www.bloomberg.com" and "lineup-next/api" in url:
-            return await self._fetch_with_curl()
+        # Check if we should use curl for this domain/endpoint
+        if self._should_use_curl(host, url):
+            return await self._fetch_with_curl(url, host)
 
         async def make_request():
             headers = self._prepare_headers(host, request_headers or {})
@@ -392,7 +438,7 @@ class HTTPClient:
 
                     if self._check_for_captcha(host, body):
                         if self.health_service:
-                            self.health_service.update_health_service(
+                            self.health_service.update_service_health(
                                 f"http_{host}",
                                 state="degraded",
                                 failure_count=1,
@@ -402,7 +448,7 @@ class HTTPClient:
                         raise CaptchaError(f"CAPTCHA challenge detected on {host}")
 
                     if self.health_service:
-                        self.health_service.update_health_service(
+                        self.health_service.update_service_health(
                             f"https_{host}",
                             state="operational",
                             last_success_time=time.time(),
@@ -421,7 +467,7 @@ class HTTPClient:
                 )
 
                 if self.health_service:
-                    self.health_service.update_health_service(
+                    self.health_service.update_service_health(
                         f"https_{host}",
                         state="degraded",
                         failure_count=1,
@@ -435,9 +481,12 @@ class HTTPClient:
 
         async def request_fallback():
             logger.info("Using fallback for HTTP request", extra={"host": host})
-            if host == "www.bloomberg.com" and "lineup-next/api" not in url:
+
+            # Try curl fallback for any special domain
+            config = self._get_domain_config(host)
+            if config:
                 try:
-                    return await self._fetch_with_curl()
+                    return await self._fetch_with_curl(url, host)
                 except Exception as e:
                     logger.error(
                         "Fallback to curl also failed",
@@ -461,13 +510,25 @@ class HTTPClient:
                 return await circuit_breaker.execute(
                     make_request,
                     cache_key=cache_key,
-                    fallback=request_fallback,
                 )
             except CaptchaError as e:
-                raise HTTPClientError(detail=str(e), host=host)
-
+                # If we get a captcha, try the fallback
+                logger.warning(
+                    "CAPTCHA detected, trying fallback",
+                    extra={"host": host, "url": url},
+                )
+                try:
+                    return await request_fallback()
+                except Exception:
+                    raise HTTPClientError(detail=str(e), host=host)
+            except Exception:
+                # For other errors, try the fallback
+                return await request_fallback()
         else:
-            return await make_request()
+            try:
+                return await make_request()
+            except Exception:
+                return await request_fallback()
 
     def get_circuit_breaker_status(self) -> Dict[str, Any]:
         """get status of all circuit breakers"""

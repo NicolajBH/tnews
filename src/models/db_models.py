@@ -29,7 +29,7 @@ class Categories(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str = Field(index=True)
     source_id: int = Field(foreign_key="sources.id")
-    feed_url: str = Field(unique=True)
+    feed_url: str = Field(nullable=False)
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 
@@ -43,11 +43,11 @@ class Categories(SQLModel, table=True):
 class Articles(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     title: str = Field(index=True)
-    content_hash: str = Field(unique=True, index=True)
+    signature: str = Field(index=True, nullable=False, unique=True)
     pub_date: datetime = Field(index=True)
     pub_date_raw: str = Field(default=None)
     source_id: int = Field(foreign_key="sources.id")
-    original_url: str
+    original_url: str = Field(index=True)
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(
         default_factory=datetime.now, sa_column_kwargs={"onupdate": None}
@@ -62,10 +62,10 @@ class Articles(SQLModel, table=True):
     def pub_date_iso(self) -> str:
         return self.pub_date.isoformat()
 
-    @property
-    def slug(self) -> str:
-        path = urlparse(self.original_url).path.rstrip("/")
-        return unquote(path.rsplit("/", 1)[1]).lower()
+    # @property
+    # def slug(self) -> str:
+    #     path = urlparse(self.original_url).path.rstrip("/")
+    #     return unquote(path.rsplit("/", 1)[1]).lower()
 
 
 class Users(SQLModel, table=True):

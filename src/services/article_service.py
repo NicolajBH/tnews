@@ -1,3 +1,4 @@
+from zoneinfo import ZoneInfo
 from datetime import datetime
 from typing import List, Tuple, Dict, Any
 
@@ -232,13 +233,17 @@ class ArticleService:
                 )
                 continue
 
+            # convert pub date to local tz
+            local_tz = datetime.now().astimezone().tzinfo
+            dt_utc = article.pub_date.replace(tzinfo=ZoneInfo("UTC"))
+
             articles_to_return.append(
                 Article(
                     id=article.id,
                     title=article.title,
                     pubDate=article.pub_date_raw,
                     source=source.feed_symbol,
-                    formatted_time=datetime.strftime(article.pub_date, "%H:%M"),
+                    formatted_time=dt_utc.astimezone(local_tz).strftime("%H:%M"),
                 )
             )
 

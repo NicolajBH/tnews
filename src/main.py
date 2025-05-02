@@ -6,6 +6,7 @@ from src.api.middleware import (
     ETagMiddleware,
     RateLimitHeaderMiddleware,
     RequestIDMiddleware,
+    PrometheusMiddleware,
 )
 from src.api.degradation_middleware import ServiceDegradationMiddleware
 from src.api.routes import health as health_routes
@@ -14,6 +15,15 @@ from src.core.config import settings
 from src.core.degradation import HealthService
 from src.db.operations import initialize_db
 from src.clients.redis import RedisClient
+from prometheus_client import REGISTRY, CONTENT_TYPE_LATEST, generate_latest
+from prometheus_client.multiprocess import MultiProcessCollector
+from prometheus_fastapi_instrumentator import Instrumentator
+from src.core.metrics import (
+    service_health_state,
+    circuit_breaker_state,
+    redis_client_state,
+    db_connection_pool_size,
+)
 
 
 @asynccontextmanager
@@ -25,6 +35,20 @@ async def lifespan(app: FastAPI):
     # Initialize Redis
     redis_client = RedisClient(health_service=app.state.health_service)
     await redis_client.initialize()
+
+    # Set initial health service metrics
+    service_health_state.labels(service="api").set(2)
+    service_health_state.labels(service="redis").set(2)
+    service_health_state.labels(service="database").set(2)
+
+    # Set initial circuit breaker states
+    circuit_breaker_state.labels(service="redis_client").set(2)
+
+    # set initial redis client state
+    redis_client_state.set(1)
+
+    # Set initial db pool size
+    db_connection_pool_size.set(settings.POOL_SIZE)
 
     yield
 
@@ -62,6 +86,9 @@ def create_app() -> FastAPI:
     # RequestIDMiddleware should be first to assign IDs to all requests
     app.add_middleware(RequestIDMiddleware)
 
+    # Prometheus Middleware
+    app.add_middleware(PrometheusMiddleware)
+
     # ServiceDegradationMiddleware should be early to capture service errors
     app.add_middleware(ServiceDegradationMiddleware, health_service=health_service)
 
@@ -77,6 +104,14 @@ def create_app() -> FastAPI:
     # Other middleware
     app.add_middleware(RateLimitHeaderMiddleware)
     app.add_middleware(ETagMiddleware)
+
+    @app.get("/metrics", include_in_schema=False)
+    async def metrics():
+        from fastapi.responses import Response
+
+        return Response(
+            content=generate_latest(REGISTRY), media_type=CONTENT_TYPE_LATEST
+        )
 
     return app
 

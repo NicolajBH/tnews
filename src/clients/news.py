@@ -469,14 +469,12 @@ class NewsClient:
             logger.warning("Category not found", extra={"category_id": category_id})
             return 0
 
-        # Extract content hashes
-        content_hashes = {
-            article.content_hash for article in articles if article.content_hash
-        }
+        # Extract signature hashes
+        hashes = {article.signature for article in articles if article.signature}
 
-        if not content_hashes:
+        if not hashes:
             logger.warning(
-                "No content hashes in articles",
+                "No hashes in articles",
                 extra={"category_id": category_id, "article_count": len(articles)},
             )
             return 0
@@ -486,46 +484,73 @@ class NewsClient:
             extra={
                 "category_id": category_id,
                 "total_articles": len(articles),
-                "unique_hashes": len(content_hashes),
+                "unique_hashes": len(hashes),
             },
         )
 
         # Check Redis first for existing hashes
-        redis_hash_results = await self._check_hashes_in_redis(content_hashes)
+        redis_hash_results = await self._check_hashes_in_redis(hashes)
 
         # Check database for remaining hashes not found in Redis
-        content_hashes_to_check = {
+        hashes_to_check = {
             h
-            for h in content_hashes
+            for h in hashes
             if h not in redis_hash_results or not redis_hash_results[h]
         }
 
-        existing_db_hashes = await self._check_articles_exist_in_db(
-            content_hashes_to_check
-        )
+        existing_db_hashes = await self._check_articles_exist_in_db(hashes_to_check)
 
         # Combine Redis and DB results
         existing_hashes = {
             h
-            for h in content_hashes
+            for h in hashes
             if (h in redis_hash_results and redis_hash_results[h])
             or h in existing_db_hashes
         }
+
+        existing_articles = self.session.exec(
+            select(Articles).where(Articles.signature.in_(existing_hashes))
+        ).all()
+
+        existing_by_hash = {article.signature: article for article in existing_articles}
+        new_by_hash = {
+            article.signature: article
+            for article in articles
+            if article.signature in existing_hashes
+        }
+
+        articles_updated = 0
+        for hash, existing_article in existing_by_hash.items():
+            if hash in new_by_hash:
+                new_article = new_by_hash[hash]
+                if existing_article.title != new_article.title:
+                    existing_article.title = new_article.title
+                    existing_article.updated_at = new_article.updated_at
+                    existing_article.original_url = new_article.original_url
+                    self.session.add(existing_article)
+                    articles_updated += 1
+
+        if articles_updated:
+            self.session.commit()
+            logger.info(
+                "Updated article title",
+                extra={"category_id": category.id, "updated_count": articles_updated},
+            )
 
         # Filter out existing articles
         new_articles = [
             article
             for article in articles
-            if article.content_hash and article.content_hash not in existing_hashes
+            if article.signature and article.signature not in existing_hashes
         ]
 
-        # De-duplicate articles by content hash, keeping the earliest publication
+        # De-duplicate articles by hash, keeping the earliest publication
         unique_articles = {}
         for article in new_articles:
-            if article.content_hash not in unique_articles:
-                unique_articles[article.content_hash] = article
-            elif article.pub_date < unique_articles[article.content_hash].pub_date:
-                unique_articles[article.content_hash] = article
+            if article.signature not in unique_articles:
+                unique_articles[article.signature] = article
+            elif article.pub_date < unique_articles[article.signature].pub_date:
+                unique_articles[article.signature] = article
 
         new_articles = list(unique_articles.values())
 
@@ -546,9 +571,9 @@ class NewsClient:
 
         return 0
 
-    async def _check_hashes_in_redis(self, content_hashes: Set[str]) -> Dict[str, bool]:
+    async def _check_hashes_in_redis(self, hashes: Set[str]) -> Dict[str, bool]:
         """Check which content hashes exist in Redis"""
-        if not content_hashes:
+        if not hashes:
             return {}
 
         try:
@@ -556,17 +581,17 @@ class NewsClient:
             redis_circuit = self._get_circuit("redis")
             if redis_circuit:
                 result = await redis_circuit.execute(
-                    self.redis.pipeline_check_hashes, list(content_hashes)
+                    self.redis.pipeline_check_hashes, list(hashes)
                 )
             else:
-                result = await self.redis.pipeline_check_hashes(list(content_hashes))
+                result = await self.redis.pipeline_check_hashes(list(hashes))
 
             duration_ms = (time.time() - start_time) * 1000
             logger.debug(
                 "Redis hash check completed",
                 extra={
                     "duration_ms": round(duration_ms, 2),
-                    "hash_count": len(content_hashes),
+                    "hash_count": len(hashes),
                     "found_count": sum(1 for v in result.values() if v),
                 },
             )
@@ -591,7 +616,7 @@ class NewsClient:
             for article in articles:
                 article.categories.append(category)
                 self.session.add(article)
-                new_hashes.append(article.content_hash)
+                new_hashes.append(article.signature)
                 successful_articles += 1
 
             self.session.commit()
@@ -654,9 +679,9 @@ class NewsClient:
                 extra={"error": str(e), "error_type": e.__class__.__name__},
             )
 
-    async def _check_articles_exist_in_db(self, content_hashes: Set[str]) -> Set[str]:
+    async def _check_articles_exist_in_db(self, hashes: Set[str]) -> Set[str]:
         """Check which content hashes already exist in database"""
-        if not content_hashes:
+        if not hashes:
             return set()
 
         db_circuit = self._get_circuit("db")
@@ -665,9 +690,7 @@ class NewsClient:
 
             async def check_hashes():
                 results = self.session.exec(
-                    select(Articles.content_hash).where(
-                        Articles.content_hash.in_(content_hashes)
-                    )
+                    select(Articles.signature).where(Articles.signature.in_(hashes))
                 ).all()
                 return set(results)
 
@@ -681,7 +704,7 @@ class NewsClient:
                 "DB hash check completed",
                 extra={
                     "duration_ms": round(duration_ms, 2),
-                    "hash_count": len(content_hashes),
+                    "hash_count": len(hashes),
                     "found_count": len(result),
                 },
             )
@@ -693,7 +716,7 @@ class NewsClient:
                 extra={
                     "error": str(e),
                     "error_type": e.__class__.__name__,
-                    "hash_count": len(content_hashes),
+                    "hash_count": len(hashes),
                 },
             )
             return set()
