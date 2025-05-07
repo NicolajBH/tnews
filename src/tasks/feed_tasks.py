@@ -50,13 +50,13 @@ def fetch_all_feeds(self):
             with Session(task_engine) as session:
                 results = fetch_feed_urls(session)
                 feeds = [
-                    (cat.source_id, cat.id, source.base_url + cat.feed_url)
-                    for cat, source in results
-                    if cat.source_id and cat.id
+                    (feed.source_name, feed.name, source.base_url + feed.feed_url)
+                    for feed, source in results
+                    if feed.source_name and feed.name
                 ]
 
         total_feeds = len(feeds)
-        sources = {source_id for source_id, _, _ in feeds}
+        sources = {source_name for source_name, _, _ in feeds}
 
         logger.info(
             "Feeds retrieved from database",
@@ -210,15 +210,15 @@ def fetch_feed_chunk(self, feeds_chunk):
     add_correlation_id("operation", "fetch_feed_chunk")
     add_correlation_id("chunk_size", len(feeds_chunk))
 
-    # source ids for logging
-    source_ids = list(set(source_id for source_id, _, _ in feeds_chunk))
+    # source names for logging
+    source_names = list(set(source_name for source_name, _, _ in feeds_chunk))
 
     logger.info(
         "Starting feed chunk processing",
         extra={
             "task_id": task_id,
             "chunk_size": len(feeds_chunk),
-            "source_ids": source_ids,
+            "source_names": source_names,
         },
     )
 
@@ -253,17 +253,17 @@ def fetch_feed_chunk(self, feeds_chunk):
 
         # process results
         for i, result in enumerate(fetch_results):
-            source_id, category_id, url = feeds_chunk[i]
+            source_name, feed_name, url = feeds_chunk[i]
 
             if isinstance(result[1], Exception):
                 failed_fetches += 1
-                source_stats[source_id]["failure"] += 1
+                source_stats[source_name]["failure"] += 1
                 logger.warning(
                     "Feed fetch failed",
                     extra={
                         "task_id": task_id,
-                        "source_id": source_id,
-                        "category_id": category_id,
+                        "source_name": source_name,
+                        "feed_name": feed_name,
                         "url": url,
                         "error": str(result[1]),
                         "error_type": result[1].__class__.__name__,
@@ -273,58 +273,58 @@ def fetch_feed_chunk(self, feeds_chunk):
                 article_count, _ = result
                 total_articles += article_count
                 successful_fetches += 1
-                source_stats[source_id]["success"] += 1
-                source_stats[source_id]["articles"] += article_count
+                source_stats[source_name]["success"] += 1
+                source_stats[source_name]["articles"] += article_count
 
                 logger.debug(
-                    "Feed processsed successfully",
+                    "Feed processed successfully",
                     extra={
                         "task_id": task_id,
-                        "source_id": source_id,
-                        "category_id": category_id,
+                        "source_name": source_name,
+                        "feed_name": feed_name,
                         "article_count": article_count,
                     },
                 )
 
-            # metrics
-            chunk_time = time.time() - start_time
-            feeds_per_second = len(feeds_chunk) / chunk_time if chunk_time > 0 else 0
-            articles_per_second = total_articles / chunk_time if chunk_time > 0 else 0
-            success_rate = successful_fetches / len(feeds_chunk) if feeds_chunk else 0
+        # metrics
+        chunk_time = time.time() - start_time
+        feeds_per_second = len(feeds_chunk) / chunk_time if chunk_time > 0 else 0
+        articles_per_second = total_articles / chunk_time if chunk_time > 0 else 0
+        success_rate = successful_fetches / len(feeds_chunk) if feeds_chunk else 0
 
-            source_summary = {
-                str(source_id): {
-                    "success": stats["success"],
-                    "failure": stats["failure"],
-                    "articles": stats["articles"],
-                }
-                for source_id, stats in source_stats.items()
+        source_summary = {
+            source_name: {
+                "success": stats["success"],
+                "failure": stats["failure"],
+                "articles": stats["articles"],
             }
+            for source_name, stats in source_stats.items()
+        }
 
-            logger.info(
-                "Feed chunk processing complete",
-                extra={
-                    "task_id": task_id,
-                    "chunk_size": len(feeds_chunk),
-                    "total_articles": total_articles,
-                    "successful_fetches": successful_fetches,
-                    "failed_fetches": failed_fetches,
-                    "fetch_time_seconds": round(chunk_time, 2),
-                    "feeds_per_second": round(feeds_per_second, 2),
-                    "articles_per_second": round(articles_per_second, 2),
-                    "sucess_rate": round(success_rate * 100, 2),
-                    "source_stats": source_summary,
-                },
-            )
-
-            return {
+        logger.info(
+            "Feed chunk processing complete",
+            extra={
+                "task_id": task_id,
+                "chunk_size": len(feeds_chunk),
                 "total_articles": total_articles,
                 "successful_fetches": successful_fetches,
                 "failed_fetches": failed_fetches,
                 "fetch_time_seconds": round(chunk_time, 2),
-                "chunk_size": len(feeds_chunk),
+                "feeds_per_second": round(feeds_per_second, 2),
+                "articles_per_second": round(articles_per_second, 2),
+                "success_rate": round(success_rate * 100, 2),
                 "source_stats": source_summary,
-            }
+            },
+        )
+
+        return {
+            "total_articles": total_articles,
+            "successful_fetches": successful_fetches,
+            "failed_fetches": failed_fetches,
+            "fetch_time_seconds": round(chunk_time, 2),
+            "chunk_size": len(feeds_chunk),
+            "source_stats": source_summary,
+        }
     except Exception as e:
         chunk_time = time.time() - start_time
         logger.error(

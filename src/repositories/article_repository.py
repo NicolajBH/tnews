@@ -1,12 +1,10 @@
 from datetime import datetime
 from typing import List, Tuple, Dict
-
 from sqlmodel import select, col, Session
-
 from src.models.db_models import (
     Articles,
-    ArticleCategories,
-    Categories,
+    ArticleFeeds,
+    Feeds,
     FeedPreferences,
     Sources,
 )
@@ -27,7 +25,6 @@ class ArticleRepository:
     ) -> List[Articles]:
         """
         Get articles for a specific user with filters
-
         Args:
             user_id: The user's ID
             start_date: Optional start date filter
@@ -35,15 +32,22 @@ class ArticleRepository:
             pub_date_lt: Optional publication date less than filter (for cursor)
             id_lt: Optional ID less than filter (for cursor)
             limit: Maximum number of articles to return
-
         Returns:
             List of Articles objects
         """
         query = (
             select(Articles)
-            .join(ArticleCategories, Articles.id == ArticleCategories.article_id)
-            .join(Categories, ArticleCategories.category_id == Categories.id)
-            .join(FeedPreferences, Categories.id == FeedPreferences.feed_id)
+            .join(ArticleFeeds, Articles.id == ArticleFeeds.article_id)
+            .join(
+                Feeds,
+                (ArticleFeeds.feed_source_name == Feeds.source_name)
+                & (ArticleFeeds.feed_name == Feeds.name),
+            )
+            .join(
+                FeedPreferences,
+                (FeedPreferences.feed_source_name == Feeds.source_name)
+                & (FeedPreferences.feed_name == Feeds.name),
+            )
             .where(FeedPreferences.user_id == user_id)
             .where(FeedPreferences.is_active == True)
         )
@@ -64,24 +68,24 @@ class ArticleRepository:
 
         return self.session.exec(query).all()
 
-    def get_sources_by_id(self, source_ids: List[int]) -> Dict[int, Sources]:
+    def get_sources_by_name(self, source_names: List[str]) -> Dict[str, Sources]:
         """
-        Get sources by thei IDs
+        Get sources by their names
 
         Args:
-            source_ids: List of their source IDs
+            source_names: List of source names
 
         Returns:
-            Dictionary mapping source ID to source object
+            Dictionary mapping source name to source object
         """
-        if not source_ids:
+        if not source_names:
             return {}
 
         sources = self.session.exec(
-            select(Sources).where(Sources.id.in_(source_ids))
+            select(Sources).where(Sources.name.in_(source_names))
         ).all()
 
-        return {source.id: source for source in sources}
+        return {source.name: source for source in sources}
 
     def get_articles_by_id(self, article_id: int) -> Articles | None:
         """
@@ -95,22 +99,26 @@ class ArticleRepository:
         """
         return self.session.get(Articles, article_id)
 
-    def get_categories_for_user(
+    def get_feeds_for_user(
         self, user_id: int, active_only: bool = True
-    ) -> List[Tuple[FeedPreferences, Categories]]:
+    ) -> List[Tuple[FeedPreferences, Feeds]]:
         """
-        Gets categories that a user has subscribed to
+        Gets feeds that a user has subscribed to
 
         Args:
             user_id: The user's ID
             active_only: Whether to only return active subscriptions
 
         Returns:
-            List of (FeedPreferences, Category) tuples
+            List of (FeedPreferences, Feeds) tuples
         """
         query = (
-            select(FeedPreferences, Categories)
-            .join(Categories, FeedPreferences.feed_id == Categories.id)
+            select(FeedPreferences, Feeds)
+            .join(
+                Feeds,
+                (FeedPreferences.feed_source_name == Feeds.source_name)
+                & (FeedPreferences.feed_name == Feeds.name),
+            )
             .where(FeedPreferences.user_id == user_id)
         )
 

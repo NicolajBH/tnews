@@ -5,7 +5,7 @@ from typing import List, Tuple, Any, Set, Dict, Optional
 from sqlmodel import Session, select
 from src.clients.redis import RedisClient
 from src.core.logging import LogContext, PerformanceLogger, add_correlation_id
-from src.models.db_models import Articles, Categories
+from src.models.db_models import Articles, Feeds
 from src.clients.http import HTTPClient
 from src.clients.connection import ConnectionPool
 from src.core.exceptions import RSSFeedError
@@ -14,6 +14,7 @@ from src.parsers.json import JSONFeedParser
 from src.parsers.base import FeedParser
 from src.core.config import settings
 from src.core.degradation import HealthService
+from src.utils.text_utils import calculate_title_similarity
 
 
 logger = LogContext(__name__)
@@ -45,7 +46,7 @@ class NewsClient:
 
         # Caches
         self._parser_cache = {}
-        self._category_cache = {}
+        self._feed_cache = {}
 
         # Set up circuit breakers if health service is provided
         self._circuit_breakers = {}
@@ -102,7 +103,10 @@ class NewsClient:
         return self._circuit_breakers.get(circuit_type)
 
     async def fetch_multiple_feeds(
-        self, feeds: List[Tuple[int, int, str]]
+        self,
+        feeds: List[
+            Tuple[str, str, str]
+        ],  # Changed from (int, int, str) to (str, str, str)
     ) -> List[Tuple[int, Exception]]:
         """Fetch multiple feeds in parallel with concurrency control"""
         # Add operation information to correlation context
@@ -114,46 +118,46 @@ class NewsClient:
             "Starting batch feed fetch",
             extra={
                 "feed_count": len(feeds),
-                "sources": [source_id for source_id, _, _ in feeds],
+                "sources": [source_name for source_name, _, _ in feeds],
             },
         )
 
-        # Prefetch categories for efficiency
-        await self._prefetch_categories([cat_id for _, cat_id, _ in feeds])
+        # Prefetch feeds for efficiency
+        await self._prefetch_feeds([(source, feed) for source, feed, _ in feeds])
 
-        async def fetch_with_semaphore(source_id, category_id, url):
+        async def fetch_with_semaphore(source_name, feed_name, url):
             async with self._semaphore:
                 try:
                     # Add feed-specific context
-                    add_correlation_id("source_id", source_id)
-                    add_correlation_id("category_id", category_id)
+                    add_correlation_id("source_name", source_name)
+                    add_correlation_id("feed_name", feed_name)
                     add_correlation_id("feed_url", url)
 
                     with PerformanceLogger(
-                        logger, f"fetch_feed_{source_id}_{category_id}"
+                        logger, f"fetch_feed_{source_name}_{feed_name}"
                     ):
-                        result = await self.fetch_headlines(source_id, category_id, url)
+                        result = await self.fetch_headlines(source_name, feed_name, url)
                         return result
                 except Exception as e:
                     logger.error(
                         "Error fetching headlines",
                         extra={
                             "error": str(e),
-                            "source_id": source_id,
-                            "category_id": category_id,
+                            "source_name": source_name,
+                            "feed_name": feed_name,
                             "url": url,
                             "error_type": e.__class__.__name__,
                         },
                     )
                     self._update_health(
-                        f"feed_{source_id}_{category_id}", "degraded", error=str(e)
+                        f"feed_{source_name}_{feed_name}", "degraded", error=str(e)
                     )
                     return 0, e
 
         # Fetch all feeds concurrently with controlled concurrency
         tasks = [
-            fetch_with_semaphore(source_id, category_id, url)
-            for source_id, category_id, url in feeds
+            fetch_with_semaphore(source_name, feed_name, url)
+            for source_name, feed_name, url in feeds
         ]
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -180,70 +184,74 @@ class NewsClient:
 
         return results
 
-    async def _prefetch_categories(self, category_ids: List[int]) -> None:
-        """Prefetch and cache categories to reduce database queries"""
-        if not category_ids:
+    async def _prefetch_feeds(self, feed_keys: List[Tuple[str, str]]) -> None:
+        """Prefetch and cache feeds to reduce database queries"""
+        if not feed_keys:
             return
 
-        unique_ids = list(set(category_ids))
+        unique_keys = list(set(feed_keys))
 
-        logger.debug(
-            "Prefetching categories", extra={"category_count": len(unique_ids)}
-        )
+        logger.debug("Prefetching feeds", extra={"feed_count": len(unique_keys)})
 
-        async def fetch_categories():
-            categories = self.session.exec(
-                select(Categories).where(Categories.id.in_(unique_ids))
-            ).all()
+        async def fetch_feeds():
+            feeds = []
+            for source_name, feed_name in unique_keys:
+                feed = self.session.exec(
+                    select(Feeds).where(
+                        (Feeds.source_name == source_name) & (Feeds.name == feed_name)
+                    )
+                ).first()
+                if feed:
+                    feeds.append(feed)
 
-            for category in categories:
-                self._category_cache[category.id] = category
+            for feed in feeds:
+                self._feed_cache[(feed.source_name, feed.name)] = feed
 
             logger.debug(
-                "Categories prefetched",
+                "Feeds prefetched",
                 extra={
-                    "requested": len(unique_ids),
-                    "found": len(categories),
-                    "missing": len(unique_ids) - len(categories),
+                    "requested": len(unique_keys),
+                    "found": len(feeds),
+                    "missing": len(unique_keys) - len(feeds),
                 },
             )
 
         # Use circuit breaker if available
         db_circuit = self._get_circuit("db")
         try:
-            with PerformanceLogger(logger, "prefetch_categories"):
+            with PerformanceLogger(logger, "prefetch_feeds"):
                 if db_circuit:
                     await db_circuit.execute(
-                        fetch_categories,
-                        cache_key=f"categories_{'-'.join(map(str, unique_ids))}",
+                        fetch_feeds,
+                        cache_key=f"feeds_{'-'.join([f'{s}_{f}' for s, f in unique_keys])}",
                     )
                 else:
-                    await fetch_categories()
+                    await fetch_feeds()
         except Exception as e:
             logger.error(
-                "Failed to prefetch categories",
+                "Failed to prefetch feeds",
                 extra={
                     "error": str(e),
                     "error_type": e.__class__.__name__,
-                    "category_ids": unique_ids,
+                    "feed_keys": unique_keys,
                 },
             )
 
     async def fetch_headlines(
-        self, source_id: int, category_id: int, url: str
+        self, source_name: str, feed_name: str, url: str
     ) -> Tuple[int, None | BaseException]:
         """Fetch headlines from a feed URL with graceful degradation"""
         start_time = time.time()
-        service_name = f"feed_{source_id}_{category_id}"
+        service_name = f"feed_{source_name}_{feed_name}"
 
         # Add feed-specific correlation IDs
-        add_correlation_id("source_id", source_id)
-        add_correlation_id("category_id", category_id)
+        add_correlation_id("source_name", source_name)
+        add_correlation_id("feed_name", feed_name)
         add_correlation_id("feed_url", url)
 
         logger.info(
             "Fetching feed headlines",
-            extra={"source_id": source_id, "category_id": category_id, "url": url},
+            extra={"source_name": source_name, "feed_name": feed_name, "url": url},
         )
 
         try:
@@ -253,7 +261,7 @@ class NewsClient:
             # If we have a circuit breaker, use it
             feed_circuit = self._get_circuit("feed")
 
-            with PerformanceLogger(logger, f"fetch_raw_feed_{source_id}_{category_id}"):
+            with PerformanceLogger(logger, f"fetch_raw_feed_{source_name}_{feed_name}"):
                 if feed_circuit:
                     raw_feed = await asyncio.wait_for(
                         feed_circuit.execute(self._fetch_feed, url=url), timeout=timeout
@@ -265,11 +273,11 @@ class NewsClient:
                     )
 
             # Process and save the articles
-            with PerformanceLogger(logger, f"process_feed_{source_id}_{category_id}"):
-                articles = await self._process_feed(raw_feed, source_id)
+            with PerformanceLogger(logger, f"process_feed_{source_name}_{feed_name}"):
+                articles = await self._process_feed(raw_feed, source_name)
 
-            with PerformanceLogger(logger, f"save_articles_{source_id}_{category_id}"):
-                stats = await self._save_articles(articles, category_id)
+            with PerformanceLogger(logger, f"save_articles_{source_name}_{feed_name}"):
+                stats = await self._save_articles(articles, source_name, feed_name)
 
             # Update health status on success
             self._update_health(service_name, "operational")
@@ -281,8 +289,8 @@ class NewsClient:
                     "duration_s": round(duration, 2),
                     "articles_found": len(articles),
                     "articles_saved": stats,
-                    "source_id": source_id,
-                    "category_id": category_id,
+                    "source_name": source_name,
+                    "feed_name": feed_name,
                     "url": url,
                 },
             )
@@ -304,13 +312,13 @@ class NewsClient:
             await self._log_error(
                 RSSFeedError("Timeout fetching feed"),
                 start_time,
-                source_id,
-                category_id,
+                source_name,
+                feed_name,
             )
             return 0, e
         except Exception as e:
             self._update_health(service_name, "degraded", error=str(e))
-            await self._log_error(e, start_time, source_id, category_id)
+            await self._log_error(e, start_time, source_name, feed_name)
             return 0, e
 
     def _update_health(
@@ -368,7 +376,7 @@ class NewsClient:
             raise RSSFeedError(f"Timeout fetching feed: {url}")
 
     async def _process_feed(
-        self, raw_feed: Tuple[Any, bytes], source_id: int
+        self, raw_feed: Tuple[Any, bytes], source_name: str
     ) -> List[Articles]:
         """Process feed content into article objects"""
         headers, body = raw_feed
@@ -377,7 +385,7 @@ class NewsClient:
         logger.debug(
             "Processing feed content",
             extra={
-                "source_id": source_id,
+                "source_name": source_name,
                 "content_type": content_type,
                 "content_length": len(body) if body else 0,
             },
@@ -388,7 +396,7 @@ class NewsClient:
             if "gzip" in headers.headers.get("Content-Encoding", "").lower():
                 body = gzip.decompress(body)
                 logger.debug(
-                    "Decompressed gzipped content", extra={"source_id": source_id}
+                    "Decompressed gzipped content", extra={"source_name": source_name}
                 )
 
             # Convert bytes to string
@@ -399,12 +407,12 @@ class NewsClient:
             )
 
             # Parse content using appropriate parser
-            parser = self._get_parser(content_type, source_id)
+            parser = self._get_parser(content_type, source_name)
             articles = await parser.parse_content(content)
 
             logger.debug(
                 "Feed content processed",
-                extra={"source_id": source_id, "article_count": len(articles)},
+                extra={"source_name": source_name, "article_count": len(articles)},
             )
 
             return articles
@@ -413,17 +421,17 @@ class NewsClient:
                 "Error processing feed content",
                 extra={
                     "error": str(e),
-                    "source_id": source_id,
+                    "source_name": source_name,
                     "content_type": content_type,
                     "error_type": e.__class__.__name__,
                 },
             )
-            self._update_health(f"feed_parser_{source_id}", "degraded", error=str(e))
+            self._update_health(f"feed_parser_{source_name}", "degraded", error=str(e))
             return []
 
-    def _get_parser(self, content_type: str, source_id: int) -> FeedParser:
+    def _get_parser(self, content_type: str, source_name: str) -> FeedParser:
         """Get or create an appropriate feed parser based on content type"""
-        cache_key = f"{content_type}_{source_id}"
+        cache_key = f"{content_type}_{source_name}"
 
         # Return cached parser if available
         if cache_key in self._parser_cache:
@@ -431,17 +439,17 @@ class NewsClient:
 
         # Create appropriate parser based on content type
         if "xml" in content_type.lower():
-            parser = XMLFeedParser(source_id)
+            parser = XMLFeedParser(source_name)
             parser_type = "xml"
         elif "json" in content_type.lower():
-            parser = JSONFeedParser(source_id)
+            parser = JSONFeedParser(source_name)
             parser_type = "json"
         else:
             logger.warning(
                 "Unknown content type. Trying XML parser",
-                extra={"content_type": content_type, "source_id": source_id},
+                extra={"content_type": content_type, "source_name": source_name},
             )
-            parser = XMLFeedParser(source_id)
+            parser = XMLFeedParser(source_name)
             parser_type = "xml_fallback"
 
         logger.debug(
@@ -449,7 +457,7 @@ class NewsClient:
             extra={
                 "parser_type": parser_type,
                 "content_type": content_type,
-                "source_id": source_id,
+                "source_name": source_name,
             },
         )
 
@@ -457,32 +465,72 @@ class NewsClient:
         self._parser_cache[cache_key] = parser
         return parser
 
-    async def _save_articles(self, articles: List[Articles], category_id: int) -> int:
-        """Save articles to database with circuit breaker protection"""
+    async def _save_articles(
+        self, articles: List[Articles], source_name: str, feed_name: str
+    ) -> int:
+        """Save articles to database with deduplication"""
         if not articles:
-            logger.debug("No articles to save", extra={"category_id": category_id})
+            logger.debug(
+                "No articles to save",
+                extra={"source_name": source_name, "feed_name": feed_name},
+            )
             return 0
 
-        # Get category
-        category = self._get_category(category_id)
-        if not category:
-            logger.warning("Category not found", extra={"category_id": category_id})
+        # Get feed
+        feed = self._get_feed(source_name, feed_name)
+        if not feed:
+            logger.warning(
+                "Feed not found",
+                extra={"source_name": source_name, "feed_name": feed_name},
+            )
             return 0
 
+        # Check which articles already exist by signature
+        new_articles, existing_hashes = await self._filter_existing_articles(
+            articles, source_name, feed_name
+        )
+
+        # Update any existing articles if needed
+        await self._update_existing_articles(articles, existing_hashes)
+
+        # De-duplicate new articles by signature
+        new_articles = self._deduplicate_by_signature(new_articles)
+
+        # Check for similar titles
+        if new_articles:
+            new_articles = self._filter_by_title_similarity(
+                new_articles, existing_hashes, source_name, feed_name
+            )
+
+        # Save the remaining articles
+        if new_articles:
+            return await self._persist_articles(new_articles, feed)
+
+        return 0
+
+    async def _filter_existing_articles(
+        self, articles: List[Articles], source_name: str, feed_name: str
+    ) -> Tuple[List[Articles], Set[str]]:
+        """Check which articles already exist by signature hash"""
         # Extract signature hashes
         hashes = {article.signature for article in articles if article.signature}
 
         if not hashes:
             logger.warning(
                 "No hashes in articles",
-                extra={"category_id": category_id, "article_count": len(articles)},
+                extra={
+                    "source_name": source_name,
+                    "feed_name": feed_name,
+                    "article_count": len(articles),
+                },
             )
-            return 0
+            return [], set()
 
         logger.debug(
             "Checking for duplicate articles",
             extra={
-                "category_id": category_id,
+                "source_name": source_name,
+                "feed_name": feed_name,
                 "total_articles": len(articles),
                 "unique_hashes": len(hashes),
             },
@@ -508,6 +556,20 @@ class NewsClient:
             or h in existing_db_hashes
         }
 
+        # Filter out existing articles
+        new_articles = [
+            article
+            for article in articles
+            if article.signature and article.signature not in existing_hashes
+        ]
+
+        return new_articles, existing_hashes
+
+    async def _update_existing_articles(
+        self, articles: List[Articles], existing_hashes: Set[str]
+    ) -> int:
+        """Update any existing articles that have changed"""
+        # Get existing articles that match our hashes
         existing_articles = self.session.exec(
             select(Articles).where(Articles.signature.in_(existing_hashes))
         ).all()
@@ -533,43 +595,119 @@ class NewsClient:
         if articles_updated:
             self.session.commit()
             logger.info(
-                "Updated article title",
-                extra={"category_id": category.id, "updated_count": articles_updated},
+                "Updated articles",
+                extra={
+                    "articles_updated": articles_updated,
+                    "source_name": new_article.source_name,
+                },
             )
 
-        # Filter out existing articles
-        new_articles = [
-            article
-            for article in articles
-            if article.signature and article.signature not in existing_hashes
-        ]
+        return articles_updated
 
-        # De-duplicate articles by hash, keeping the earliest publication
+    def _deduplicate_by_signature(self, articles: List[Articles]) -> List[Articles]:
+        """Deduplicate articles by signature, keeping earliest pub_date"""
         unique_articles = {}
-        for article in new_articles:
+        for article in articles:
             if article.signature not in unique_articles:
                 unique_articles[article.signature] = article
             elif article.pub_date < unique_articles[article.signature].pub_date:
                 unique_articles[article.signature] = article
 
-        new_articles = list(unique_articles.values())
+        return list(unique_articles.values())
 
-        logger.debug(
-            "Filtered duplicate articles",
-            extra={
-                "category_id": category_id,
-                "total_articles": len(articles),
-                "existing_articles": len(existing_hashes),
-                "new_articles": len(new_articles),
-            },
-        )
+    def _filter_by_title_similarity(
+        self,
+        articles: List[Articles],
+        existing_hashes: Set[str],
+        source_name: str,
+        feed_name: str,
+    ) -> List[Articles]:
+        """Filter out articles with similar titles or identical URLs"""
+        duplicates = []
 
-        if new_articles:
-            # Save articles to database
-            success = await self._persist_articles(new_articles, category)
-            return success
+        for article in articles[:]:
+            # Skip if already identified as a duplicate
+            if article.signature in existing_hashes:
+                continue
 
-        return 0
+            # Find candidates with the exact same pub_date and source
+            candidates = self.session.exec(
+                select(Articles)
+                .where(Articles.source_name == article.source_name)
+                .where(Articles.pub_date == article.pub_date)
+                .limit(30)  # Increased limit to catch more potential duplicates
+            ).all()
+
+            for candidate in candidates:
+                # Check URL first - identical URLs are almost certainly duplicates
+                if article.original_url == candidate.original_url:
+                    logger.info(
+                        "Found duplicate by identical URL",
+                        extra={
+                            "new_title": article.title,
+                            "existing_title": candidate.title,
+                            "url": article.original_url,
+                            "source_name": article.source_name,
+                        },
+                    )
+                    duplicates.append(article)
+                    existing_hashes.add(article.signature)
+                    break
+
+                # Check author name if available
+                if (
+                    article.author_name
+                    and candidate.author_name
+                    and article.author_name == candidate.author_name
+                ):
+                    # Same author, same date - likely duplicate, use lower similarity threshold
+                    similarity = calculate_title_similarity(
+                        article.title, candidate.title
+                    )
+                    if similarity > 0.6:  # Lower threshold when author matches
+                        logger.info(
+                            "Found duplicate by author match and moderate title similarity",
+                            extra={
+                                "new_title": article.title,
+                                "existing_title": candidate.title,
+                                "similarity": round(similarity, 3),
+                                "author": article.author_name,
+                                "source_name": article.source_name,
+                            },
+                        )
+                        duplicates.append(article)
+                        existing_hashes.add(article.signature)
+                        break
+
+                # High title similarity check as before
+                similarity = calculate_title_similarity(article.title, candidate.title)
+                if similarity > 0.85:
+                    logger.info(
+                        "Found duplicate by high title similarity",
+                        extra={
+                            "new_title": article.title,
+                            "existing_title": candidate.title,
+                            "similarity": round(similarity, 3),
+                            "source_name": article.source_name,
+                        },
+                    )
+                    duplicates.append(article)
+                    existing_hashes.add(article.signature)
+                    break
+
+        # Filter out duplicates found
+        if duplicates:
+            logger.info(
+                "Filtered out duplicates",
+                extra={
+                    "duplicates_found": len(duplicates),
+                    "source_name": source_name,
+                    "feed_name": feed_name,
+                },
+            )
+            return [a for a in articles if a not in duplicates]
+
+        return articles
 
     async def _check_hashes_in_redis(self, hashes: Set[str]) -> Dict[str, bool]:
         """Check which content hashes exist in Redis"""
@@ -603,9 +741,7 @@ class NewsClient:
             )
             return {}
 
-    async def _persist_articles(
-        self, articles: List[Articles], category: Categories
-    ) -> int:
+    async def _persist_articles(self, articles: List[Articles], feed: Feeds) -> int:
         """Persist articles to database with circuit breaker protection"""
         successful_articles = 0
 
@@ -614,7 +750,7 @@ class NewsClient:
             new_hashes = []
 
             for article in articles:
-                article.categories.append(category)
+                article.feeds.append(feed)
                 self.session.add(article)
                 new_hashes.append(article.signature)
                 successful_articles += 1
@@ -624,8 +760,8 @@ class NewsClient:
                 "Saved new articles to database",
                 extra={
                     "article_count": successful_articles,
-                    "category_id": category.id,
-                    "category_name": category.name,
+                    "source_name": feed.source_name,
+                    "feed_name": feed.name,
                 },
             )
 
@@ -636,7 +772,9 @@ class NewsClient:
         # Use circuit breaker if available
         db_circuit = self._get_circuit("db")
         try:
-            with PerformanceLogger(logger, f"persist_articles_{category.id}"):
+            with PerformanceLogger(
+                logger, f"persist_articles_{feed.source_name}_{feed.name}"
+            ):
                 if db_circuit:
                     return await db_circuit.execute(save_articles)
                 else:
@@ -648,7 +786,8 @@ class NewsClient:
                     "error": str(e),
                     "error_type": e.__class__.__name__,
                     "article_count": len(articles),
-                    "category_id": category.id,
+                    "source_name": feed.source_name,
+                    "feed_name": feed.name,
                 },
             )
             self.session.rollback()
@@ -721,28 +860,39 @@ class NewsClient:
             )
             return set()
 
-    def _get_category(self, category_id: int) -> Optional[Categories]:
-        """Get category by ID, using cache if available"""
-        if category_id in self._category_cache:
-            return self._category_cache[category_id]
+    def _get_feed(self, source_name: str, feed_name: str) -> Optional[Feeds]:
+        """Get feed by composite key, using cache if available"""
+        cache_key = (source_name, feed_name)
+        if cache_key in self._feed_cache:
+            return self._feed_cache[cache_key]
 
         # If not in cache, fetch from database
-        category = self.session.get(Categories, category_id)
-        if category:
-            self._category_cache[category_id] = category
+        feed = self.session.exec(
+            select(Feeds).where(
+                (Feeds.source_name == source_name) & (Feeds.name == feed_name)
+            )
+        ).first()
+
+        if feed:
+            self._feed_cache[cache_key] = feed
             logger.debug(
-                "Category fetched from database and cached",
-                extra={"category_id": category_id, "category_name": category.name},
+                "Feed fetched from database and cached",
+                extra={
+                    "source_name": source_name,
+                    "feed_name": feed_name,
+                    "display_name": feed.display_name,
+                },
             )
         else:
             logger.warning(
-                "Category not found in database", extra={"category_id": category_id}
+                "Feed not found in database",
+                extra={"source_name": source_name, "feed_name": feed_name},
             )
 
-        return category
+        return feed
 
     async def _log_error(
-        self, error: Exception, start_time: float, source_id: int, category_id: int
+        self, error: Exception, start_time: float, source_name: str, feed_name: str
     ) -> None:
         """Log feed fetch error with metrics"""
         fetch_time = time.time() - start_time
@@ -752,12 +902,12 @@ class NewsClient:
                 "error": str(error),
                 "error_type": error.__class__.__name__,
                 "fetch_time_seconds": round(fetch_time, 2),
-                "source_id": source_id,
-                "category_id": category_id,
+                "source_name": source_name,
+                "feed_name": feed_name,
             },
         )
 
         # Update health service on error
         self._update_health(
-            f"feed_{source_id}_{category_id}", "degraded", error=str(error)
+            f"feed_{source_name}_{feed_name}", "degraded", error=str(error)
         )

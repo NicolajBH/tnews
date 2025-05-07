@@ -143,16 +143,16 @@ class ArticleService:
                 db_articles = db_articles[:-1]
 
             # fetch all needed sources
-            source_ids = list(set(article.source_id for article in db_articles))
-            with PerformanceLogger(logger, "get_sources_by_id"):
-                sources = self.repository.get_sources_by_id(source_ids)
+            source_names = list(set(article.source_name for article in db_articles))
+            with PerformanceLogger(logger, "get_sources_by_name"):
+                sources = self.repository.get_sources_by_name(source_names)
 
             logger.debug(
                 "Retrieved articles and sources",
                 extra={
                     "article_count": len(db_articles),
                     "source_count": len(sources),
-                    "unique_source_count": len(source_ids),
+                    "unique_source_count": len(source_names),
                     "has_more": has_more,
                 },
             )
@@ -211,21 +211,21 @@ class ArticleService:
             return articles, pagination_info
 
     def _convert_to_response_models(
-        self, db_articles: List[Articles], sources: Dict[int, Sources]
+        self, db_articles: List[Articles], sources: Dict[str, Sources]
     ) -> List[Article]:
         """Convert database models to response models"""
         articles_to_return = []
         missing_sources = set()
 
         for article in db_articles:
-            source = sources.get(article.source_id)
+            source = sources.get(article.source_name)
             if source is None:
-                missing_sources.add(article.source_id)
+                missing_sources.add(article.source_name)
                 logger.warning(
                     "Missing source for article",
                     extra={
                         "article_id": article.id,
-                        "source_id": article.source_id,
+                        "source_name": article.source_name,
                         "article_title": article.title[:30] + "..."
                         if len(article.title) > 30
                         else article.title,
@@ -233,17 +233,30 @@ class ArticleService:
                 )
                 continue
 
-            # convert pub date to local tz
             local_tz = datetime.now().astimezone().tzinfo
             dt_utc = article.pub_date.replace(tzinfo=ZoneInfo("UTC"))
+            local_dt = dt_utc.astimezone(local_tz)
+
+            formatted_date = local_dt.strftime("%B %-d, %Y %-I:%M %p")
+            tz_offset = local_dt.strftime("%z")
+            tz_hours = int(tz_offset[0:3])
+            tz_sign = "+" if tz_hours > 0 else "-"
+            tz_formatted = f"GMT{tz_sign}{abs(tz_hours)}"
 
             articles_to_return.append(
                 Article(
                     id=article.id,
                     title=article.title,
                     pubDate=article.pub_date_raw,
-                    source=source.feed_symbol,
-                    formatted_time=dt_utc.astimezone(local_tz).strftime("%H:%M"),
+                    feed_symbol=source.feed_symbol,
+                    display_name=source.display_name,
+                    formatted_pubDate=f"{formatted_date} {tz_formatted}",
+                    feed_time=dt_utc.astimezone(local_tz).strftime("%H:%M"),
+                    author=article.author_name if article.author_name else "Unknown",
+                    url=article.original_url,
+                    description=article.description
+                    if article.description
+                    else "No description available",
                 )
             )
 
@@ -251,7 +264,7 @@ class ArticleService:
             logger.error(
                 "Articles referencing missing sources",
                 extra={
-                    "missing_source_ids": list(missing_sources),
+                    "missing_source_names": list(missing_sources),
                     "total_missing": len(missing_sources),
                     "affected_articles": len(db_articles) - len(articles_to_return),
                 },
@@ -314,22 +327,3 @@ class ArticleService:
                 return success
 
         return False
-
-    async def get_article_count(self, filters: Dict[str, Any] = None) -> int:
-        """
-        Get total count of articles matching filters
-
-        Args:
-            filters: Optional dictionary of filters
-
-        Returns:
-            Total count of matching articles
-        """
-        with PerformanceLogger(logger, "get_article_count"):
-            count = await self.repository.get_article_count(filters)
-
-            logger.debug(
-                "Retrieved article count", extra={"count": count, "filters": filters}
-            )
-
-            return count

@@ -1,11 +1,12 @@
 import re
+import nltk
 import hashlib
 import unicodedata
+
 from typing import Optional
 from datetime import datetime
-
-import nltk
 from nltk.corpus import stopwords
+from difflib import SequenceMatcher
 
 from src.core.logging import LogContext
 
@@ -80,17 +81,123 @@ def normalize_headlines(title: str) -> str:
 
 
 def create_content_signature(
-    title: str, pub_date: Optional[datetime] = None, source_id: Optional[int] = None
+    title: str, pub_date: datetime, source_name: str, description: Optional[str] = None
 ) -> str:
-    normalized_title = normalize_headlines(title)
-    signature_parts = [normalized_title]
+    """Create a more robust unique signature for an article"""
+    title_norm = re.sub(r"[^\w\s]", "", title.lower().strip())
+    title_norm = re.sub(r"\s+", " ", title_norm)
 
-    if pub_date:
-        date_str = pub_date.strftime("%Y-%m-%d")
-        signature_parts.append(date_str)
+    title_core = remove_common_affixes(title_norm)
 
-    if source_id:
-        signature_parts.append(str(source_id))
+    date_str = pub_date.strftime("%Y-%m-%d")
 
-    signature = "|".join(signature_parts)
-    return hashlib.md5(signature.encode()).hexdigest()
+    desc_part = ""
+    if description and description.strip():
+        desc_norm = re.sub(r"[^\w\s]", "", description.lower().strip())[:100]
+        desc_part = re.sub(r"\s+", " ", desc_norm)
+
+    sig_input = f"{title_core}|{date_str}|{source_name}|{desc_part}"
+    return hashlib.sha256(sig_input.encode()).hexdigest()
+
+
+def remove_common_affixes(title):
+    """Remove common prefixes/suffixes that might vary between sources"""
+    # Remove source names that might be appended
+    patterns = [
+        r"\s*[-|]\s*[\w\s]+$",  # "Title - Source Name"
+        r"^\w+\s*:\s*",  # "Breaking: Title"
+        r"\s*\[\w+\]$",  # "Title [video]"
+    ]
+
+    result = title
+    for pattern in patterns:
+        result = re.sub(pattern, "", result)
+
+    return result.strip()
+
+
+def clean_html_for_textual(html_content):
+    """
+    Clean HTML content from RSS feeds for proper display in Textual UI.
+    Handles CDATA sections, HTML tags, and special characters.
+
+    Args:
+        html_content (str): HTML content from an RSS feed
+
+    Returns:
+        str: Clean text formatted for Textual display
+    """
+    if not html_content:
+        return ""
+
+    # Remove description tags and CDATA sections
+    cleaned = re.sub(r"<description>\s*<!\[CDATA\[\s*", "", html_content)
+    cleaned = re.sub(r"\]\]>\s*</description>", "", cleaned)
+    cleaned = re.sub(r"<description>", "", cleaned)
+    cleaned = re.sub(r"</description>", "", cleaned)
+
+    # Replace problematic ellipsis representation
+    cleaned = cleaned.replace("[…]", "...")
+    cleaned = cleaned.replace("[&#8230;]", "...")
+
+    # Convert HTML entities
+    cleaned = cleaned.replace("&amp;", "&")
+    cleaned = cleaned.replace("&lt;", "<")
+    cleaned = cleaned.replace("&gt;", ">")
+
+    # Replace problematic Unicode characters that cause Textual markup issues
+    cleaned = cleaned.replace("—", "-")  # em dash
+    cleaned = cleaned.replace("–", "-")  # en dash
+    cleaned = cleaned.replace("…", "...")  # ellipsis
+    cleaned = cleaned.replace('"', '"')  # smart quotes
+    cleaned = cleaned.replace('"', '"')  # smart quotes
+    cleaned = cleaned.replace(
+        """, "'")  # smart apostrophe
+    cleaned = cleaned.replace(""",
+        "'",
+    )  # smart apostrophe
+
+    # Handle paragraphs
+    cleaned = re.sub(r"<p>", "\n\n", cleaned)
+    cleaned = re.sub(r"</p>", "", cleaned)
+
+    # Handle lists
+    cleaned = re.sub(r"<ul>", "\n", cleaned)
+    cleaned = re.sub(r"</ul>", "\n", cleaned)
+    cleaned = re.sub(r"<li><p>", "\n• ", cleaned)
+    cleaned = re.sub(r"</p></li>", "", cleaned)
+    cleaned = re.sub(r"<li>", "\n• ", cleaned)
+    cleaned = re.sub(r"</li>", "", cleaned)
+
+    # Handle links
+    cleaned = re.sub(r'<a href="([^"]+)"[^>]*>([^<]+)</a>', r"\2 (\1)", cleaned)
+
+    # Remove any remaining HTML tags
+    cleaned = re.sub(r"<[^>]+>", "", cleaned)
+
+    # Fix whitespace and multiple line breaks
+    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
+    cleaned = cleaned.strip()
+
+    return cleaned
+
+
+def calculate_title_similarity(title1: str, title2: str) -> float:
+    """
+    Calculate similarity between two titles
+
+    Args:
+        title1: First title
+        title2: Second title
+
+    Returns:
+        Similarity score (0-1 float)
+    """
+    if not title1 or not title2:
+        return 0.0
+
+    # Normalize titles
+    t1 = re.sub(r"[^\w\s]", "", title1.lower().strip())
+    t2 = re.sub(r"[^\w\s]", "", title2.lower().strip())
+
+    return SequenceMatcher(None, t1, t2).ratio()

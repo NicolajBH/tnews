@@ -1,0 +1,75 @@
+SubscriptionModal {
+    align: center middle;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+UnsubscribeModal {
+    align: center middle;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+#dialog {
+    width: 70%;
+    height: 70%;
+    background: $surface;
+    padding: 1 1;
+}
+
+#modal-content {
+    width: 100%;
+    height: 100%;
+}
+
+#left-container {
+    width: 1fr;
+    height: 100%;
+    border: solid #999999;
+    border-title-style: bold;
+    padding: 1;
+}
+
+#right-container {
+    width: 1fr;
+    height: 100%;
+    border: solid #999999;
+    border-title-style: bold;
+    padding: 1;
+}
+
+.active-panel {
+    border: wide $accent;
+}
+
+#sources-scroll, #feeds-scroll {
+    height: 90%;
+    border: none;
+}
+
+#left-instructions, #right-instructions {
+    height: 10%;
+    padding: 1 0;
+    text-align: center;
+    color: $text-muted;
+}
+
+#sources-list, #feeds-list {
+    padding: 0 1;
+    min-height: 20;
+}
+
+ListView > ListItem {
+    padding: 0 1;
+}
+
+ListView > ListItem:hover {
+    background: $boost;
+}
+
+ListView > ListItem Label {
+    width: 100%;
+}
+
+/* Selected item styling */
+ListView > ListItem.--highlight {
+    background: $accent;
+}

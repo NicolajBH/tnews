@@ -10,6 +10,7 @@ from src.terminal_ui.widgets import (
     ChannelHeader,
 )
 from src.terminal_ui.auth import AuthManager
+from src.terminal_ui.modals import ArticleModal, SubscriptionModal, UnsubscribeModal
 
 
 class TUINews(App):
@@ -23,6 +24,8 @@ class TUINews(App):
         Binding(key="j", action="move_down", description="down"),
         Binding(key="k", action="move_up", description="up"),
         Binding(key="enter", action="open_article", description="open article"),
+        Binding(key="s", action="subscribe", description="subscribe"),
+        Binding(key="u", action="unsubscribe", description="unsubscribe"),
     ]
 
     def __init__(self, *args, **kwargs):
@@ -90,8 +93,15 @@ class TUINews(App):
         articles = self.query_one("#articles", ArticlesContainer)
         article = articles.get_selected_article()
         if article:
-            # Do something with the selected article
-            self.notify(f"Selected: {article['title']}")
+            self.push_screen(ArticleModal(article))
+
+    def action_subscribe(self):
+        """Open subscription interface"""
+        self.push_screen(SubscriptionModal())
+
+    def action_unsubscribe(self):
+        """Open unsubscription interface"""
+        self.push_screen(UnsubscribeModal())
 
     def compose(self) -> ComposeResult:
         """create child widgets for app"""

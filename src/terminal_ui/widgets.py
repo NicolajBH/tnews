@@ -4,6 +4,7 @@ import random
 from datetime import datetime
 from textual.widgets import Static
 from textual.containers import Horizontal, Vertical
+from textual.screen import Screen
 
 from src.core.logging import LogContext, setup_logging
 
@@ -128,8 +129,8 @@ class ArticleWidget(Static):
     def __init__(self, index: int, article: dict, **kwargs):
         self.index = index
         self.title = article["title"]
-        self.source = article["source"]
-        self.formatted_time = article["formatted_time"]
+        self.feed_symbol = article["feed_symbol"]
+        self.feed_time = article["feed_time"]
         self.article_id = article.get("id", "")
         self.article_data = article
         self.is_selected = False
@@ -156,10 +157,9 @@ class ArticleWidget(Static):
             title = title[: title_width - 6] + "..."
 
         if self.is_selected:
-            # content = f"[reverse]{self.index + 1:2d} {title:<{title_width}} {self.source:4s} {self.formatted_time}[/reverse]"
-            content = f"[yellow on blue]{self.index + 1:2d} {title:<{title_width}} {self.source:4s} {self.formatted_time}[/]"
+            content = f"[yellow on blue]{self.index + 1:2d} {title:<{title_width}} {self.feed_symbol:4s} {self.feed_time}[/]"
         else:
-            content = f"{self.index + 1:2d} {title:<{title_width}} {self.source:4s} {self.formatted_time}"
+            content = f"{self.index + 1:2d} {title:<{title_width}} {self.feed_symbol:4s} {self.feed_time}"
 
         return content
 
@@ -271,6 +271,7 @@ class ArticlesContainer(Static):
                 data = response.json()
 
                 self.articles = data["items"]
+
                 if "pagination" in data and "next_cursor" in data["pagination"]:
                     self.next_cursor = data["pagination"]["next_cursor"]
 
@@ -308,23 +309,12 @@ class ArticlesContainer(Static):
                     return
 
                 data = response.json()
-                ids_in_response = {article["id"] for article in data["items"]}
-                articles_only_in_response = [
-                    article
-                    for article in self.articles
-                    if article["id"] not in ids_in_response
-                ]
-                new_articles = len(articles_only_in_response)
+                latest_timestamp = self.articles[0]["pubDate"]
+                new_articles = 0
+                for item in data["items"]:
+                    if item["pubDate"] > latest_timestamp:
+                        new_articles += 1
 
-                self.logger.info(
-                    "API response received",
-                    extra={
-                        "status_code": response.status_code,
-                        "items": len(data["items"]),
-                        "articles_in_memory": len(self.articles),
-                        "new_articles": new_articles,
-                    },
-                )
                 if new_articles:
                     try:
                         channel_header = self.app.query_one(
@@ -366,9 +356,8 @@ class ChannelHeader(Static):
 
     def _get_info_text(self) -> str:
         refresh_text = f"Last updated: {self.last_refresh.strftime('%H:%M:%S')}"
-        article_text = "ARTICLES" if self.new_articles > 1 else "ARTICLE"
         if self.new_articles > 0:
-            new_text = f"[bold red]► {self.new_articles} NEW {article_text}◄[/]"
+            new_text = f"[bold red]► {self.new_articles} NEW ◄[/]"
         else:
             new_text = ""
 

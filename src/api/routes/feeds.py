@@ -10,10 +10,10 @@ from src.auth.dependencies import get_current_user
 
 # Models
 from src.models.db_models import (
-    ArticleCategories,
+    ArticleFeeds,
     Articles,
     Sources,
-    Categories,
+    Feeds,
     Users,
     FeedPreferences,
 )
@@ -50,7 +50,7 @@ async def get_latest_articles(
         article_repository = ArticleRepository(session)
         article_service = ArticleService(article_repository, cache_service)
 
-        # create unique resouce key for this request
+        # create unique resource key for this request
         cursor_part = params.cursor or "first"
         date_range = "all"
         if params.start_date or params.end_date:
@@ -80,7 +80,7 @@ async def get_latest_articles(
         # create response data
         response_data = PaginatedResponse(items=articles, pagination=pagination_info)
 
-        # generate etag if we dont have on eyet
+        # generate etag if we don't have one yet
         if not etag:
             etag = generate_etag(
                 {
@@ -104,12 +104,12 @@ async def get_latest_articles(
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occured while fetching articles",
+            detail="An error occurred while fetching articles",
         )
 
 
-@router.get("/categories")
-async def get_categories(
+@router.get("/feeds")
+async def get_feeds(
     request: Request,
     response: Response,
     redis: RedisClient = Depends(get_redis_client),
@@ -126,26 +126,26 @@ async def get_categories(
             response.headers["Cache-Control"] = "public, max-age=3600"
             return cached_data
 
-        categories = {
+        feeds = {
             source: list(cats["feeds"].keys()) for source, cats in RSS_FEEDS.items()
         }
 
         new_etag, _ = await cache_service.set_etag_with_data(
-            resource_key, categories, expire=3600
+            resource_key, feeds, expire=3600
         )
         response.headers["ETag"] = new_etag
         response.headers["Cache-Control"] = "public, max-age=3600"
 
-        return categories
+        return feeds
 
     except Exception as e:
         logger.error(
-            "Error fetching categories",
+            "Error fetching feeds",
             extra={"error": str(e), "error_type": e.__class__.__name__},
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error fetching categories",
+            detail="Error fetching feeds",
         )
 
 
@@ -185,15 +185,16 @@ async def get_sources(
         )
 
 
-@router.post("/subscribe/{category_id}")
+@router.post("/subscribe/{source_name}/{feed_name}")
 async def subscribe_to_feed(
-    category_id: int,
+    source_name: str,
+    feed_name: str,
     session: Session = Depends(get_session),
     current_user: Users = Depends(get_current_user),
     redis: RedisClient = Depends(get_redis_client),
 ):
     """
-    Subscribe to a feed category
+    Subscribe to a feed
     """
     try:
         # initialize services
@@ -201,17 +202,23 @@ async def subscribe_to_feed(
         article_repository = ArticleRepository(session)
         article_service = ArticleService(article_repository, cache_service)
 
-        # check if category exists
-        category = session.get(Categories, category_id)
-        if not category:
+        # check if feed exists
+        feed = session.exec(
+            select(Feeds).where(
+                (Feeds.source_name == source_name) & (Feeds.name == feed_name)
+            )
+        ).first()
+
+        if not feed:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Category not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Feed not found"
             )
 
         existing = session.exec(
             select(FeedPreferences)
             .where(FeedPreferences.user_id == current_user.id)
-            .where(FeedPreferences.feed_id == category_id)
+            .where(FeedPreferences.feed_source_name == source_name)
+            .where(FeedPreferences.feed_name == feed_name)
         ).first()
 
         if existing:
@@ -225,7 +232,8 @@ async def subscribe_to_feed(
         else:
             new_preference = FeedPreferences(
                 user_id=current_user.id,
-                feed_id=category_id,
+                feed_source_name=source_name,
+                feed_name=feed_name,
             )
             session.add(new_preference)
 
@@ -242,8 +250,9 @@ async def subscribe_to_feed(
 
         return {
             "status": "subscribed",
-            "category_id": category_id,
-            "category_name": category.name,
+            "source_name": source_name,
+            "feed_name": feed_name,
+            "display_name": feed.display_name,
         }
     except HTTPException:
         raise
@@ -255,19 +264,20 @@ async def subscribe_to_feed(
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occured while subscribing to the feed",
+            detail="An error occurred while subscribing to the feed",
         )
 
 
-@router.post("/unsubscribe/{category_id}")
+@router.post("/unsubscribe/{source_name}/{feed_name}")
 async def unsubscribe_from_feed(
-    category_id: int,
+    source_name: str,
+    feed_name: str,
     session: Session = Depends(get_session),
     current_user: Users = Depends(get_current_user),
     redis: RedisClient = Depends(get_redis_client),
 ):
     """
-    Unsubscribe from a feed category
+    Unsubscribe from a feed
     """
     try:
         # initialize services
@@ -279,7 +289,8 @@ async def unsubscribe_from_feed(
         preference = session.exec(
             select(FeedPreferences)
             .where(FeedPreferences.user_id == current_user.id)
-            .where(FeedPreferences.feed_id == category_id)
+            .where(FeedPreferences.feed_source_name == source_name)
+            .where(FeedPreferences.feed_name == feed_name)
             .where(FeedPreferences.is_active == True)
         ).first()
 
@@ -294,9 +305,13 @@ async def unsubscribe_from_feed(
         session.add(preference)
         session.commit()
 
-        # get category name for response
-        category = session.get(Categories, category_id)
-        category_name = category.name if category else "Unknown"
+        # get feed name for response
+        feed = session.exec(
+            select(Feeds).where(
+                (Feeds.source_name == source_name) & (Feeds.name == feed_name)
+            )
+        ).first()
+        display_name = feed.display_name if feed else "Unknown"
 
         # invalidate caches
         resource_key = f"user:{current_user.id}:feeds"
@@ -310,8 +325,9 @@ async def unsubscribe_from_feed(
 
         return {
             "status": "unsubscribed",
-            "category_id": category_id,
-            "category_name": category_name,
+            "source_name": source_name,
+            "feed_name": feed_name,
+            "display_name": display_name,
         }
     except HTTPException:
         raise
@@ -323,7 +339,7 @@ async def unsubscribe_from_feed(
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occured while unsubscribing from the feed",
+            detail="An error occurred while unsubscribing from the feed",
         )
 
 
@@ -348,22 +364,27 @@ async def get_my_feeds(
             return cached_data
 
         results = session.exec(
-            select(FeedPreferences, Categories)
-            .join(Categories, FeedPreferences.feed_id == Categories.id)
+            select(FeedPreferences, Feeds)
+            .join(
+                Feeds,
+                (FeedPreferences.feed_source_name == Feeds.source_name)
+                & (FeedPreferences.feed_name == Feeds.name),
+            )
             .where(FeedPreferences.user_id == current_user.id)
             .where(FeedPreferences.is_active == True)
         ).all()
 
         feeds = [
             {
-                "category_id": cat.id,
-                "name": cat.name,
-                "feed_url": cat.feed_url,
+                "source_name": feed.source_name,
+                "feed_name": feed.name,
+                "display_name": feed.display_name,
+                "feed_url": feed.feed_url,
                 "subscribed_at": pref.created_at.isoformat()
                 if hasattr(pref.created_at, "isoformat")
                 else pref.created_at,
             }
-            for pref, cat in results
+            for pref, feed in results
         ]
 
         new_etag, _ = await cache_service.set_etag_with_data(

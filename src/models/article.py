@@ -6,8 +6,13 @@ class Article(BaseModel):
     id: int
     title: str
     pubDate: str
-    source: str
-    formatted_time: str
+    feed_symbol: str
+    display_name: str
+    formatted_pubDate: str
+    feed_time: str
+    description: str
+    author: str
+    url: str
 
 
 class ArticleQueryParameters(BaseModel):

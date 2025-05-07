@@ -2,7 +2,7 @@ from sqlmodel import SQLModel, Session, select
 from src.constants import RSS_FEEDS
 from src.core.logging import LogContext
 from src.db.database import engine, DatabaseConnectionError
-from src.models.db_models import Sources, Categories
+from src.models.db_models import Sources, Feeds
 
 logger = LogContext(__name__)
 
@@ -20,21 +20,33 @@ def create_db_and_tables():
 
 def seed_sources(session: Session):
     """Seed initial data sources if not already present"""
+    # Check if any sources exist
     if not session.exec(select(Sources)).all():
         for provider, config in RSS_FEEDS.items():
+            # Create source with name as primary key
             source = Sources(
                 name=provider,
                 feed_symbol=config["feed_symbol"],
+                display_name=config["display_name"],
                 base_url=f"https://{config['base_url']}",
                 fetch_interval=300,
             )
             session.add(source)
             session.commit()
-            categories = [
-                Categories(name=category_name, source_id=source.id, feed_url=feed_path)
-                for category_name, feed_path in config["feeds"].items()
-            ]
-            session.add_all(categories)
+
+            # Create feeds with composite primary key
+            feeds = []
+            for feed_name, feed_path in config["feeds"].items():
+                display_name = feed_name.replace("_", " ").title()
+                feed = Feeds(
+                    source_name=provider,  # Use the source name directly
+                    name=feed_name,
+                    feed_url=feed_path,
+                    display_name=display_name,
+                )
+                feeds.append(feed)
+
+            session.add_all(feeds)
             session.commit()
 
 
@@ -63,4 +75,4 @@ def initialize_db():
 
 def fetch_feed_urls(session: Session):
     """Fetch all feed URLs from the database"""
-    return session.exec(select(Categories, Sources).join(Sources)).all()
+    return session.exec(select(Feeds, Sources).join(Sources)).all()
