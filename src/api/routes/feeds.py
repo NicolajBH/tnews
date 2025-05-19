@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
-from typing import List, Dict
+from typing import Any, List, Dict
 from sqlmodel import Session, select
 
 # Dependencies
@@ -113,7 +113,7 @@ async def get_feeds(
     request: Request,
     response: Response,
     redis: RedisClient = Depends(get_redis_client),
-) -> Dict[str, List[str]]:
+) -> Dict[str, Dict[str, Any]]:
     try:
         cache_service = CacheService(redis)
         resource_key = "categories"
@@ -126,17 +126,27 @@ async def get_feeds(
             response.headers["Cache-Control"] = "public, max-age=3600"
             return cached_data
 
-        feeds = {
-            source: list(cats["feeds"].keys()) for source, cats in RSS_FEEDS.items()
-        }
+        available_feeds = {"sources": {}}
+        for source_name, config in RSS_FEEDS.items():
+            available_feeds["sources"][source_name] = {
+                "display_name": config["display_name"],
+                "feeds": [
+                    {
+                        "id": f"{source_name}:{feed_name}",
+                        "feed_name": feed_name,
+                        "display_name": feed_details["display_name"],
+                    }
+                    for feed_name, feed_details in config["feeds"].items()
+                ],
+            }
 
         new_etag, _ = await cache_service.set_etag_with_data(
-            resource_key, feeds, expire=3600
+            resource_key, available_feeds, expire=3600
         )
         response.headers["ETag"] = new_etag
         response.headers["Cache-Control"] = "public, max-age=3600"
 
-        return feeds
+        return available_feeds
 
     except Exception as e:
         logger.error(
@@ -374,8 +384,8 @@ async def get_my_feeds(
             .where(FeedPreferences.is_active == True)
         ).all()
 
-        feeds = [
-            {
+        feeds = {
+            f"{feed.source_name}:{feed.name}": {
                 "source_name": feed.source_name,
                 "feed_name": feed.name,
                 "display_name": feed.display_name,
@@ -385,7 +395,7 @@ async def get_my_feeds(
                 else pref.created_at,
             }
             for pref, feed in results
-        ]
+        }
 
         new_etag, _ = await cache_service.set_etag_with_data(
             resource_key, feeds, expire=300

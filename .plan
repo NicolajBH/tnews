@@ -1,4 +1,4 @@
-# .plan - Updated April 28, 2025
+# .plan - Updated May 15, 2025
 
 Architecture & Structure
   ? Add API versioning support 
@@ -60,16 +60,18 @@ Feature Enhancements
 
 Terminal User Interface
   * Research appropriate TUI libraries (textual, rich, urwid)
-  ? Design terminal interface mockups
-  ? Implement basic article viewing functionality
-  ? Add feed subscription management via terminal
-  ? Create a teletext-inspired visual style
-  ? Subscribe/unsubscribe interface
-  ? Channels functionality
-  ? Live market data
+  * Design terminal interface mockups
+  * Implement basic article viewing functionality
+  * Add feed subscription management
+  * Create a teletext-inspired visual style
+  * Subscribe/unsubscribe interface
+  * Live market data
   ? World clock
-  ? Article selector
+  * Article selector
   ? Sports channel
+  ? Blogs channel
+  ? Fuzzy search
+  ? Article export
 
 Containerization & Deployment
   ? Create Dockerfile for the application
@@ -188,3 +190,17 @@ Documentation
 # April 29 2025
   ? Fix duplication of articles - Articles are duplicating when headlines are changed
   ? Get refresh-info elemenet to work correctly
+
+# May 15, 2025
+  * Design terminal interface mockups
+  * Implement basic article viewing functionality
+  * Add feed subscription management 
+  * Create a teletext-inspired visual style
+  * Subscribe/unsubscribe interface
+  * Live market data
+
+# Notes
+- Various progress from last 2 weeks
+
+# May 16, 2025
+  * Added next page function

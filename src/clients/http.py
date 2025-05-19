@@ -427,6 +427,10 @@ class HTTPClient:
                     transfer_encoding = response_headers.headers.get(
                         "Transfer-Encoding", None
                     )
+                    if not transfer_encoding:
+                        transfer_encoding = response_headers.headers.get(
+                            "transfer-encoding", None
+                        )
                     if transfer_encoding:
                         body = await self._read_chunked_body(conn.reader)
                     else:

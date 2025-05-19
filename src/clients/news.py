@@ -381,6 +381,8 @@ class NewsClient:
         """Process feed content into article objects"""
         headers, body = raw_feed
         content_type = headers.headers.get("Content-Type", "").lower()
+        if not content_type:
+            content_type = headers.headers.get("content-type", "").lower()
 
         logger.debug(
             "Processing feed content",
@@ -393,7 +395,10 @@ class NewsClient:
 
         try:
             # Handle gzip compression if present
-            if "gzip" in headers.headers.get("Content-Encoding", "").lower():
+            content_encoding = headers.headers.get("Content-Encoding", "").lower()
+            if not content_encoding:
+                content_encoding = headers.headers.get("content-encoding", "").lower()
+            if "gzip" in content_encoding:
                 body = gzip.decompress(body)
                 logger.debug(
                     "Decompressed gzipped content", extra={"source_name": source_name}

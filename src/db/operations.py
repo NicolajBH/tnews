@@ -33,19 +33,16 @@ def seed_sources(session: Session):
             )
             session.add(source)
             session.commit()
-
             # Create feeds with composite primary key
             feeds = []
-            for feed_name, feed_path in config["feeds"].items():
-                display_name = feed_name.replace("_", " ").title()
+            for feed_name, feed_config in config["feeds"].items():
                 feed = Feeds(
                     source_name=provider,  # Use the source name directly
                     name=feed_name,
-                    feed_url=feed_path,
-                    display_name=display_name,
+                    feed_url=feed_config["path"],
+                    display_name=feed_config["display_name"],
                 )
                 feeds.append(feed)
-
             session.add_all(feeds)
             session.commit()
 

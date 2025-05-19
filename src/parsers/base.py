@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import List, Optional, Dict
 import re
+import html
 from src.models.db_models import Articles
 from src.utils.text_utils import create_content_signature
 
@@ -51,6 +52,18 @@ class FeedParser(ABC):
         else:
             return f"https://{base_url}/{url}"
 
+    def _sanitize_text(self, text: Optional[str]) -> Optional[str]:
+        if text is None:
+            return None
+
+        cleaned_text = html.unescape(text)
+        cleaned_text = cleaned_text.replace("\u00ad", "")  # soft hyphen
+        cleaned_text = cleaned_text.replace("\u00a0", " ")  # non breaking spaces
+        cleaned_text = cleaned_text.replace("\u200b", "")  # zero width spaces
+        cleaned_text = " ".join(cleaned_text.split())
+
+        return cleaned_text if cleaned_text else None
+
     def prepare_article(
         self,
         title: str,
@@ -63,15 +76,24 @@ class FeedParser(ABC):
         """
         Prepare article data dictionary with all fields.
         """
+
+        sanitized_title = self._sanitize_text(title)
+        sanitized_title = sanitized_title if sanitized_title is not None else ""
+
+        sanitized_description = self._sanitize_text(description)
+        sanitized_author = self._sanitize_text(author_name)
+
         article_data = {
-            "title": title,
+            "title": sanitized_title,
             "pub_date": pub_date,
             "pub_date_raw": pub_date_raw,
-            "source_name": self.source_name,  # Use name instead of ID
+            "source_name": self.source_name,
             "original_url": self.normalize_url(url),
-            "signature": self.create_article_signature(title, pub_date, description),
-            "description": description,
-            "author_name": author_name,
+            "signature": self.create_article_signature(
+                sanitized_title, pub_date, description
+            ),
+            "description": sanitized_description,
+            "author_name": sanitized_author,
         }
         return article_data
 

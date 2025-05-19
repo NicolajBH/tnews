@@ -1,26 +1,30 @@
 import os
-import httpx
+import webbrowser
+
+from textual.widgets import Label
+from textual.binding import Binding
 from textual.app import ComposeResult
 from textual.screen import ModalScreen
-from textual.containers import Container, Grid, Horizontal, ScrollableContainer
-from textual.widgets import Label, ListView, ListItem, Static
-from textual.binding import Binding
+from textual.containers import Container, Grid, VerticalScroll
 
+from src.terminal_ui.widgets import FeedsWidget, SourceWidget
 from src.utils.text_utils import clean_html_for_textual
-from src.constants import RSS_FEEDS
-from src.core.logging import LogContext, setup_logging
 
 
 class ArticleModal(ModalScreen):
     """Modal screen to display article summary"""
 
     CSS_PATH = "modal01.tcss"
-    BINDINGS = [("escape", "dismiss", "Dismiss")]
+    BINDINGS = [
+        Binding(key="escape", action="dismiss", description="dismiss"),
+        Binding(key="enter", action="open_article", description="open article"),
+    ]
 
     def __init__(self, article):
         super().__init__()
         self.article = article
         self.article_description = clean_html_for_textual(article["description"])
+        self.article_url = article["url"]
         self.url = None
 
     def compose(self) -> ComposeResult:
@@ -44,7 +48,7 @@ class ArticleModal(ModalScreen):
     def on_mount(self) -> None:
         self.url = self._format_url()
         url_label = self.query_one("#modal-url", Label)
-        url_label.update(f"Source: {self.url} - Press 'o' to open in browser")
+        url_label.update(f"Source: {self.url} - Press '⏎' to open in browser")
 
     def _format_url(self):
         terminal_width = os.get_terminal_size().columns
@@ -56,515 +60,277 @@ class ArticleModal(ModalScreen):
             return self.article["url"][:max_url_length] + "..."
         return self.article["url"]
 
+    def action_open_article(self) -> None:
+        if self.article_url:
+            webbrowser.open(self.article_url)
 
-class BaseSubscriptionModal(ModalScreen):
-    """Base class for subscription-related modals"""
 
+class SubscribeModal(ModalScreen):
     CSS_PATH = "modal02.tcss"
     BINDINGS = [
-        ("escape", "dismiss", "Dismiss"),
-        ("enter", "select_action", "Select"),
-        ("tab", "switch_panel", "Switch Panel"),
+        Binding(key="escape", action="dismiss", description="dismiss"),
+        Binding(key="j", action="move_down", description="down"),
+        Binding(key="k", action="move_up", description="up"),
+        Binding(key="l", action="move_right", description="right"),
+        Binding(key="h", action="move_left", description="left"),
+        Binding(key="enter", action="select", description="select feed"),
     ]
 
-    def __init__(self):
-        setup_logging()
+    def __init__(self, subscription_manager, on_subscription_change=None) -> None:
         super().__init__()
-        self.logger = LogContext(self.__class__.__name__.lower())
-        self.source_map = []
-        self.feed_map = []
-        self.selected_source = None
-        self.selected_feed = None
-        self.active_panel = "sources"  # Track which panel is active
+        self.my_feeds = {}
+        self.all_feeds = {}
+        self.data = {}
+        self.type = ""
+        self.sources_list = None
+        self.feeds_list = None
+        self.selected_source_index = 0
+        self.selected_feed_index = 0
+        self.active_pane = "sources"
+        self.subscription_manager = subscription_manager
+        self.on_subscription_change = on_subscription_change
 
-    def compose(self) -> ComposeResult:
-        yield Container(
-            Horizontal(
-                Container(
-                    ScrollableContainer(
-                        ListView(id="sources-list"), id="sources-scroll"
-                    ),
-                    Static(
-                        "Press Tab to switch panels, Enter to select",
-                        id="left-instructions",
-                    ),
-                    id="left-container",
-                ),
-                Container(
-                    ScrollableContainer(ListView(id="feeds-list"), id="feeds-scroll"),
-                    Static(self.get_action_instructions(), id="right-instructions"),
-                    id="right-container",
-                ),
-                id="modal-content",
-            ),
-            id="dialog",
+    def on_mount(self) -> None:
+        self.sources_list = VerticalScroll(id="left-pane", classes="pane active-pane")
+        self.sources_list.border_title = "Sources"
+
+        self.feeds_list = VerticalScroll(id="right-pane", classes="pane inactive-pane")
+        self.feeds_list.border_title = "Feeds"
+
+        self.subscription_container = Container(
+            self.sources_list, self.feeds_list, id="app-grid"
         )
 
-    def get_action_instructions(self):
-        """Override in subclasses to provide instructions"""
-        return "Select a feed and press Enter to act"
+        self.mount(self.subscription_container)
+        self.refresh()
+        self.call_after_refresh(self.update_data)
 
-    def get_source_display_name(self, source: str) -> str:
-        """Get user-friendly display name for a source"""
-        if source in RSS_FEEDS:
-            return RSS_FEEDS[source]["display_name"]
-        return source.capitalize()
+    def select_source(self, index: int) -> None:
+        if not self.sources_widgets:
+            return
 
-    def format_feed_name(self, name: str) -> str:
-        """Format feed name for display"""
-        return " ".join(word.capitalize() for word in name.replace("_", " ").split())
+        index = max(0, min(index, len(self.sources_widgets) - 1))
 
-    def on_list_view_selected(self, event) -> None:
-        """Handle list view selection"""
-        list_id = event.list_view.id
+        # Deselect current selection
+        if 0 <= self.selected_source_index < len(self.sources_widgets):
+            self.sources_widgets[self.selected_source_index].set_selected(False)
 
-        # Only process selections in the active panel
-        if list_id == "sources-list" and self.active_panel == "sources":
-            selected_index = event.list_view.index
-            if 0 <= selected_index < len(self.source_map):
-                self.selected_source = self.source_map[selected_index]
-                self.selected_feed = None
-                self.call_later(self.populate_feeds_list, self.selected_source)
+        # Select new article
+        self.selected_source_index = index
+        self.sources_widgets[self.selected_source_index].set_selected(True)
 
-        elif list_id == "feeds-list" and self.active_panel == "feeds":
-            selected_index = event.list_view.index
-            if self.selected_source and 0 <= selected_index < len(self.feed_map):
-                self.selected_feed = self.feed_map[selected_index]
+        # Ensure the selected source is visible
+        try:
+            self.sources_widgets[self.selected_source_index].scroll_visible()
+        except Exception as e:
+            self.app.log(f"Error scrolling: {e}")
 
-    def highlight_active_panel(self):
-        """Update CSS classes to highlight the active panel"""
-        left = self.query_one("#left-container")
-        right = self.query_one("#right-container")
+    def select_feed(self, index: int) -> None:
+        if not self.feeds_widgets:
+            return
 
-        if self.active_panel == "sources":
-            left.add_class("active-panel")
-            right.remove_class("active-panel")
+        index = max(0, min(index, len(self.feeds_widgets) - 1))
+
+        # Deselect current selection
+        if 0 <= self.selected_feed_index < len(self.feeds_widgets):
+            self.feeds_widgets[self.selected_feed_index].set_selected(False)
+
+        # Select new article
+        self.selected_feed_index = index
+        self.feeds_widgets[self.selected_feed_index].set_selected(True)
+
+        # Ensure the selected source is visible
+        try:
+            self.feeds_widgets[self.selected_feed_index].scroll_visible()
+        except Exception as e:
+            self.app.log(f"Error scrolling: {e}")
+
+    def action_move_down(self) -> None:
+        """Select the next article"""
+        if self.active_pane == "sources":
+            if (
+                self.sources_widgets
+                and self.selected_source_index < len(self.sources_widgets) - 1
+            ):
+                self.select_source(self.selected_source_index + 1)
+                self.update_feeds()
+
+        if self.active_pane == "feeds":
+            if (
+                self.feeds_widgets
+                and self.selected_feed_index < len(self.feeds_widgets) - 1
+            ):
+                self.select_feed(self.selected_feed_index + 1)
+
+    def action_move_up(self) -> None:
+        """Select the previous item"""
+        if self.active_pane == "sources":
+            if self.sources_widgets and self.selected_source_index > 0:
+                self.select_source(self.selected_source_index - 1)
+                self.update_feeds()
+
+        if self.active_pane == "feeds":
+            if self.feeds_widgets and self.selected_feed_index > 0:
+                self.select_feed(self.selected_feed_index - 1)
+
+    def action_move_right(self) -> None:
+        """Switch pane to feeds"""
+        self.active_pane = "feeds"
+
+        active_pane = self.query_one("#left-pane")
+        inactive_pane = self.query_one("#right-pane")
+
+        active_pane.remove_class("active-pane").add_class("inactive-pane")
+        inactive_pane.remove_class("inactive-pane").add_class("active-pane")
+
+    def action_move_left(self) -> None:
+        self.active_pane = "sources"
+
+        active_pane = self.query_one("#right-pane")
+        inactive_pane = self.query_one("#left-pane")
+
+        active_pane.remove_class("active-pane").add_class("inactive-pane")
+        inactive_pane.remove_class("inactive-pane").add_class("active-pane")
+
+    def update_sources(self):
+        if self.sources_list is not None:
+            self.sources_list.remove_children()
+
+        if not self.data:
+            return
+
+        self.sources_widgets = []
+        for k, feed_data in self.data.items():
+            widget = SourceWidget(k, feed_data)
+            self.sources_widgets.append(widget)
+            self.sources_list.mount(widget)
+
+        self.refresh()
+        if self.sources_widgets:
+            self.call_after_refresh(self.select_source, self.selected_source_index)
+
+    def update_feeds(self):
+        if self.feeds_list is not None:
+            self.feeds_list.remove_children()
+
+        if not self.data:
+            return
+
+        self.feeds_widgets = []
+        source = self.sources_widgets[self.selected_source_index].source_name
+        for feed_id, feed_details in self.data[source]["feeds"].items():
+            widget = FeedsWidget(feed_id, feed_details, self.type)
+            self.feeds_widgets.append(widget)
+            self.feeds_list.mount(widget)
+        self.refresh()
+        if self.feeds_widgets:
+            self.call_after_refresh(self.select_feed, self.selected_feed_index)
+
+    def update_data(self):
+        self.data = {}
+
+        if self.type == "unsubscribe":
+            for k, v in self.my_feeds.items():
+                if v["source_name"] not in self.data:
+                    self.data[v["source_name"]] = {
+                        "source_name": v["source_name"],
+                        "display_name": self.all_feeds["sources"][v["source_name"]][
+                            "display_name"
+                        ],
+                        "feeds": {
+                            k: {
+                                "feed_name": v["feed_name"],
+                                "display_name": v["display_name"],
+                            }
+                        },
+                    }
+                else:
+                    self.data[v["source_name"]]["feeds"][k] = {
+                        "feed_name": v["feed_name"],
+                        "display_name": v["display_name"],
+                    }
+        elif self.type == "subscribe":
+            for k, v in self.all_feeds["sources"].items():
+                for feed in v["feeds"]:
+                    if feed["id"] not in self.my_feeds:
+                        if k not in self.data:
+                            self.data[k] = {
+                                "source_name": k,
+                                "display_name": v["display_name"],
+                                "feeds": {
+                                    feed["id"]: {
+                                        "feed_name": feed["feed_name"],
+                                        "display_name": feed["display_name"],
+                                    }
+                                },
+                            }
+                        else:
+                            self.data[k]["feeds"][feed["id"]] = {
+                                "feed_name": feed["feed_name"],
+                                "display_name": feed["display_name"],
+                            }
+
+        self.update_sources()
+        self.update_feeds()
+
+    async def action_select(self) -> None:
+        """Get the currently selected feed data"""
+        if hasattr(self, "feeds_widgets") and 0 <= self.selected_feed_index < len(
+            self.feeds_widgets
+        ):
+            if self.active_pane == "feeds":
+                source = self.sources_widgets[self.selected_source_index].source_name
+                feed = self.feeds_widgets[self.selected_feed_index].feed_name
+                display_name = self.feeds_widgets[self.selected_feed_index].display_name
+                await self.update_subscriptions(source, feed, display_name)
+            else:
+                self.action_move_right()
+        return None
+
+    async def update_subscriptions(
+        self, source: str, feed: str, display_name: str
+    ) -> None:
+        success = False
+        if self.type == "subscribe":
+            self.my_feeds[f"{source}:{feed}"] = {
+                "source_name": source,
+                "feed_name": feed,
+                "display_name": display_name,
+            }
+            response = await self.subscription_manager.subscribe(source, feed)
+            if response == 200:
+                success = True
+            else:
+                self.app.notify(
+                    f"Failed to subscribe to {source}/{feed}. Response code {response}"
+                )
+        elif self.type == "unsubscribe":
+            del self.my_feeds[f"{source}:{feed}"]
+            response = await self.subscription_manager.unsubscribe(source, feed)
+            if response == 200:
+                success = True
+            else:
+                self.app.notify(
+                    f"Failed to unsubscribe from {source}/{feed}. Response code {response}"
+                )
+        self.feeds_widgets.pop(self.selected_feed_index)
+        if len(self.feeds_widgets) > 0:
+            self.selected_feed_index -= 1
         else:
-            right.add_class("active-panel")
-            left.remove_class("active-panel")
-
-    def action_switch_panel(self) -> None:
-        """Switch between sources and feeds panels"""
-        feeds_list = self.query_one("#feeds-list")
-
-        # Only allow switching to feeds panel if there are feeds
-        if self.active_panel == "sources" and feeds_list.children:
-            self.active_panel = "feeds"
-        elif self.active_panel == "feeds":
-            self.active_panel = "sources"
-
-        self.highlight_active_panel()
-
-    def action_select_action(self) -> None:
-        """Perform the appropriate action based on active panel"""
-        if self.active_panel == "sources":
-            # If in sources panel, switch to feeds panel if possible
-            feeds_list = self.query_one("#feeds-list")
-            if feeds_list.children:
-                self.action_switch_panel()
-        elif self.active_panel == "feeds" and self.selected_feed:
-            # If in feeds panel with selection, perform action
-            self.call_later(self.perform_action)
-
-    async def perform_action(self):
-        """Override in subclasses to perform the appropriate action"""
-        pass
-
-
-class SubscriptionModal(BaseSubscriptionModal):
-    """Modal to display subscription interface"""
-
-    def __init__(self):
-        super().__init__()
-        self.all_feeds = {}
-        self.subscribed_feeds = {}
-
-    def get_action_instructions(self):
-        return "Press Enter to subscribe to selected feed"
-
-    async def on_mount(self) -> None:
-        """Set border titles and load feeds data"""
-        left_container = self.query_one("#left-container")
-        left_container.border_title = "Sources"
-
-        right_container = self.query_one("#right-container")
-        right_container.border_title = "Available Feeds"
-
-        # Set initial active panel
-        self.highlight_active_panel()
-
-        # Load data from API
-        await self.load_data()
-
-    async def load_data(self) -> None:
-        """Load both available feeds and subscribed feeds"""
-        try:
-            # Get app reference to access auth manager
-            app = self.app
-
-            # Check auth
-            if (
-                not hasattr(app, "auth_manager")
-                or not app.auth_manager.is_token_valid()
-            ):
-                success = await app.auth_manager.refresh_access_token()
-                if not success:
-                    success = await app.auth_manager.authenticate()
-                    if not success:
-                        self.notify(
-                            "Authentication required to load feeds", severity="error"
-                        )
-                        return
-
-            # Get auth headers
-            headers = app.auth_manager.get_auth_header()
-
-            # Fetch available feeds and subscriptions in parallel
-            async with httpx.AsyncClient(timeout=10.0) as client:
-                feeds_response = await client.get(
-                    "http://127.0.0.1:8000/api/v1/feeds", headers=headers
-                )
-
-                my_response = await client.get(
-                    "http://127.0.0.1:8000/api/v1/my", headers=headers
-                )
-
-                # Process feeds response
-                if feeds_response.status_code == 200:
-                    self.all_feeds = feeds_response.json()
-                else:
-                    self.notify(
-                        f"Failed to load feeds: {feeds_response.status_code}",
-                        severity="error",
-                    )
-                    return
-
-                # Process subscriptions response
-                if my_response.status_code == 200:
-                    # Transform the response into the format we need
-                    subscribed_data = my_response.json()
-
-                    # Transform subscribed feeds into our desired format
-                    self.subscribed_feeds = {}
-                    for item in subscribed_data:
-                        source = item["source_name"]
-                        feed = item["feed_name"]
-                        if source not in self.subscribed_feeds:
-                            self.subscribed_feeds[source] = []
-                        self.subscribed_feeds[source].append(feed)
-
-                    # Populate the sources list
-                    await self.populate_sources_list()
-                else:
-                    self.notify(
-                        f"Failed to load subscriptions: {my_response.status_code}",
-                        severity="error",
-                    )
-        except Exception as e:
-            self.logger.error(f"Error loading data: {str(e)}")
-            self.notify(f"Error loading feed data: {str(e)}", severity="error")
-
-    async def populate_sources_list(self) -> None:
-        """Populate the list of sources"""
-        try:
-            sources_list = self.query_one("#sources-list")
-            sources_list.clear()
-            self.source_map = []
-
-            # Add sources that have available feeds
-            for source in self.all_feeds.keys():
-                available_feeds = []
-
-                # Find all unsubscribed feeds for this source
-                for feed in self.all_feeds[source]:
-                    already_subscribed = (
-                        source in self.subscribed_feeds
-                        and feed in self.subscribed_feeds[source]
-                    )
-                    if not already_subscribed:
-                        available_feeds.append(feed)
-
-                # Only add source if it has at least one available feed
-                if available_feeds:
-                    source_display = self.get_source_display_name(source)
-                    sources_list.append(ListItem(Label(source_display)))
-                    self.source_map.append(source)
-                    self.logger.info(
-                        f"Added source {source} with {len(available_feeds)} available feeds"
-                    )
-        except Exception as e:
-            self.logger.error(f"Error populating sources list: {str(e)}")
-            self.notify(f"Error building sources list: {str(e)}", severity="error")
-
-    async def populate_feeds_list(self, source: str) -> None:
-        """Populate the feeds list for a given source"""
-        try:
-            feeds_list = self.query_one("#feeds-list")
-            feeds_list.clear()
-            self.feed_map = []
-
-            if source in self.all_feeds:
-                # Get all available feeds for this source (that aren't already subscribed)
-                for feed in self.all_feeds[source]:
-                    # Check if this feed is already subscribed
-                    already_subscribed = (
-                        source in self.subscribed_feeds
-                        and feed in self.subscribed_feeds[source]
-                    )
-
-                    # Only add feeds that aren't subscribed
-                    if not already_subscribed:
-                        feed_display = self.format_feed_name(feed)
-                        feeds_list.append(ListItem(Label(feed_display)))
-                        self.feed_map.append(feed)
-        except Exception as e:
-            self.logger.error(f"Error populating feeds list: {str(e)}")
-            self.notify(f"Error building feeds list: {str(e)}", severity="error")
-
-    async def perform_action(self) -> None:
-        """Subscribe to the currently selected feed"""
-        try:
-            if not self.selected_source or not self.selected_feed:
-                self.notify("No feed selected", severity="warning")
-                return
-
-            source = self.selected_source
-            feed = self.selected_feed
-
-            # Check authentication
-            app = self.app
-            if (
-                not hasattr(app, "auth_manager")
-                or not app.auth_manager.is_token_valid()
-            ):
-                success = await app.auth_manager.refresh_access_token()
-                if not success:
-                    self.notify("Authentication required", severity="error")
-                    return
-
-            # Call subscribe API
-            headers = app.auth_manager.get_auth_header()
-            async with httpx.AsyncClient(timeout=10.0) as client:
-                response = await client.post(
-                    f"http://127.0.0.1:8000/api/v1/subscribe/{source}/{feed}",
-                    headers=headers,
-                )
-
-                if response.status_code == 200:
-                    # Update local data
-                    if source not in self.subscribed_feeds:
-                        self.subscribed_feeds[source] = []
-                    self.subscribed_feeds[source].append(feed)
-
-                    # Show confirmation
-                    self.notify(f"Subscribed to {self.format_feed_name(feed)}")
-
-                    # Repopulate feeds list (to remove the subscribed feed)
-                    await self.populate_feeds_list(source)
-
-                    # If no more feeds, update sources list and switch to sources panel
-                    feeds_list = self.query_one("#feeds-list")
-                    if not feeds_list.children:
-                        await self.populate_sources_list()
-                        feeds_list.clear()
-                        self.active_panel = "sources"
-                        self.highlight_active_panel()
-
-                    # Refresh articles if possible
-                    if hasattr(app, "do_refresh"):
-                        await app.do_refresh()
-                else:
-                    error_detail = "Unknown error"
-                    try:
-                        error_data = response.json()
-                        error_detail = error_data.get("detail", error_detail)
-                    except:
-                        pass
-
-                    self.notify(
-                        f"Failed to subscribe: {error_detail}", severity="error"
-                    )
-        except Exception as e:
-            self.logger.error(f"Error subscribing: {str(e)}")
-            self.notify(f"Error subscribing to feed: {str(e)}", severity="error")
-
-
-class UnsubscribeModal(BaseSubscriptionModal):
-    """Modal to manage unsubscription from feeds"""
-
-    def __init__(self):
-        super().__init__()
-        self.subscribed_feeds = {}
-
-    def get_action_instructions(self):
-        return "Press Enter to unsubscribe from selected feed"
-
-    async def on_mount(self) -> None:
-        """Set border titles and load feeds data"""
-        left_container = self.query_one("#left-container")
-        left_container.border_title = "Sources"
-
-        right_container = self.query_one("#right-container")
-        right_container.border_title = "Subscribed Feeds"
-
-        # Set initial active panel
-        self.highlight_active_panel()
-
-        # Load data
-        await self.load_subscribed_feeds()
-
-    async def load_subscribed_feeds(self) -> None:
-        """Load currently subscribed feeds from API"""
-        try:
-            app = self.app
-
-            # Check auth
-            if (
-                not hasattr(app, "auth_manager")
-                or not app.auth_manager.is_token_valid()
-            ):
-                success = await app.auth_manager.refresh_access_token()
-                if not success:
-                    success = await app.auth_manager.authenticate()
-                    if not success:
-                        self.notify(
-                            "Authentication required to load feeds", severity="error"
-                        )
-                        return
-
-            # Get auth headers
-            headers = app.auth_manager.get_auth_header()
-
-            # Fetch subscribed feeds
-            async with httpx.AsyncClient(timeout=10.0) as client:
-                response = await client.get(
-                    "http://127.0.0.1:8000/api/v1/my", headers=headers
-                )
-
-                if response.status_code == 200:
-                    subscribed_data = response.json()
-
-                    # Transform response to our format
-                    self.subscribed_feeds = {}
-                    for item in subscribed_data:
-                        source = item["source_name"]
-                        feed = item["feed_name"]
-                        if source not in self.subscribed_feeds:
-                            self.subscribed_feeds[source] = []
-                        self.subscribed_feeds[source].append(feed)
-
-                    # Populate the sources list
-                    await self.populate_sources_list()
-                else:
-                    self.notify(
-                        f"Failed to load subscriptions: {response.status_code}",
-                        severity="error",
-                    )
-        except Exception as e:
-            self.logger.error(f"Error loading subscribed feeds: {str(e)}")
-            self.notify(f"Error loading subscribed feeds: {str(e)}", severity="error")
-
-    async def populate_sources_list(self) -> None:
-        """Populate the list of subscribed sources"""
-        try:
-            sources_list = self.query_one("#sources-list")
-            sources_list.clear()
-            self.source_map = []
-
-            # Add each source with subscribed feeds
-            for source in self.subscribed_feeds.keys():
-                source_display = self.get_source_display_name(source)
-                sources_list.append(ListItem(Label(source_display)))
-                self.source_map.append(source)
-        except Exception as e:
-            self.logger.error(f"Error populating sources list: {str(e)}")
-            self.notify(f"Error building sources list: {str(e)}", severity="error")
-
-    async def populate_feeds_list(self, source: str) -> None:
-        """Populate the feeds list for a given source"""
-        try:
-            feeds_list = self.query_one("#feeds-list")
-            feeds_list.clear()
-            self.feed_map = []
-
-            if source in self.subscribed_feeds:
-                # Get all subscribed feeds for this source
-                for feed in self.subscribed_feeds[source]:
-                    feed_display = self.format_feed_name(feed)
-                    feeds_list.append(ListItem(Label(feed_display)))
-                    self.feed_map.append(feed)
-        except Exception as e:
-            self.logger.error(f"Error populating feeds list: {str(e)}")
-            self.notify(f"Error building feeds list: {str(e)}", severity="error")
-
-    async def perform_action(self) -> None:
-        """Unsubscribe from the currently selected feed"""
-        try:
-            if not self.selected_source or not self.selected_feed:
-                self.notify("No feed selected", severity="warning")
-                return
-
-            source = self.selected_source
-            feed = self.selected_feed
-
-            # Check authentication
-            app = self.app
-            if (
-                not hasattr(app, "auth_manager")
-                or not app.auth_manager.is_token_valid()
-            ):
-                success = await app.auth_manager.refresh_access_token()
-                if not success:
-                    self.notify("Authentication required", severity="error")
-                    return
-
-            # Call unsubscribe API
-            headers = app.auth_manager.get_auth_header()
-            async with httpx.AsyncClient(timeout=10.0) as client:
-                response = await client.post(
-                    f"http://127.0.0.1:8000/api/v1/unsubscribe/{source}/{feed}",
-                    headers=headers,
-                )
-
-                if response.status_code == 200:
-                    # Update local data
-                    if (
-                        source in self.subscribed_feeds
-                        and feed in self.subscribed_feeds[source]
-                    ):
-                        self.subscribed_feeds[source].remove(feed)
-                        # Remove source if no feeds remain
-                        if not self.subscribed_feeds[source]:
-                            del self.subscribed_feeds[source]
-
-                    # Show confirmation
-                    self.notify(f"Unsubscribed from {self.format_feed_name(feed)}")
-
-                    # Repopulate feeds list (to remove the unsubscribed feed)
-                    await self.populate_feeds_list(source)
-
-                    # If no more feeds for this source, update sources list and switch to sources panel
-                    feeds_list = self.query_one("#feeds-list")
-                    if not feeds_list.children:
-                        await self.populate_sources_list()
-                        feeds_list.clear()
-                        self.active_panel = "sources"
-                        self.highlight_active_panel()
-
-                    # Refresh articles if possible
-                    if hasattr(app, "do_refresh"):
-                        await app.do_refresh()
-                else:
-                    error_detail = "Unknown error"
-                    try:
-                        error_data = response.json()
-                        error_detail = error_data.get("detail", error_detail)
-                    except:
-                        pass
-
-                    self.notify(
-                        f"Failed to unsubscribe: {error_detail}", severity="error"
-                    )
-        except Exception as e:
-            self.logger.error(f"Error unsubscribing: {str(e)}")
-            self.notify(f"Error unsubscribing from feed: {str(e)}", severity="error")
+            if self.selected_source_index > 0:
+                self.selected_source_index -= 1
+            self.selected_feed_index = 0
+            self.action_move_left()
+
+        self.update_data()
+        self.update_sources()
+        self.update_feeds()
+        self.refresh()
+
+        if success and self.on_subscription_change:
+            self.app.call_after_refresh(self.on_subscription_change)
+
+        if self.feeds_widgets:
+            self.call_after_refresh(self.select_feed, self.selected_feed_index)
+        if self.sources_widgets:
+            self.call_after_refresh(self.select_source, self.selected_source_index)

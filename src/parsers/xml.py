@@ -15,6 +15,8 @@ NAMESPACES = {
     "media": "http://search.yahoo.com/mrss/",
     "dc": "http://purl.org/dc/elements/1.1/",
     "content": "http://purl.org/rss/1.0/modules/content/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",  # Required for DW feeds
+    "dwsyn": "http://rss.dw.com/syndication/dwsyn/",  # DW-specific namespace
 }
 
 
@@ -67,15 +69,14 @@ class XMLFeedParser(FeedParser):
         )
         return articles_to_return
 
-    def _clean_text(self, text: Optional[str]) -> Optional[str]:
+    def extract_xml_text_content(self, text: Optional[str]) -> Optional[str]:
         if text is None:
             return None
 
         # Use the pre-compiled pattern
         if "![CDATA[" in text:
             text = CDATA_PATTERN.sub(r"\1", text)
-
-        return html.unescape(text)
+        return text
 
     def _find_author(self, item: ET.Element) -> Dict[str, Optional[str]]:
         """Extract author information from various possible elements"""
@@ -103,12 +104,12 @@ class XMLFeedParser(FeedParser):
         # Standard RSS description
         desc_elem = item.find("description")
         if desc_elem is not None and desc_elem.text is not None:
-            return self._clean_text(desc_elem.text)
+            return self.extract_xml_text_content(desc_elem.text)
 
         # Atom summary
         summary_elem = item.find("summary")
         if summary_elem is not None and summary_elem.text is not None:
-            return self._clean_text(summary_elem.text)
+            return self.extract_xml_text_content(summary_elem.text)
 
         # Content:encoded (often used for full content)
         content_elem = item.find(
@@ -116,7 +117,7 @@ class XMLFeedParser(FeedParser):
             {"content": "http://purl.org/rss/1.0/modules/content/"},
         )
         if content_elem is not None and content_elem.text is not None:
-            return self._clean_text(content_elem.text)
+            return self.extract_xml_text_content(content_elem.text)
 
         return None
 
@@ -148,7 +149,7 @@ class XMLFeedParser(FeedParser):
                 return None
 
             # Clean and parse the base fields
-            title = self._clean_text(title_elem.text)
+            title = self.extract_xml_text_content(title_elem.text)
             pub_date = self._parse_date(pub_date_raw)
             url = (
                 link_elem.text
@@ -224,9 +225,19 @@ class XMLFeedParser(FeedParser):
         if date_elem is not None and date_elem.text is not None:
             return date_elem.text
 
+        # Dublin Core date (used by Deutsche Welle)
+        dc_date = item.find("dc:date")
+        if dc_date is not None and dc_date.text is not None:
+            return dc_date.text
+
+        # Try with full namespace path
+        dc_date_ns = item.find(".//{http://purl.org/dc/elements/1.1/}date")
+        if dc_date_ns is not None and dc_date_ns.text is not None:
+            return dc_date_ns.text
+
         # Look for any tag ending with 'date' (handles NAMESPACES)
         for elem in item.iter():
-            if elem.tag.endswith("}date") or elem.tag == "dc:date":
+            if elem.tag.endswith("}date") or elem.tag == "date":
                 return elem.text
 
         # Atom published or updated

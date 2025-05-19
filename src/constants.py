@@ -1,11 +1,11 @@
-from typing import Dict, TypedDict
+from typing import Any, Dict, TypedDict
 
 
 class FeedConfig(TypedDict):
     base_url: str
     feed_symbol: str
     display_name: str
-    feeds: Dict[str, str]
+    feeds: Dict[str, Dict[str, Any]]
 
 
 RSS_FEEDS: Dict[str, FeedConfig] = {
@@ -14,20 +14,26 @@ RSS_FEEDS: Dict[str, FeedConfig] = {
         "feed_symbol": "BO",
         "display_name": "Børsen",
         "feeds": {
-            "baeredygtig": "/rss/baeredygtig",
-            "ejendomme": "/rss/ejendomme",
-            "finans": "/rss/finans",
-            "investor": "/rss/investor",
-            "ledelse": "/rss/executive",
-            "longread": "/rss/longread",
-            "markedsberetninger": "/rss/markedsberetninger",
-            "opinion": "/rss/opinion",
-            "pleasure": "/rss/pleasure",
-            "politik": "/rss/politik",
-            "tech": "/rss/tech",
-            "udland": "/rss/udland",
-            "virksomheder": "/rss/virksomheder",
-            "okonomi": "/rss/okonomi",
+            "baeredygtig": {"path": "/rss/baeredygtig", "display_name": "Bæredygtig"},
+            "ejendomme": {"path": "/rss/ejendomme", "display_name": "Ejendomme"},
+            "finans": {"path": "/rss/finans", "display_name": "Finans"},
+            "investor": {"path": "/rss/investor", "display_name": "Investor"},
+            "ledelse": {"path": "/rss/executive", "display_name": "Ledelse"},
+            "longread": {"path": "/rss/longread", "display_name": "Long Read"},
+            "markedsberetninger": {
+                "path": "/rss/markedsberetninger",
+                "display_name": "Markedsberetninger",
+            },
+            "opinion": {"path": "/rss/opinion", "display_name": "Opinion"},
+            "pleasure": {"path": "/rss/pleasure", "display_name": "Pleasure"},
+            "politik": {"path": "/rss/politik", "display_name": "Politik"},
+            "tech": {"path": "/rss/tech", "display_name": "Tech"},
+            "udland": {"path": "/rss/udland", "display_name": "Udland"},
+            "virksomheder": {
+                "path": "/rss/virksomheder",
+                "display_name": "Virksomheder",
+            },
+            "okonomi": {"path": "/rss/okonomi", "display_name": "Økonomi"},
         },
     },
     "bloomberg": {
@@ -35,55 +41,79 @@ RSS_FEEDS: Dict[str, FeedConfig] = {
         "feed_symbol": "BBG",
         "display_name": "Bloomberg",
         "feeds": {
-            "latest": "/lineup-next/api/stories?limit=25&pageNumber=1&types=ARTICLE,FEATURE,INTERACTIVE,LETTER,EXPLAINERS"
+            "latest": {
+                "path": "/lineup-next/api/stories?limit=25&pageNumber=1&types=ARTICLE,FEATURE,INTERACTIVE,LETTER,EXPLAINERS",
+                "display_name": "Latest",
+            }
         },
     },
     "techcrunch": {
         "base_url": "techcrunch.com",
         "feed_symbol": "TC",
         "display_name": "TechCrunch",
-        "feeds": {"latest": "/feed/"},
+        "feeds": {"latest": {"path": "/feed/", "display_name": "Latest"}},
     },
     "financial_times": {
         "base_url": "www.ft.com",
         "feed_symbol": "FT",
         "display_name": "Financial Times",
-        "feeds": {"latest": "/news-feed?format=rss"},
+        "feeds": {
+            "latest": {"path": "/news-feed?format=rss", "display_name": "Latest"}
+        },
     },
     "al_jazeera_english": {
         "base_url": "www.aljazeera.com",
         "feed_symbol": "AJE",
         "display_name": "Al Jazeera English",
-        "feeds": {"latest": "/xml/rss/all.xml"},
+        "feeds": {"latest": {"path": "/xml/rss/all.xml", "display_name": "Latest"}},
     },
     "jyllands_posten": {
         "base_url": "newsletter-proxy.aws.jyllands-posten.dk",
         "feed_symbol": "JP",
         "display_name": "Jyllands-Posten",
-        "feeds": {"latest": "/v1/latestNewsRss/jyllands-posten.dk?count=20"},
+        "feeds": {
+            "latest": {
+                "path": "/v1/latestNewsRss/jyllands-posten.dk?count=20",
+                "display_name": "Latest",
+            }
+        },
     },
     "politico": {
         "base_url": "www.politico.eu",
         "feed_symbol": "PEU",
         "display_name": "Politico EU",
-        "feeds": {"latest": "/feed/"},
+        "feeds": {"latest": {"path": "/feed/", "display_name": "Latest"}},
     },
     "tradingeconomics": {
         "base_url": "tradingeconomics.com",
         "feed_symbol": "TE",
         "display_name": "Trading Economics",
-        "feeds": {"latest": "/ws/stream.ashx?start=0&size=20"},
+        "feeds": {
+            "latest": {
+                "path": "/ws/stream.ashx?start=0&size=20",
+                "display_name": "Latest",
+            }
+        },
     },
     "investing.com": {
         "base_url": "www.investing.com",
         "feed_symbol": "INV",
         "display_name": "Investing.com",
         "feeds": {
-            "economic_indicators": "/rss/news_95.rss",
-            "economy_news": "/rss/news_14.rss",
-            "forex_news": "/rss/news_1.rss",
-            "commodities_and_futures": "/rss/news_11.rss",
-            "crypto": "/rss/news_301.rss",
+            "economic_indicators": {
+                "path": "/rss/news_95.rss",
+                "display_name": "Economic Indicators",
+            },
+            "economy_news": {
+                "path": "/rss/news_14.rss",
+                "display_name": "Economy News",
+            },
+            "forex_news": {"path": "/rss/news_1.rss", "display_name": "Forex News"},
+            "commodities_and_futures": {
+                "path": "/rss/news_11.rss",
+                "display_name": "Commodities & Futures",
+            },
+            "crypto": {"path": "/rss/news_301.rss", "display_name": "Cryptocurrency"},
         },
     },
     "forexlive": {
@@ -91,37 +121,64 @@ RSS_FEEDS: Dict[str, FeedConfig] = {
         "feed_symbol": "FXL",
         "display_name": "Forexlive",
         "feeds": {
-            "news": "/feed/news",
-            "central_bank": "/feed/centralbank",
-            "crypto": "/feed/cryptocurrency",
+            "news": {"path": "/feed/news", "display_name": "News"},
+            "central_bank": {
+                "path": "/feed/centralbank",
+                "display_name": "Central Bank",
+            },
+            "crypto": {
+                "path": "/feed/cryptocurrency",
+                "display_name": "Cryptocurrency",
+            },
         },
     },
     "the_guardian": {
         "base_url": "www.theguardian.com",
         "feed_symbol": "GUA",
         "display_name": "The Guardian",
-        "feeds": {"world": "/world/rss"},
+        "feeds": {"world": {"path": "/world/rss", "display_name": "World"}},
     },
     "south_china_morning_post": {
         "base_url": "www.scmp.com",
         "feed_symbol": "SCMP",
         "display_name": "South China Morning Post",
         "feeds": {
-            "china": "/rss/4/feed",
-            "asia": "/rss/3/feed",
-            "world": "/rss/5/feed",
-            "china_policies_and_politics": "/rss/318198/feed",
-            "china_diplomacy_and_defence": "/rss/318199/feed",
-            "china_economy": "/rss/318421/feed",
-            "usa_and_canada": "/rss/322262/feed",
-            "europe": "/rss/322263/feed",
-            "east_asia": "/rss/318214/feed",
-            "southeast_asia": "/rss/318215/feed",
-            "south_asia": "/rss/318216/feed",
-            "asia_diplomacy": "/rss/318213/feed",
-            "business": "/rss/92/feed",
-            "companies": "/rss/10/feed",
-            "global_economy": "/rss/12/feed",
+            "china": {"path": "/rss/4/feed", "display_name": "China"},
+            "asia": {"path": "/rss/3/feed", "display_name": "Asia"},
+            "world": {"path": "/rss/5/feed", "display_name": "World"},
+            "china_policies_and_politics": {
+                "path": "/rss/318198/feed",
+                "display_name": "China Policies & Politics",
+            },
+            "china_diplomacy_and_defence": {
+                "path": "/rss/318199/feed",
+                "display_name": "China Diplomacy & Defence",
+            },
+            "china_economy": {
+                "path": "/rss/318421/feed",
+                "display_name": "China Economy",
+            },
+            "usa_and_canada": {
+                "path": "/rss/322262/feed",
+                "display_name": "USA & Canada",
+            },
+            "europe": {"path": "/rss/322263/feed", "display_name": "Europe"},
+            "east_asia": {"path": "/rss/318214/feed", "display_name": "East Asia"},
+            "southeast_asia": {
+                "path": "/rss/318215/feed",
+                "display_name": "Southeast Asia",
+            },
+            "south_asia": {"path": "/rss/318216/feed", "display_name": "South Asia"},
+            "asia_diplomacy": {
+                "path": "/rss/318213/feed",
+                "display_name": "Asia Diplomacy",
+            },
+            "business": {"path": "/rss/92/feed", "display_name": "Business"},
+            "companies": {"path": "/rss/10/feed", "display_name": "Companies"},
+            "global_economy": {
+                "path": "/rss/12/feed",
+                "display_name": "Global Economy",
+            },
         },
     },
     "deutsche_welle": {
@@ -129,32 +186,43 @@ RSS_FEEDS: Dict[str, FeedConfig] = {
         "feed_symbol": "DW",
         "display_name": "Deutsche Welle",
         "feeds": {
-            "world": "/rdf/rss-en-world",
-            "europe": "/rdf/rss-en-eu",
-            "germany": "/rdf/rss-en-ger",
-            "business": "/rdf/rss-en-bus",
+            "world": {"path": "/rdf/rss-en-world", "display_name": "World"},
+            "europe": {"path": "/rdf/rss-en-eu", "display_name": "Europe"},
+            "germany": {"path": "/rdf/rss-en-ger", "display_name": "Germany"},
+            "business": {"path": "/rdf/rss-en-bus", "display_name": "Business"},
         },
     },
     "abc_news_australia": {
         "base_url": "www.abc.net.au",
         "feed_symbol": "ABC",
         "display_name": "ABC News Australia",
-        "feeds": {"business": "/news/feed/104217374/rss.xml"},
+        "feeds": {
+            "business": {
+                "path": "/news/feed/104217374/rss.xml",
+                "display_name": "Business",
+            }
+        },
     },
     "financial_post": {
         "base_url": "financialpost.com",
         "feed_symbol": "FP",
         "display_name": "Financial Post",
-        "feeds": {"economy": "/category/news/economy/feed.xml"},
+        "feeds": {
+            "economy": {
+                "path": "/category/news/economy/feed.xml",
+                "display_name": "Economy",
+            }
+        },
     },
     "coindesk": {
         "base_url": "www.coindesk.com",
         "feed_symbol": "COIN",
         "display_name": "CoinDesk",
-        "feeds": {"latest": "/arc/outboundfeeds/rss"},
+        "feeds": {
+            "latest": {"path": "/arc/outboundfeeds/rss", "display_name": "Latest"}
+        },
     },
 }
-
 JSON_FIELD_MAPPINGS = {
     "bloomberg": {
         "title": "headline",

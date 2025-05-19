@@ -91,3 +91,16 @@ Footer {
 .article-item:hover {
     background: #000040;
 }
+
+.hidden {
+    display: none;
+}
+
+#search-widget {
+    position: absolute;
+    dock: bottom;
+    width: 100%;
+    height: 1;
+    background: #0000aa;
+    color: #ffff00;
+}

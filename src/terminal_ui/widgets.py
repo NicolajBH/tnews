@@ -1,12 +1,11 @@
 import os
 import httpx
-import random
+
+from typing import Dict
 from datetime import datetime
+from textual.reactive import reactive
 from textual.widgets import Static
 from textual.containers import Horizontal, Vertical
-from textual.screen import Screen
-
-from src.core.logging import LogContext, setup_logging
 
 
 class TimeDisplay(Static):
@@ -61,72 +60,116 @@ class MarketsContainer(Static):
     def __init__(self, **kwargs):
         super().__init__("", **kwargs)
         self.markets = {
-            "S&P 500": {"value": 0.0, "change": 0.0},
-            "OMXC25": {"value": 0.0, "change": 0.0},
-            "NASDAQ-100": {"value": 0.0, "change": 0.0},
-            "BTC-USD": {"value": 0.0, "change": 0.0},
+            "S&P 500": {
+                "prevClose": 0.0,
+                "currentPrice": 0.0,
+                "change": 0.0,
+                "ticker": "^GSPC",
+            },
+            "OMXC25": {
+                "prevClose": 0.0,
+                "currentPrice": 0.0,
+                "change": 0.0,
+                "ticker": "^OMXC25",
+            },
+            "NASDAQ-100": {
+                "prevClose": 0.0,
+                "currentPrice": 0.0,
+                "change": 0.0,
+                "ticker": "^NDX",
+            },
+            "BTC-USD": {
+                "prevClose": 0.0,
+                "currentPrice": 0.0,
+                "change": 0.0,
+                "ticker": "BTC-USD",
+            },
         }
         # Initialize market_line as None to keep track of it
         self.market_line = None
 
-    def on_mount(self):
+    async def on_mount(self):
         """Initial setup when the widget is mounted."""
-        self.refresh_markets()
-        # Update market data every 20 seconds
-        self.set_interval(20, self.refresh_markets)
-
-    def refresh_markets(self):
-        """Update the market data with simulated changes."""
-        # If this is the first run, create the container and widgets
         if self.market_line is None:
             market_widgets = []
 
             for name, data in self.markets.items():
                 # Create a widget for this market
-                market_widgets.append(MarketIndex(name, data["value"], data["change"]))
+                market_widgets.append(
+                    MarketIndex(name, data["currentPrice"], data["change"])
+                )
 
             # Create market line
             self.market_line = Horizontal(*market_widgets, id="market-indices")
             self.mount(self.market_line)
+        await self.refresh_markets()
+        # Update market data every 60 sec
+        self.set_interval(60, self.refresh_markets)
 
-        # Update existing widgets
-        else:
-            # Get all the market index widgets
-            market_indices = self.market_line.children
+    async def refresh_markets(self):
+        """Update the market data with simulated changes."""
+        if self.market_line is None:
+            return
 
-            for i, (name, data) in enumerate(self.markets.items()):
-                # Simulate a small market change
-                change = random.uniform(-1.5, 1.5)
+        market_indices = self.market_line.children
 
-                # Update the stored market data
+        for i, (name, data) in enumerate(self.markets.items()):
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                headers = {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+                    "Accept": "application/json",
+                    "Accept-Language": "en-US,en;q=0.9",
+                    "Referer": "https://finance.yahoo.com/",
+                }
+                response = await client.get(
+                    f"https://query1.finance.yahoo.com/v8/finance/chart/{data['ticker']}",
+                    headers=headers,
+                )
+                if response.status_code != 200:
+                    self.app.notify(
+                        f"Error trying to fetch market data. Response code: {response.status_code}"
+                    )
+                    return
+                response_data = response.json()["chart"]["result"][0]["meta"]
+                data["currentPrice"] = response_data["regularMarketPrice"]
+                data["prevClose"] = response_data["previousClose"]
+                change = (
+                    response_data["regularMarketPrice"] / response_data["previousClose"]
+                    - 1
+                ) * 100
                 data["change"] = change
-                data["value"] *= 1 + change / 100
+            # Get the existing widget and update it
+            if i < len(market_indices):
+                # Create updated text with direction indicator
+                if change > 0:
+                    direction = "▲"
+                    change_color = "green"
+                    change_sign = "+"
+                elif change < 0:
+                    direction = "▼"
+                    change_color = "red"
+                    change_sign = "-"
+                else:
+                    direction = "–"
+                    change_color = "white"
+                    change_sign = ""
 
-                # Get the existing widget and update it
-                if i < len(market_indices):
-                    # Create updated text with direction indicator
-                    if change > 0.001:
-                        direction = "▲"
-                        change_color = "green"
-                        change_sign = "+"
-                    elif change < -0.001:
-                        direction = "▼"
-                        change_color = "red"
-                        change_sign = "-"
-                    else:
-                        direction = "–"
-                        change_color = "white"
-                        change_sign = ""
+                content = f"{name}: {data['currentPrice']:.2f} [{change_color}]{direction} {change_sign}{abs(change):.2f}%[/]"
 
-                    content = f"{name}: {data['value']:.2f} [{change_color}]{direction} {change_sign}{abs(change):.2f}%[/]"
-
-                    market_indices[i].update(content)
+                market_indices[i].update(content)
 
 
 class ArticleWidget(Static):
     """Widget to display an article"""
 
-    def __init__(self, index: int, article: dict, **kwargs):
+    def __init__(
+        self,
+        index: int,
+        article: dict,
+        terminal_width: int,
+        selected_index: int = 0,
+        **kwargs,
+    ):
         self.index = index
         self.title = article["title"]
         self.feed_symbol = article["feed_symbol"]
@@ -134,6 +177,8 @@ class ArticleWidget(Static):
         self.article_id = article.get("id", "")
         self.article_data = article
         self.is_selected = False
+        self.terminal_width = terminal_width or os.get_terminal_size().columns
+        self.selected_index = selected_index
 
         formatted_content = self.format_articles()
 
@@ -141,25 +186,34 @@ class ArticleWidget(Static):
 
     def format_articles(self) -> str:
         """Format the articles"""
-        terminal_size = os.get_terminal_size()
-        terminal_width = terminal_size.columns
-
         index_width = 3
         source_width = 4
         time_width = 6
         spacing = 2
         title_width = (
-            terminal_width - index_width - source_width - time_width - (spacing * 2)
+            self.terminal_width
+            - index_width
+            - source_width
+            - time_width
+            - (spacing * 2)
         )
 
         title = self.title
-        if (len(title)) > title_width:
+        if (len(title)) + 2 > title_width:
             title = title[: title_width - 6] + "..."
 
-        if self.is_selected:
-            content = f"[yellow on blue]{self.index + 1:2d} {title:<{title_width}} {self.feed_symbol:4s} {self.feed_time}[/]"
+        if self.index == self.selected_index:
+            # Current line - show actual line number (1-based)
+            index_display = f"{self.index + 1}"
         else:
-            content = f"{self.index + 1:2d} {title:<{title_width}} {self.feed_symbol:4s} {self.feed_time}"
+            # Other lines - show distance from current line
+            relative_index = abs(self.index - self.selected_index)
+            index_display = f"{relative_index}"
+
+        if self.is_selected:
+            content = f"[yellow on blue]{index_display:>3}  {title:<{title_width}} {self.feed_symbol:4s} {self.feed_time}[/]"
+        else:
+            content = f" {index_display:>3} {title:<{title_width}} {self.feed_symbol:4s} {self.feed_time}"
 
         return content
 
@@ -174,20 +228,23 @@ class ArticlesContainer(Static):
     """Container for articles"""
 
     def __init__(self, **kwargs):
-        setup_logging()
-        self.logger = LogContext("articles_container")
         super().__init__("", **kwargs)
         self.articles = []
         self.articles_list = None
         self.last_etag = None
         self.next_cursor = None
+        self.cursor_history = []
         self.selected_index = 0
+        self.params = {}
+        self.terminal_width = reactive(80)
+        self.terminal_height = reactive(24)
+        self.latest_timestamp = None
 
     def on_mount(self) -> None:
         """Event handler called when the widget is added to the app"""
         self.articles_list = Vertical(id="articles-list")
         self.mount(self.articles_list)
-        self.set_interval(300, self.check_for_updates)
+        self.set_interval(60, self.check_for_updates)
 
     def update_articles(self):
         if self.articles_list is not None:
@@ -195,7 +252,7 @@ class ArticlesContainer(Static):
 
         self.article_widgets = []
         for i, article in enumerate(self.articles):
-            widget = ArticleWidget(i, article)
+            widget = ArticleWidget(i, article, self.terminal_width, self.selected_index)
             self.article_widgets.append(widget)
             self.articles_list.mount(widget)
 
@@ -217,14 +274,23 @@ class ArticlesContainer(Static):
             self.article_widgets[self.selected_index].set_selected(False)
 
         # Select new article
+        old_selected_index = self.selected_index
         self.selected_index = index
         self.article_widgets[self.selected_index].set_selected(True)
+
+        if old_selected_index != self.selected_index:
+            self.update_relative_indices()
 
         # Ensure the selected article is visible
         try:
             self.article_widgets[self.selected_index].scroll_visible()
         except Exception as e:
             self.app.log(f"Error scrolling: {e}")
+
+    def update_relative_indices(self):
+        for widget in self.article_widgets:
+            widget.selected_index = self.selected_index
+            widget.update(widget.format_articles())
 
     def select_next_article(self) -> None:
         """Select the next article"""
@@ -247,10 +313,11 @@ class ArticlesContainer(Static):
     async def fetch_articles(self):
         try:
             auth_headers = self.app.auth_manager.get_auth_header()
-
             async with httpx.AsyncClient(timeout=10.0) as client:
                 response = await client.get(
-                    "http://127.0.0.1:8000/api/v1/articles/latest", headers=auth_headers
+                    "http://127.0.0.1:8000/api/v1/articles/latest",
+                    headers=auth_headers,
+                    params=self.params,
                 )
 
                 if response.status_code == 401 or response.status_code == 403:
@@ -259,6 +326,7 @@ class ArticlesContainer(Static):
                         response = await client.get(
                             "http://127.0.0.1:8000/api/v1/articles/latest",
                             headers=auth_headers,
+                            params=self.params,
                         )
                     else:
                         self.app.notify(
@@ -266,25 +334,19 @@ class ArticlesContainer(Static):
                         )
                         return False
 
-                if "etag" in response.headers:
+                if "etag" in response.headers and "cursor" not in self.params:
                     self.last_etag = response.headers["etag"]
                 data = response.json()
 
                 self.articles = data["items"]
 
+                if "cursor" not in self.params and self.articles:
+                    self.latest_timestamp = self.articles[0]["formatted_pubDate"]
+
                 if "pagination" in data and "next_cursor" in data["pagination"]:
                     self.next_cursor = data["pagination"]["next_cursor"]
 
                 self.update_articles()
-
-                try:
-                    channel_header = self.app.query_one(
-                        "#channel-header", ChannelHeader
-                    )
-                    channel_header.update_refresh_time()
-                except Exception as e:
-                    self.app.log(f"Failed to update channel header: {str(e)}")
-
                 return True
         except Exception as e:
             self.app.log(f"Error fetching articles: {e}")
@@ -300,19 +362,23 @@ class ArticlesContainer(Static):
             headers = self.app.auth_manager.get_auth_header()
             headers["If-None-Match"] = self.last_etag
 
+            params = self.params.copy()
+            params.pop("cursor", None)
+
             async with httpx.AsyncClient(timeout=10.0) as client:
                 response = await client.get(
-                    "http://127.0.0.1:8000/api/v1/articles/latest", headers=headers
+                    "http://127.0.0.1:8000/api/v1/articles/latest",
+                    headers=headers,
+                    params=params,
                 )
                 if response.status_code == 304:
                     self.app.log("No new articles available")
                     return
 
                 data = response.json()
-                latest_timestamp = self.articles[0]["pubDate"]
                 new_articles = 0
                 for item in data["items"]:
-                    if item["pubDate"] > latest_timestamp:
+                    if item["formatted_pubDate"] > self.latest_timestamp:
                         new_articles += 1
 
                 if new_articles:
@@ -331,9 +397,7 @@ class ChannelHeader(Static):
     """Header component showing current channel name"""
 
     def __init__(self, channel_name: str, **kwargs):
-        setup_logging()
         super().__init__(**kwargs)
-        self.logger = LogContext("channel_header")
         self.channel_name = channel_name
         self.last_refresh = datetime.now()
         self.new_articles = 0
@@ -384,3 +448,54 @@ class ChannelHeader(Static):
 
         info_widget = self.app.query_one("#refresh-info", Static)
         info_widget.update(self._get_info_text())
+
+
+class SourceWidget(Static):
+    """Widget for displaying sources in modals"""
+
+    def __init__(self, index: int, source_data: Dict, **kwargs):
+        self.source_name = source_data["source_name"]
+        self.display_name = source_data["display_name"]
+        self.is_selected = False
+
+        formatted_title = self.format_title()
+
+        super().__init__(formatted_title, **kwargs)
+
+    def format_title(self):
+        return f"{self.display_name}"
+
+    def set_selected(self, selected: bool):
+        if self.is_selected != selected:
+            self.is_selected = selected
+            if selected:
+                self.add_class("selected")
+            else:
+                self.remove_class("selected")
+            self.update(self.format_title())
+
+
+class FeedsWidget(Static):
+    """Widget for display feeds in modals"""
+
+    def __init__(self, feed_id: str, feed_details: Dict, type: str, **kwargs):
+        self.feed_id = feed_id
+        self.feed_name = feed_details["feed_name"]
+        self.display_name = feed_details["display_name"]
+        self.is_selected = False
+        self.symbol = "+" if type == "subscribe" else "-"
+
+        formatted_title = self.format_title()
+        super().__init__(formatted_title, **kwargs)
+
+    def format_title(self):
+        return f"{self.symbol} {self.display_name}"
+
+    def set_selected(self, selected: bool):
+        if self.is_selected != selected:
+            self.is_selected = selected
+            if selected:
+                self.add_class("selected")
+            else:
+                self.remove_class("selected")
+            self.update(self.format_title())

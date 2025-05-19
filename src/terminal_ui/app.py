@@ -1,8 +1,10 @@
+import os
 from textual.app import App, ComposeResult
-from textual.widgets import Footer
+from textual.widgets import Footer, Label
 from textual.binding import Binding
 from textual.containers import Container
 
+from src.terminal_ui.subscription import SubscriptionManager
 from src.terminal_ui.widgets import (
     TimeDisplay,
     MarketsContainer,
@@ -10,7 +12,7 @@ from src.terminal_ui.widgets import (
     ChannelHeader,
 )
 from src.terminal_ui.auth import AuthManager
-from src.terminal_ui.modals import ArticleModal, SubscriptionModal, UnsubscribeModal
+from src.terminal_ui.modals import ArticleModal, SubscribeModal
 
 
 class TUINews(App):
@@ -20,17 +22,22 @@ class TUINews(App):
     BINDINGS = [
         Binding(key="q", action="quit", description="quit"),
         Binding(key="r", action="refresh", description="refresh"),
-        Binding(key="l", action="login", description="login"),
-        Binding(key="j", action="move_down", description="down"),
-        Binding(key="k", action="move_up", description="up"),
-        Binding(key="enter", action="open_article", description="open article"),
+        Binding(key="enter", action="open_article", description="confirm"),
         Binding(key="s", action="subscribe", description="subscribe"),
         Binding(key="u", action="unsubscribe", description="unsubscribe"),
+        Binding(key="h", action="previous_page", description="left", show=False),
+        Binding(key="j", action="move_down", description="down", show=False),
+        Binding(key="k", action="move_up", description="up", show=False),
+        Binding(key="l", action="next_page", description="right", show=False),
+        Binding(key="/", action="search", description="search"),
     ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.auth_manager = AuthManager()
+        self.subscription_manager = SubscriptionManager(auth_manager=self.auth_manager)
+        self.terminal_size = os.get_terminal_size()
+        self.motion_count = ""
 
     async def on_mount(self) -> None:
         """Initialize app"""
@@ -40,9 +47,25 @@ class TUINews(App):
             success = await self.auth_manager.authenticate("testuser", "Testpass123")
         if success:
             articles_container = self.query_one("#articles", ArticlesContainer)
+            articles_container.terminal_height = self.terminal_size.lines
+            articles_container.terminal_width = self.terminal_size.columns
+            articles_container.params["limit"] = (
+                self.terminal_size.lines - 9
+            )  # leaves an empty space before footer
             self.call_later(articles_container.fetch_articles)
+            await self.subscription_manager.fetch_subscription_data()
         else:
             self.notify("Login failed. Press 'l' to login manually.", severity="error")
+
+    def on_resize(self) -> None:
+        self.terminal_size = os.get_terminal_size()
+        articles_container = self.query_one("#articles", ArticlesContainer)
+        articles_container.terminal_height = self.terminal_size.lines
+        articles_container.terminal_width = self.terminal_size.columns
+        articles_container.params["limit"] = (
+            self.terminal_size.lines - 9
+        )  # leaves an empty space before footer
+        self.call_later(articles_container.fetch_articles)
 
     def action_login(self):
         self.call_later(self.do_login)
@@ -72,11 +95,43 @@ class TUINews(App):
                     )
                     return
         articles_container = self.query_one("#articles", ArticlesContainer)
+        articles_container.params.pop("cursor", None)
+        articles_container.cursor_history = []
         await articles_container.fetch_articles()
 
         channel_header = self.query_one("#channel-header", ChannelHeader)
         channel_header.update_refresh_time()
         channel_header.set_new_articles(0)
+
+    def on_key(self, event):
+        """Handle key events for vim-like motions"""
+        if self.app.screen.is_modal:
+            return
+
+        key = event.key
+
+        if key.isdigit() and not key.startswith("f"):
+            self.motion_count += key
+            return
+
+        if key in ["j", "k"]:
+            count = int(self.motion_count) if self.motion_count else 1
+            self.motion_count = ""
+
+            articles = self.query_one("#articles", ArticlesContainer)
+            current_index = articles.selected_index
+
+            if key == "j":
+                new_index = min(
+                    current_index + count, len(articles.article_widgets) - 1
+                )
+                articles.select_article(new_index)
+            elif key == "k":
+                new_index = max(current_index - count, 0)
+                articles.select_article(new_index)
+
+            event.prevent_default()
+            return
 
     def action_move_up(self):
         """Move selection up"""
@@ -97,11 +152,56 @@ class TUINews(App):
 
     def action_subscribe(self):
         """Open subscription interface"""
-        self.push_screen(SubscriptionModal())
+        modal = SubscribeModal(
+            self.subscription_manager,
+            on_subscription_change=self.do_refresh,
+        )
+        modal.all_feeds = self.subscription_manager.all_feeds
+        modal.my_feeds = self.subscription_manager.my_feeds
+        modal.type = "subscribe"
+        self.push_screen(modal)
 
     def action_unsubscribe(self):
-        """Open unsubscription interface"""
-        self.push_screen(UnsubscribeModal())
+        modal = SubscribeModal(
+            self.subscription_manager,
+            on_subscription_change=self.do_refresh,
+        )
+        modal.all_feeds = self.subscription_manager.all_feeds
+        modal.my_feeds = self.subscription_manager.my_feeds
+        modal.type = "unsubscribe"
+        self.push_screen(modal)
+
+    async def action_next_page(self):
+        articles_container = self.query_one("#articles", ArticlesContainer)
+        if articles_container.next_cursor:
+            if articles_container.cursor_history:
+                articles_container.cursor_history.append(
+                    articles_container.params["cursor"]
+                )
+            else:
+                articles_container.cursor_history.append(None)
+            articles_container.params["cursor"] = articles_container.next_cursor
+            await articles_container.fetch_articles()
+
+    async def action_previous_page(self):
+        articles_container = self.query_one("#articles", ArticlesContainer)
+        if articles_container.cursor_history:
+            previous_cursor = articles_container.cursor_history.pop()
+            if previous_cursor:
+                articles_container.params["cursor"] = previous_cursor
+            else:
+                articles_container.params.pop("cursor", None)
+            await articles_container.fetch_articles()
+
+    def action_search(self):
+        footer = self.query_one(Footer)
+        search_widget = self.query_one("#search-widget", Label)
+        if footer.has_class("hidden"):
+            footer.remove_class("hidden")
+            search_widget.add_class("hidden")
+            return
+        footer.add_class("hidden")
+        search_widget.remove_class("hidden")
 
     def compose(self) -> ComposeResult:
         """create child widgets for app"""
@@ -112,4 +212,5 @@ class TUINews(App):
             ArticlesContainer(id="articles"),
             id="main-container",
         )
+        yield Label(" /", id="search-widget", classes="hidden")
         yield Footer()
