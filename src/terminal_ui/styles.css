@@ -96,6 +96,13 @@ Footer {
     display: none;
 }
 
+.hidden-input {
+    position: absolute;
+    dock: bottom;
+    width: 0;
+    height: 0;
+}
+
 #search-widget {
     position: absolute;
     dock: bottom;

@@ -3,8 +3,9 @@ import httpx
 
 from typing import Dict
 from datetime import datetime
+from textual.binding import Binding
 from textual.reactive import reactive
-from textual.widgets import Static
+from textual.widgets import Footer, Input, Label, Static
 from textual.containers import Horizontal, Vertical
 
 
@@ -499,3 +500,69 @@ class FeedsWidget(Static):
             else:
                 self.remove_class("selected")
             self.update(self.format_title())
+
+
+class InputWidget(Input):
+    BINDINGS = [
+        Binding(
+            key="escape",
+            action="exit_search_mode",
+            description="exit search",
+            show=False,
+        )
+    ]
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.disabled = True
+        self.display = False
+
+    def action_exit_search_mode(self):
+        self.disabled = True
+
+        footer = self.app.query_one(Footer)
+        footer.remove_class("hidden")
+
+        search_widget = self.app.query_one("#search-widget", Label)
+        search_widget.add_class("hidden")
+
+    def on_input_changed(self):
+        search_widget = self.app.query_one("#search-widget", Label)
+        escaped_value = self.value.replace("[", r"\[")
+        search_widget.update(" /" + escaped_value)
+        if (
+            len(self.value) > 2
+            and " --" not in self.value
+            and not self.value.endswith("-")
+        ):
+            if hasattr(self, "_search_timer") and self._search_timer:
+                self._search_timer.stop()
+            self._search_timer = self.set_timer(0.3, self.prepare_search_request)
+            self.prepare_search_request()
+
+    def on_input_submitted(self):
+        self.disabled = True
+        self.prepare_search_request()
+
+    def prepare_search_request(self):
+        if self.value.endswith("-"):
+            return
+
+        parts = self.value.split(" --")
+        params = {}
+
+        if parts and parts[0]:
+            params["search_query"] = parts[0]
+        else:
+            return
+
+        if len(parts) >= 2:
+            for i in range(1, len(parts)):
+                param = parts[i]
+                if ":" in param:
+                    k, v = param.split(":", 1)
+                    params[k] = v.strip()
+                elif param.strip():
+                    params[param.strip()] = True
+
+        self.app.notify(f"{params}")

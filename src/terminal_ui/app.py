@@ -6,6 +6,7 @@ from textual.containers import Container
 
 from src.terminal_ui.subscription import SubscriptionManager
 from src.terminal_ui.widgets import (
+    InputWidget,
     TimeDisplay,
     MarketsContainer,
     ArticlesContainer,
@@ -110,6 +111,11 @@ class TUINews(App):
 
         key = event.key
 
+        input_widget = self.query_one("#input-widget", InputWidget)
+        if not input_widget.disabled and len(input_widget.value) == 0:
+            if key == "backspace":
+                input_widget.action_exit_search_mode()
+
         if key.isdigit() and not key.startswith("f"):
             self.motion_count += key
             return
@@ -195,13 +201,16 @@ class TUINews(App):
 
     def action_search(self):
         footer = self.query_one(Footer)
-        search_widget = self.query_one("#search-widget", Label)
-        if footer.has_class("hidden"):
-            footer.remove_class("hidden")
-            search_widget.add_class("hidden")
-            return
         footer.add_class("hidden")
+
+        search_widget = self.query_one("#search-widget", Label)
         search_widget.remove_class("hidden")
+        search_widget.update(" /")
+
+        input_widget = self.query_one("#input-widget", InputWidget)
+        input_widget.disabled = False
+        input_widget.value = ""
+        input_widget.focus()
 
     def compose(self) -> ComposeResult:
         """create child widgets for app"""
@@ -213,4 +222,5 @@ class TUINews(App):
             id="main-container",
         )
         yield Label(" /", id="search-widget", classes="hidden")
+        yield InputWidget(id="input-widget")
         yield Footer()

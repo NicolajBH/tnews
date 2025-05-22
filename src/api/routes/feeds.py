@@ -414,3 +414,8 @@ async def get_my_feeds(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error fetching feeds",
         )
+
+
+@router.get("/articles/search")
+async def search_articles():
+    pass
