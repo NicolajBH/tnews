@@ -4,7 +4,7 @@ import json
 import time
 from typing import Dict, Any, Optional
 from contextvars import ContextVar
-from src.core.config import settings
+from core.config import settings
 from logging.handlers import TimedRotatingFileHandler
 
 request_id_var: ContextVar[Optional[str]] = ContextVar("request_id", default=None)

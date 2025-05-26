@@ -3,7 +3,7 @@ import json
 import httpx
 from datetime import datetime, timedelta
 
-from src.core.logging import LogContext, setup_logging
+from core.logging import LogContext, setup_logging
 
 
 class AuthManager:

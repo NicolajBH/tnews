@@ -7,8 +7,8 @@ from textual.app import ComposeResult
 from textual.screen import ModalScreen
 from textual.containers import Container, Grid, VerticalScroll
 
-from src.terminal_ui.widgets import FeedsWidget, SourceWidget
-from src.utils.text_utils import clean_html_for_textual
+from terminal_ui.widgets import FeedsWidget, SourceWidget
+from utils.text_utils import clean_html_for_textual
 
 
 class ArticleModal(ModalScreen):

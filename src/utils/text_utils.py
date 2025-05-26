@@ -8,7 +8,7 @@ from datetime import datetime
 from nltk.corpus import stopwords
 from difflib import SequenceMatcher
 
-from src.core.logging import LogContext
+from core.logging import LogContext
 
 logger = LogContext(__name__)
 

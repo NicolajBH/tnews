@@ -4,16 +4,16 @@ from textual.widgets import Footer, Label
 from textual.binding import Binding
 from textual.containers import Container
 
-from src.terminal_ui.subscription import SubscriptionManager
-from src.terminal_ui.widgets import (
+from terminal_ui.subscription import SubscriptionManager
+from terminal_ui.widgets import (
     InputWidget,
     TimeDisplay,
     MarketsContainer,
     ArticlesContainer,
     ChannelHeader,
 )
-from src.terminal_ui.auth import AuthManager
-from src.terminal_ui.modals import ArticleModal, SubscribeModal
+from terminal_ui.auth import AuthManager
+from terminal_ui.modals import ArticleModal, SubscribeModal
 
 
 class TUINews(App):

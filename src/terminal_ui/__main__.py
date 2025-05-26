@@ -1,5 +1,10 @@
 from .app import TUINews
 
-if __name__ == "__main__":
+
+def main():
     app = TUINews()
     app.run()
+
+
+if __name__ == "__main__":
+    main()
