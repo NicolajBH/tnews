@@ -56,7 +56,7 @@ nosetests.xml
 dmypy.json
 
 # Celery
-celerybeat-schedule
+celerybeat-schedule*
 celerybeat.pid
 
 # Redis
@@ -192,3 +192,4 @@ wheels/
 *.egg
 .python-version
 *.backup
+celerybeat-schedule-*
