@@ -1,3 +1,5 @@
+import meilisearch
+
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from typing import Any, List, Dict
 from sqlmodel import Session, select
@@ -416,6 +418,61 @@ async def get_my_feeds(
         )
 
 
-@router.get("/articles/search")
-async def search_articles():
-    pass
+@router.get("/articles/search", response_model=PaginatedResponse[Article])
+async def search_articles(
+    q: str,
+    date_from: str | None = None,
+    date_to: str | None = None,
+    source: str | None = None,
+    feed: str | None = None,
+    limit: int = 20,
+    offset: int = 0,
+    current_user: Users = Depends(get_current_user),
+) -> PaginatedResponse[Article]:
+    try:
+        client = meilisearch.Client("http://localhost:7700")
+        index = client.index("articles")
+        search_params = {
+            "limit": limit,
+            "offset": offset,
+        }
+
+        # Add filters if provided
+        filters = []
+        if date_from:
+            filters.append(f"pub_date >= '{date_from}'")
+        if date_to:
+            filters.append(f"pub_date <= '{date_to}'")
+        if source:
+            filters.append(f"source_name = '{source}'")
+        if feed:
+            filters.append(f"feed_symbol = '{feed}'")
+
+        if filters:
+            search_params["filter"] = " AND ".join(filters)
+
+        # Perform search
+        results = index.search(q, search_params)
+
+        # Convert Meilisearch results to your Article model
+        articles = [Article(**hit) for hit in results["hits"]]
+
+        # Create pagination info
+        pagination_info = PaginationInfo(
+            has_more=offset + limit < results["estimatedTotalHits"],
+            next_cursor=str(offset + limit)
+            if offset + limit < results["estimatedTotalHits"]
+            else None,
+        )
+
+        return PaginatedResponse(items=articles, pagination=pagination_info)
+
+    except Exception as e:
+        logger.error(
+            "Error searching articles",
+            extra={"error": str(e), "error_type": e.__class__.__name__},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while searching articles",
+        )

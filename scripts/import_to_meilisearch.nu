@@ -46,7 +46,7 @@ def import-to-meilisearch [] {
       formatted_pubDate: $time_data.formatted_pubDate,
       feed_time: $time_data.feed_time,
       description: ($row.description | default ""),
-      author_name: ($row.author_name | default ""),
+      author: ($row.author_name | default ""),
       url: $row.original_url,
     } 
   })

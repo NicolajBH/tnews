@@ -393,6 +393,43 @@ class ArticlesContainer(Static):
         except Exception as e:
             self.app.log(f"Error checking for updates: {str(e)}")
 
+    async def search_articles(self, query_params):
+        params = self.params.copy()
+        params.pop("cursor", None)
+
+        for k, v in query_params.items():
+            params[k] = v
+
+        try:
+            auth_headers = self.app.auth_manager.get_auth_header()
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.get(
+                    "http://127.0.0.1:8000/api/v1/articles/search",
+                    headers=auth_headers,
+                    params=params,
+                )
+
+                if response.status_code == 401 or response.status_code == 403:
+                    if await self.app.auth_manager.refresh_access_token():
+                        auth_headers = self.app.auth_manager.get_auth_header()
+                        response = await client.get(
+                            "http://127.0.0.1:8000/api/v1/articles/search",
+                            headers=auth_headers,
+                            params=params,
+                        )
+                    else:
+                        self.app.notify(
+                            "Authentication error. Please login again", severity="error"
+                        )
+                        return False
+                data = response.json()
+                self.articles = data["items"]
+                self.update_articles()
+                return True
+        except Exception as e:
+            self.app.log(f"Error fetching articles: {e}")
+            return False
+
 
 class ChannelHeader(Static):
     """Header component showing current channel name"""
@@ -537,14 +574,14 @@ class InputWidget(Input):
         ):
             if hasattr(self, "_search_timer") and self._search_timer:
                 self._search_timer.stop()
-            self._search_timer = self.set_timer(0.3, self.prepare_search_request)
-            self.prepare_search_request()
+            self._search_timer = self.set_timer(0.3, self.make_search_request)
+            self.make_search_request()
 
     def on_input_submitted(self):
         self.disabled = True
-        self.prepare_search_request()
+        self.make_search_request()
 
-    def prepare_search_request(self):
+    def make_search_request(self):
         if self.value.endswith("-"):
             return
 
@@ -552,7 +589,7 @@ class InputWidget(Input):
         params = {}
 
         if parts and parts[0]:
-            params["search_query"] = parts[0]
+            params["q"] = parts[0]
         else:
             return
 
@@ -562,7 +599,6 @@ class InputWidget(Input):
                 if ":" in param:
                     k, v = param.split(":", 1)
                     params[k] = v.strip()
-                elif param.strip():
-                    params[param.strip()] = True
 
-        self.app.notify(f"{params}")
+        articles_container = self.app.query_one(ArticlesContainer)
+        self.app.run_worker(articles_container.search_articles(params))
