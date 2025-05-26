@@ -2,7 +2,7 @@ def format_times [pubDate] {
   let dt_local = $pubDate | into datetime --timezone UTC | date to-timezone local
   let formatted_date = $dt_local | format date "%B %e, %Y %l:%M %p"
   let tz_offset = $dt_local | format date "%z"
-  let tz_hours = $tz_offset | str substring 1,3 | into int
+  let tz_hours = $tz_offset | str substring 1..3 | into int
   let tz_sign = if $tz_hours >= 0 { "+" } else { "-" }
   let tz_formatted = $"GMT($tz_sign)($tz_hours | math abs)"
   let feed_time = $dt_local | format date "%H:%M"
