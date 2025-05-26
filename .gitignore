@@ -16,6 +16,177 @@ parts/
 sdist/
 var/
 wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+data.ms/
+dump.rdb
+
+# Log files
+logs/
+*.log
+*.log.*
+
+# Cache and temporary files
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+.cache
+nosetests.xml
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Redis
+dump.rdb
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Environment files
+.env
+.env.production
+.env.local
+.env.development.local
+.env.testing.local
+.env.production.local
+
+# Secrets and sensitive files
+secrets/
+*.pem
+*.key
+*.crt
+
+# Dumps and backups
+dumps/
+*.dump
+backup.db
+
+# Plan files (if they contain sensitive info)
+.plan
+
+# Terminal UI token storage
+.terminal_news_tokens.json
+
+# Additional Python patterns
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage.*
+.pytest_cache/
+htmlcov/
+
+# Additional testing files
+.coverage
+coverage.xml
+*.cover
+.hypothesis/
+
+# Jupyter Notebook checkpoints (if you add any)
+.ipynb_checkpoints
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# Database migrations (if you want to exclude any test migrations)
+# Uncomment if needed:
+# src/migrations/versions/*test*
+
+# Local configuration overrides
+local_settings.py
+.env.local
+.env.development
+.env.production
+
+# Performance profiling
+*.prof
+
+# Memory profiling
+*.mprof
+
+# Documentation builds (if you add Sphinx docs)
+docs/_build/
+docs/build/
+
+# Node.js (if you add any frontend components)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Celery beat scheduler files
+celerybeat.pid
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
 *.egg-info/
 .installed.cfg
 *.egg
