@@ -1,0 +1,81 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+pip-log.txt
+pip-delete-this-directory.txt
+.tox
+.coverage
+.coverage.*
+.pytest_cache
+venv/
+.venv/
+
+# Development
+.env*
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Documentation 
+docs/
+
+# Database files (we'll mount them as volumes)
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs (we'll mount as volume)
+logs/
+*.log
+
+# Cache
+.cache/
+.mypy_cache/
+
+# Testing
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+
+# IDE
+.vscode/
+.idea/
+
+# Node modules (if any)
+node_modules/
+
+# Celery
+celerybeat-schedule*
+celerybeat.pid
+celery_data/
+
+# MeiliSearch data
+data.ms/
+
+# Redis dumps
+dump.rdb
+
+# Local config overrides
+local_settings.py
