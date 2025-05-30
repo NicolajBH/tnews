@@ -9,11 +9,11 @@ from alembic import context
 
 from src.models.db_models import (
     Sources,
-    Categories,
     Articles,
     Users,
     FeedPreferences,
-    ArticleCategories,
+    ArticleFeeds,
+    Feeds,
 )
 
 # this is the Alembic Config object, which provides
@@ -56,7 +56,7 @@ def run_migrations_offline() -> None:
     context.configure(
         url=url,
         target_metadata=target_metadata,
-        literal_binds=True,
+        # Remove literal_binds for offline mode
         dialect_opts={"paramstyle": "named"},
     )
 

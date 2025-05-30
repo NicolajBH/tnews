@@ -1,0 +1,141 @@
+version: '3.8'
+
+services:
+  # Redis - Message broker and cache
+  redis:
+    image: redis:7-alpine
+    container_name: news-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MeiliSearch - Search engine
+  meilisearch:
+    image: getmeili/meilisearch:v1.5
+    container_name: news-meilisearch
+    restart: unless-stopped
+    ports:
+      - "7700:7700"
+    environment:
+      - MEILI_ENV=development
+      - MEILI_MASTER_KEY=development_master_key_not_secure
+      - MEILI_HTTP_ADDR=0.0.0.0:7700
+    volumes:
+      - meilisearch_data:/meili_data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7700/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Main FastAPI application
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: news-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=development
+      - DATABASE_URL=sqlite:///database.db
+      - REDIS_URL=redis://redis:6379/0
+      - MEILISEARCH_URL=http://meilisearch:7700
+      - MEILISEARCH_MASTER_KEY=development_master_key_not_secure
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - PYTHONPATH=/app
+    volumes:
+      - ./database.db:/app/database.db
+      - ./logs:/app/logs
+    depends_on:
+      redis:
+        condition: service_healthy
+      meilisearch:
+        condition: service_healthy
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Celery Worker - Background task processor
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: news-celery-worker
+    restart: unless-stopped
+    environment:
+      - ENVIRONMENT=development
+      - DATABASE_URL=sqlite:///database.db
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - PYTHONPATH=/app
+    volumes:
+      - ./database.db:/app/database.db
+      - ./logs:/app/logs
+    depends_on:
+      redis:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    command: celery -A src.tasks.celery_app worker --loglevel=info --concurrency=4
+    healthcheck:
+      test: ["CMD", "celery", "-A", "src.tasks.celery_app", "inspect", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Celery Beat - Task scheduler
+  celery-beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: news-celery-beat
+    restart: unless-stopped
+    environment:
+      - ENVIRONMENT=development
+      - DATABASE_URL=sqlite:///database.db
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - PYTHONPATH=/app
+    volumes:
+      - ./database.db:/app/database.db
+      - ./logs:/app/logs
+      - ./celery_data:/app/celery_data
+    depends_on:
+      redis:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    command: celery -A src.tasks.celery_app beat --loglevel=info --schedule=/app/celery_data/celerybeat-schedule
+    healthcheck:
+      test: ["CMD", "test", "-f", "/app/celery_data/celerybeat-schedule"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  redis_data:
+    driver: local
+  meilisearch_data:
+    driver: local
+  celery_beat_data:
+    driver: local
+
+networks:
+  default:
+    name: news-network
