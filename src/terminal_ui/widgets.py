@@ -174,12 +174,16 @@ class ArticleWidget(Static):
         self.index = index
         self.title = article["title"]
         self.feed_symbol = article["feed_symbol"]
-        self.feed_time = article["feed_time"]
+        self.pubDate = article["pubDate"]
         self.article_id = article.get("id", "")
         self.article_data = article
         self.is_selected = False
         self.terminal_width = terminal_width or os.get_terminal_size().columns
         self.selected_index = selected_index
+
+        self.formatted_pubDate, self.feed_time = self._format_datetime(self.pubDate)
+        self.article_data["formatted_pubDate"] = self.formatted_pubDate
+        self.article_data["feed_time"] = self.feed_time
 
         formatted_content = self.format_articles()
 
@@ -217,6 +221,32 @@ class ArticleWidget(Static):
             content = f" {index_display:>3} {title:<{title_width}} {self.feed_symbol:4s} {self.feed_time}"
 
         return content
+
+    def _format_datetime(self, iso_datetime_str: str) -> tuple[str, str]:
+        """Format ISO datetime string to local timezone"""
+        try:
+            # Parse ISO datetime string (UTC)
+            dt_utc = datetime.fromisoformat(iso_datetime_str.replace("Z", "+00:00"))
+
+            # Convert to local timezone
+            local_tz = datetime.now().astimezone().tzinfo
+            local_dt = dt_utc.astimezone(local_tz)
+
+            # Format for display
+            formatted_date = local_dt.strftime("%B %-d, %Y %-I:%M %p")
+            tz_offset = local_dt.strftime("%z")
+            tz_hours = int(tz_offset[0:3])
+            tz_sign = "+" if tz_hours > 0 else "-"
+            tz_formatted = f"GMT{tz_sign}{abs(tz_hours)}"
+
+            formatted_pubDate = f"{formatted_date} {tz_formatted}"
+            feed_time = local_dt.strftime("%H:%M")
+
+            return formatted_pubDate, feed_time
+
+        except Exception as e:
+            # Fallback to original string if parsing fails
+            return iso_datetime_str, "00:00"
 
     def set_selected(self, selected: bool) -> None:
         """Set the selection state of this article"""
@@ -342,7 +372,7 @@ class ArticlesContainer(Static):
                 self.articles = data["items"]
 
                 if "cursor" not in self.params and self.articles:
-                    self.latest_timestamp = self.articles[0]["formatted_pubDate"]
+                    self.latest_timestamp = self.articles[0]["pubDate"]
 
                 if "pagination" in data and "next_cursor" in data["pagination"]:
                     self.next_cursor = data["pagination"]["next_cursor"]
@@ -379,7 +409,7 @@ class ArticlesContainer(Static):
                 data = response.json()
                 new_articles = 0
                 for item in data["items"]:
-                    if item["formatted_pubDate"] > self.latest_timestamp:
+                    if self._compare_timestamps(item["pubDate"], self.latest_timestamp):
                         new_articles += 1
 
                 if new_articles:
@@ -392,6 +422,15 @@ class ArticlesContainer(Static):
                         self.app.log(f"Failed to update channel header: {str(e)}")
         except Exception as e:
             self.app.log(f"Error checking for updates: {str(e)}")
+
+    def _compare_timestamps(self, timestamp1: str, timestamp2: str):
+        try:
+            dt1 = datetime.fromisoformat(timestamp1.replace("Z", "+00:00"))
+            dt2 = datetime.fromisoformat(timestamp2.replace("Z", "+00:00"))
+            return dt1 > dt2
+        except Exception:
+            # Fallback to string comparison if parsing fails
+            return timestamp1 > timestamp2
 
     async def search_articles(self, query_params):
         params = self.params.copy()

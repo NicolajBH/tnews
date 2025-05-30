@@ -8,8 +8,6 @@ class Article(BaseModel):
     pubDate: str
     feed_symbol: str
     display_name: str
-    formatted_pubDate: str
-    feed_time: str
     description: str
     author: str
     url: str

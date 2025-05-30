@@ -233,25 +233,15 @@ class ArticleService:
                 )
                 continue
 
-            local_tz = datetime.now().astimezone().tzinfo
             dt_utc = article.pub_date.replace(tzinfo=ZoneInfo("UTC"))
-            local_dt = dt_utc.astimezone(local_tz)
-
-            formatted_date = local_dt.strftime("%B %-d, %Y %-I:%M %p")
-            tz_offset = local_dt.strftime("%z")
-            tz_hours = int(tz_offset[0:3])
-            tz_sign = "+" if tz_hours > 0 else "-"
-            tz_formatted = f"GMT{tz_sign}{abs(tz_hours)}"
 
             articles_to_return.append(
                 Article(
                     id=article.id,
                     title=article.title,
-                    pubDate=article.pub_date_raw,
+                    pubDate=dt_utc.isoformat(),
                     feed_symbol=source.feed_symbol,
                     display_name=source.display_name,
-                    formatted_pubDate=f"{formatted_date} {tz_formatted}",
-                    feed_time=dt_utc.astimezone(local_tz).strftime("%H:%M"),
                     author=article.author_name if article.author_name else "Unknown",
                     url=article.original_url,
                     description=article.description
