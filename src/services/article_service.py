@@ -242,11 +242,11 @@ class ArticleService:
                     pubDate=dt_utc.isoformat(),
                     feed_symbol=source.feed_symbol,
                     display_name=source.display_name,
-                    author=article.author_name if article.author_name else "Unknown",
-                    url=article.original_url,
                     description=article.description
                     if article.description
                     else "No description available",
+                    author=article.author_name if article.author_name else "Unknown",
+                    url=article.original_url,
                 )
             )
 

@@ -229,8 +229,7 @@ class ArticleWidget(Static):
             dt_utc = datetime.fromisoformat(iso_datetime_str.replace("Z", "+00:00"))
 
             # Convert to local timezone
-            local_tz = datetime.now().astimezone().tzinfo
-            local_dt = dt_utc.astimezone(local_tz)
+            local_dt = dt_utc.astimezone()
 
             # Format for display
             formatted_date = local_dt.strftime("%B %-d, %Y %-I:%M %p")
