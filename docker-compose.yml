@@ -91,7 +91,7 @@ services:
         condition: service_healthy
       api:
         condition: service_healthy
-    command: celery -A src.tasks.celery_app worker --loglevel=info --concurrency=4
+    command: celery -A src.tasks.celery_app worker --loglevel=info --concurrency=1 --max-tasks-per-child=50
     healthcheck:
       test: ["CMD", "celery", "-A", "src.tasks.celery_app", "inspect", "ping"]
       interval: 30s
